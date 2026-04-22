@@ -1,6 +1,17 @@
 import { type Block, type DirectiveBlock, parseListItems } from "@/lib/markdown-web/parser";
 import { renderMd, extractActionLinks, type ParsedLink } from "@/lib/markdown-web/inline";
 import { Link } from "@tanstack/react-router";
+import {
+  StatsBlock,
+  LogosBlock,
+  TestimonialsBlock,
+  FaqBlock,
+  GalleryBlock,
+  TimelineBlock,
+  StepsBlock,
+  TabsBlock,
+  DividerBlock,
+} from "./blocks/extras";
 
 function ActionLink({ link }: { link: ParsedLink }) {
   const isExternal = link.href.startsWith("http");
@@ -275,6 +286,15 @@ export function BlockRenderer({ blocks }: { blocks: Block[] }) {
           case "quote": return <QuoteBlock key={i} block={b} />;
           case "cta": return <CtaBlock key={i} block={b} />;
           case "footer": return <FooterBlock key={i} block={b} />;
+          case "stats": return <StatsBlock key={i} block={b} />;
+          case "logos": return <LogosBlock key={i} block={b} />;
+          case "testimonials": return <TestimonialsBlock key={i} block={b} />;
+          case "faq": return <FaqBlock key={i} block={b} />;
+          case "gallery": return <GalleryBlock key={i} block={b} />;
+          case "timeline": return <TimelineBlock key={i} block={b} />;
+          case "steps": return <StepsBlock key={i} block={b} />;
+          case "tabs": return <TabsBlock key={i} block={b} />;
+          case "divider": return <DividerBlock key={i} block={b} />;
           default:
             return (
               <div key={i} className="border-brutal bg-destructive/10 p-4 m-6 font-mono text-sm">
