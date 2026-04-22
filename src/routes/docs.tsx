@@ -12,10 +12,10 @@ export const Route = createFileRoute("/docs")({
       {
         name: "description",
         content:
-          "Komplett block-referens för MarkdownWeb: hero, features, stats, logos, testimonials, pricing, faq, gallery, timeline, steps, tabs.",
+          "Complete block reference for MarkdownWeb: hero, features, stats, logos, testimonials, pricing, faq, gallery, timeline, steps, tabs.",
       },
       { property: "og:title", content: "Docs — MarkdownWeb block reference" },
-      { property: "og:description", content: "Alla blocktyper med exempel." },
+      { property: "og:description", content: "Every block type with examples." },
     ],
   }),
   component: DocsPage,
