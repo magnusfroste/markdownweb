@@ -26,7 +26,7 @@ description: "Written in markdown."
 
 ::hero{eyebrow="v1"}
 # Big headline
-# # Subheadline
+## Subheadline
 
 [Get started](/start){.primary}
 ::
@@ -58,7 +58,7 @@ We **did not** choose full MDX — it requires a JSX compiler and breaks "any LL
 ```md
 ::hero{eyebrow="v1"}
 # Headline
-# # Subheadline
+## Subheadline
 
 [CTA](/x){.primary} [More](#){.ghost}
 ::
@@ -348,7 +348,7 @@ The quote here.
 
 ::cta{background="primary"}
 # Ready to write your site in markdown?
-# # One .md file. No steps. Just push.
+## One .md file. No steps. Just push.
 
 [Clone the repo](https://github.com/lovable-dev/markdownweb){.primary} [Back home](/){.ghost}
 ::
