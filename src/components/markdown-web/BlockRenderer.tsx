@@ -149,16 +149,46 @@ function NavBlock({ block }: { block: DirectiveBlock }) {
   return (
     <nav className="border-b-4 border-foreground bg-background sticky top-0 z-40">
       <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
-        <div className="font-display text-xl flex items-center gap-2">
+        <Link to="/" className="font-display text-xl flex items-center gap-2 hover:opacity-80">
           <span className="inline-block w-3 h-3 bg-primary border-2 border-foreground" />
           {brand}
-        </div>
-        <div className="flex items-center gap-6 font-mono text-sm uppercase tracking-wider">
-          {items.map((it, i) => (
-            <a key={i} href={it.href} className="hover:bg-secondary px-2 py-1">
-              {it.label}
-            </a>
-          ))}
+        </Link>
+        <div className="flex items-center gap-2 md:gap-4 font-mono text-xs md:text-sm uppercase tracking-wider">
+          {items.map((it, i) => {
+            const isExternal = it.href.startsWith("http");
+            const isHash = it.href.startsWith("#");
+            if (isExternal) {
+              return (
+                <a
+                  key={i}
+                  href={it.href}
+                  target="_blank"
+                  rel="noopener"
+                  className="hover:bg-secondary px-2 py-1"
+                >
+                  {it.label} ↗
+                </a>
+              );
+            }
+            if (isHash) {
+              return (
+                <a key={i} href={it.href} className="hover:bg-secondary px-2 py-1">
+                  {it.label}
+                </a>
+              );
+            }
+            return (
+              <Link
+                key={i}
+                to={it.href}
+                className="hover:bg-secondary px-2 py-1"
+                activeProps={{ className: "bg-foreground text-background px-2 py-1" }}
+                activeOptions={{ exact: true }}
+              >
+                {it.label}
+              </Link>
+            );
+          })}
         </div>
       </div>
     </nav>
