@@ -178,7 +178,7 @@ function PricingBlock({ block }: { block: DirectiveBlock }) {
   const plans = parseListItems(block.body);
   const title = block.attrs.title as string | undefined;
   const subtitle = block.attrs.subtitle as string | undefined;
-  const cols = (block.attrs.columns as number) ?? plans.length || 3;
+  const cols = (block.attrs.columns as number) ?? (plans.length || 3);
 
   return (
     <section className="border-b-4 border-foreground bg-background">
