@@ -33,6 +33,32 @@ theme: brutalist
 Den bästa abstraktionen är den du redan kan skriva i en textfil.
 ::
 
+::pricing{title="Enkel prissättning" subtitle="Ingen säljare. Inga lurendrejerier. Bara en .md-fil per plan." columns=3}
+- name: Hobby
+  tagline: För personliga sajter
+  price: $0
+  period: mån
+  features: 1 sajt | Markdown source | Community support | Lovable subdomain
+  cta: Kom igång gratis
+  ctaHref: /signup
+- name: Pro
+  tagline: För indie hackers & freelancers
+  price: $19
+  period: mån
+  featured: "true"
+  badge: Populärast
+  features: Obegränsade sajter | Custom domains | AI-edit via prompt | Versionshistorik | Email support
+  cta: Starta 14 dagar gratis
+  ctaHref: /signup?plan=pro
+- name: Studio
+  tagline: För team & byråer
+  price: $79
+  period: mån
+  features: Allt i Pro | Team collaboration | White-label | Priority support | SLA
+  cta: Kontakta sälj
+  ctaHref: /contact
+::
+
 ::cta{background="primary"}
 # Bygg snabbare. Iterera friktionsfritt.
 ## Markdown in. Brutalist landing ut.
