@@ -174,6 +174,93 @@ function MarkdownProse({ md }: { md: string }) {
   );
 }
 
+function PricingBlock({ block }: { block: DirectiveBlock }) {
+  const plans = parseListItems(block.body);
+  const title = block.attrs.title as string | undefined;
+  const subtitle = block.attrs.subtitle as string | undefined;
+  const cols = (block.attrs.columns as number) ?? plans.length || 3;
+
+  return (
+    <section className="border-b-4 border-foreground bg-background">
+      <div className="mx-auto max-w-6xl px-6 py-20">
+        {(title || subtitle) && (
+          <div className="mb-12 text-center">
+            {title && <h2 className="text-4xl md:text-5xl mb-3">{title}</h2>}
+            {subtitle && <p className="text-lg text-muted-foreground max-w-2xl mx-auto">{subtitle}</p>}
+          </div>
+        )}
+        <div
+          className="grid gap-6 md:grid-cols-[repeat(var(--cols),minmax(0,1fr))]"
+          style={{ ["--cols" as string]: Math.min(cols, plans.length) }}
+        >
+          {plans.map((plan, i) => {
+            const featured = String(plan.featured ?? "") === "true";
+            const features = String(plan.features ?? "")
+              .split("|")
+              .map((f) => f.trim())
+              .filter(Boolean);
+            const ctaHref = String(plan.ctaHref ?? plan.href ?? "#");
+            const ctaLabel = String(plan.cta ?? "Choose plan");
+            const isExternal = ctaHref.startsWith("http");
+            return (
+              <div
+                key={i}
+                className={[
+                  "border-brutal p-8 flex flex-col",
+                  featured
+                    ? "bg-primary text-primary-foreground shadow-brutal-lg md:-translate-y-2"
+                    : "bg-background shadow-brutal-sm hover:shadow-brutal hover:-translate-x-1 hover:-translate-y-1 transition-all",
+                ].join(" ")}
+              >
+                {featured && (
+                  <div className="inline-block self-start bg-foreground text-background px-2 py-1 mb-4 font-mono text-xs uppercase tracking-widest">
+                    {String(plan.badge ?? "Most popular")}
+                  </div>
+                )}
+                <h3 className="text-2xl font-display mb-1">{plan.name ?? plan.title}</h3>
+                {plan.tagline && (
+                  <p className={`text-sm mb-6 ${featured ? "opacity-80" : "text-muted-foreground"}`}>
+                    {plan.tagline}
+                  </p>
+                )}
+                <div className="flex items-baseline gap-1 mb-6">
+                  <span className="text-5xl font-display">{plan.price}</span>
+                  {plan.period && (
+                    <span className={`text-sm font-mono ${featured ? "opacity-70" : "text-muted-foreground"}`}>
+                      /{plan.period}
+                    </span>
+                  )}
+                </div>
+                <ul className="space-y-3 mb-8 flex-1">
+                  {features.map((f, j) => (
+                    <li key={j} className="flex items-start gap-2 text-sm">
+                      <span className={`font-bold ${featured ? "text-secondary" : "text-primary"}`}>✓</span>
+                      <span>{f}</span>
+                    </li>
+                  ))}
+                </ul>
+                <a
+                  href={ctaHref}
+                  target={isExternal ? "_blank" : undefined}
+                  rel={isExternal ? "noopener" : undefined}
+                  className={[
+                    "inline-flex items-center justify-center gap-2 border-brutal px-6 py-3 font-bold uppercase tracking-wide transition-all",
+                    featured
+                      ? "bg-background text-foreground hover:bg-secondary"
+                      : "bg-primary text-primary-foreground shadow-brutal-sm hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none",
+                  ].join(" ")}
+                >
+                  {ctaLabel}
+                </a>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export function BlockRenderer({ blocks }: { blocks: Block[] }) {
   return (
     <>
@@ -183,6 +270,7 @@ export function BlockRenderer({ blocks }: { blocks: Block[] }) {
           case "nav": return <NavBlock key={i} block={b} />;
           case "hero": return <HeroBlock key={i} block={b} />;
           case "features": return <FeaturesBlock key={i} block={b} />;
+          case "pricing": return <PricingBlock key={i} block={b} />;
           case "quote": return <QuoteBlock key={i} block={b} />;
           case "cta": return <CtaBlock key={i} block={b} />;
           case "footer": return <FooterBlock key={i} block={b} />;
