@@ -142,20 +142,20 @@ Vi valde **inte** full MDX — det kräver JSX-kompilator och bryter "any LLM ka
   period: mån
   features: 1 sajt | Subdomain | Community
   cta: Starta
-  ctaHref: /signup
+  ctaHref: https://github.com/lovable-dev/markdownweb
 - name: Pro
   price: $19
   period: mån
   featured: "true"
   features: Allt i Free | Custom domain | AI-edit
   cta: Prova gratis
-  ctaHref: /signup
+  ctaHref: https://github.com/lovable-dev/markdownweb
 - name: Team
   price: $79
   period: mån
   features: Allt i Pro | Collaboration | SLA
   cta: Kontakt
-  ctaHref: /contact
+  ctaHref: https://github.com/lovable-dev/markdownweb
 ::
 
 ```md
