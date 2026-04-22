@@ -1,6 +1,6 @@
 ---
-title: "MarkdownWeb — Skriv din sajt i markdown"
-description: "En sajt vars källkod är ett markdown-dokument. LLM-vänlig, git-vänlig, människo-vänlig."
+title: "MarkdownWeb — Write your site in markdown"
+description: "A site whose source is a markdown document. LLM-friendly, git-friendly, human-friendly."
 theme: brutalist
 ---
 
@@ -10,59 +10,59 @@ theme: brutalist
 ::
 
 ::hero{eyebrow="v0.1 — early preview"}
-# Din sajt är **en .md-fil**.
-## Inga blocks i en databas. Inga drag-and-drop-editorer. Bara markdown med frontmatter och direktiv — som vilken LLM som helst förstår.
+# Your site is **one .md file**.
+## No blocks in a database. No drag-and-drop editors. Just markdown with frontmatter and directives — readable by any LLM.
 
-[Kom igång](/docs){.primary} [Se källan ↓](#source){.ghost}
+[Get started](/docs){.primary} [See the source ↓](#source){.ghost}
 ::
 
-::features{columns=3 title="Varför markdown?"}
+::features{columns=3 title="Why markdown?"}
 - icon: 🤖
   title: LLM-native
-  body: Vilken AI som helst kan editera. Ingen schema att lära sig.
+  body: Any AI can edit it. No schema to learn.
 - icon: 📝
   title: Plain text
-  body: Editera i VS Code, vim, eller en webb-textarea. Diffbart i git.
+  body: Edit in VS Code, vim, or a web textarea. Diffable in git.
 - icon: ⚡
-  title: Direktiv-blocks
-  body: ::hero::, ::features::, ::cta:: — strukturerade blocks med markdown-innehåll.
+  title: Directive blocks
+  body: ::hero::, ::features::, ::cta:: — structured blocks with markdown content.
 ::
 
 ::quote{author="Ada Lovelace" role="Computing Pioneer"}
-Den bästa abstraktionen är den du redan kan skriva i en textfil.
+The best abstraction is the one you can already write in a text file.
 ::
 
-::pricing{title="Enkel prissättning" subtitle="Ingen säljare. Inga lurendrejerier. Bara en .md-fil per plan." columns=3}
+::pricing{title="Simple pricing" subtitle="No salespeople. No tricks. Just one .md file per plan." columns=3}
 - name: Hobby
-  tagline: För personliga sajter
+  tagline: For personal sites
   price: $0
-  period: mån
-  features: 1 sajt | Markdown source | Community support | Lovable subdomain
-  cta: Kom igång gratis
+  period: mo
+  features: 1 site | Markdown source | Community support | Lovable subdomain
+  cta: Start free
   ctaHref: https://github.com/lovable-dev/markdownweb
 - name: Pro
-  tagline: För indie hackers & freelancers
+  tagline: For indie hackers & freelancers
   price: $19
-  period: mån
+  period: mo
   featured: "true"
-  badge: Populärast
-  features: Obegränsade sajter | Custom domains | AI-edit via prompt | Versionshistorik | Email support
-  cta: Läs docs
+  badge: Most popular
+  features: Unlimited sites | Custom domains | AI edit via prompt | Version history | Email support
+  cta: Read the docs
   ctaHref: /docs
 - name: Studio
-  tagline: För team & byråer
+  tagline: For teams & agencies
   price: $79
-  period: mån
-  features: Allt i Pro | Team collaboration | White-label | Priority support | SLA
-  cta: Se på GitHub
+  period: mo
+  features: Everything in Pro | Team collaboration | White-label | Priority support | SLA
+  cta: View on GitHub
   ctaHref: https://github.com/lovable-dev/markdownweb
 ::
 
 ::cta{background="primary"}
-# Bygg snabbare. Iterera friktionsfritt.
-## Markdown in. Brutalist landing ut.
+# Build faster. Iterate without friction.
+## Markdown in. Brutalist landing out.
 
-[Klona repot](https://github.com/lovable-dev/markdownweb){.primary} [Läs docs](/docs){.ghost}
+[Clone the repo](https://github.com/lovable-dev/markdownweb){.primary} [Read the docs](/docs){.ghost}
 ::
 
 ::footer
