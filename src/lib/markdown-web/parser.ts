@@ -110,9 +110,7 @@ function splitBlocks(body: string): Block[] {
 }
 
 export function parseMarkdownWeb(source: string): ParsedDoc {
-  const { data, content } = matter(source, {
-    engines: { yaml: (s) => yaml.load(s) as object },
-  });
+  const { data, content } = extractFrontmatter(source);
   return {
     frontmatter: data,
     blocks: splitBlocks(content),
