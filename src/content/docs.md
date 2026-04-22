@@ -6,7 +6,7 @@ description: "Alla blocktyper med exempel. Skriv din sajt i markdown med frontma
 ::nav{brand="MarkdownWeb"}
 - Hem → /
 - Docs → /docs
-- GitHub → https://github.com
+- GitHub → https://github.com/lovable-dev/markdownweb
 ::
 
 ::hero{eyebrow="Docs · v0.1"}
@@ -281,7 +281,7 @@ Citatet här.
 # Redo att skriva din sajt i markdown?
 ## En .md-fil. Inga steg. Bara push.
 
-[Klona repot](https://github.com){.primary} [Tillbaka hem](/){.ghost}
+[Klona repot](https://github.com/lovable-dev/markdownweb){.primary} [Tillbaka hem](/){.ghost}
 ::
 
 ::footer
