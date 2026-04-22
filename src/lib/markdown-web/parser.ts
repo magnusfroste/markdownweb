@@ -79,28 +79,50 @@ function splitBlocks(body: string): Block[] {
   };
 
   let i = 0;
+  let inFence = false;
+  let fenceMarker = "";
   while (i < lines.length) {
     const line = lines[i];
-    const open = /^::([\w-]+)(?:\{([^}]*)\})?\s*$/.exec(line);
-    if (open) {
-      flushMd();
-      const name = open[1];
-      const attrs = parseAttrs(open[2] ?? "");
-      const inner: string[] = [];
-      i++;
-      while (i < lines.length && lines[i].trim() !== "::") {
-        inner.push(lines[i]);
-        i++;
+
+    // Track fenced code blocks (``` or ~~~) so directives inside them
+    // are treated as plain markdown content, not parsed as blocks.
+    const fenceOpen = /^(\s*)(`{3,}|~{3,})/.exec(line);
+    if (fenceOpen) {
+      const marker = fenceOpen[2];
+      if (!inFence) {
+        inFence = true;
+        fenceMarker = marker[0]; // ` or ~
+      } else if (marker[0] === fenceMarker) {
+        inFence = false;
+        fenceMarker = "";
       }
-      // skip closing ::
+      buf.push(line);
       i++;
-      blocks.push({
-        kind: "directive",
-        name,
-        attrs,
-        body: inner.join("\n"),
-      });
       continue;
+    }
+
+    if (!inFence) {
+      const open = /^::([\w-]+)(?:\{([^}]*)\})?\s*$/.exec(line);
+      if (open) {
+        flushMd();
+        const name = open[1];
+        const attrs = parseAttrs(open[2] ?? "");
+        const inner: string[] = [];
+        i++;
+        while (i < lines.length && lines[i].trim() !== "::") {
+          inner.push(lines[i]);
+          i++;
+        }
+        // skip closing ::
+        i++;
+        blocks.push({
+          kind: "directive",
+          name,
+          attrs,
+          body: inner.join("\n"),
+        });
+        continue;
+      }
     }
     buf.push(line);
     i++;
