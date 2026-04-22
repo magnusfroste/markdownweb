@@ -6,8 +6,8 @@ theme: brutalist
 
 ::nav{brand="MarkdownWeb"}
 - Docs → /docs
-- Exempel → /examples
-- GitHub → https://github.com
+- Exempel → /docs
+- GitHub → https://github.com/lovable-dev/markdownweb
 ::
 
 ::hero{eyebrow="v0.1 — early preview"}
@@ -63,7 +63,7 @@ Den bästa abstraktionen är den du redan kan skriva i en textfil.
 # Bygg snabbare. Iterera friktionsfritt.
 ## Markdown in. Brutalist landing ut.
 
-[Klona repot](https://github.com){.primary}
+[Klona repot](https://github.com/lovable-dev/markdownweb){.primary} [Läs docs](/docs){.ghost}
 ::
 
 ::footer
