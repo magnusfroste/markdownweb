@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { type DirectiveBlock, parseListItems } from "@/lib/markdown-web/parser";
 import { renderMd } from "@/lib/markdown-web/inline";
 
@@ -187,30 +188,33 @@ export function StepsBlock({ block }: { block: DirectiveBlock }) {
 
 export function TabsBlock({ block }: { block: DirectiveBlock }) {
   const items = parseListItems(block.body);
+  const [active, setActive] = useState(0);
+  const current = items[active] ?? items[0];
   return (
     <section className="border-b-4 border-foreground bg-background">
       <div className="mx-auto max-w-4xl px-6 py-16">
         <div className="border-brutal bg-background">
           <div className="flex border-b-4 border-foreground overflow-x-auto">
             {items.map((it, i) => (
-              <div
+              <button
                 key={i}
-                className={`px-5 py-3 font-mono text-xs uppercase tracking-widest border-r-4 border-foreground last:border-r-0 ${
-                  i === 0 ? "bg-primary text-primary-foreground" : "bg-background"
+                type="button"
+                onClick={() => setActive(i)}
+                className={`px-5 py-3 font-mono text-xs uppercase tracking-widest border-r-4 border-foreground last:border-r-0 transition-colors ${
+                  i === active
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-background hover:bg-secondary"
                 }`}
               >
                 {it.label ?? it.title}
-              </div>
+              </button>
             ))}
           </div>
           <div
-            className="p-6 [&_p]:mb-3 [&_strong]:bg-secondary [&_strong]:px-1"
-            dangerouslySetInnerHTML={renderMd(String(items[0]?.body ?? items[0]?.content ?? ""))}
+            className="p-6 [&_p]:mb-3 [&_strong]:bg-secondary [&_strong]:px-1 [&_code]:bg-muted [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-sm"
+            dangerouslySetInnerHTML={renderMd(String(current?.body ?? current?.content ?? ""))}
           />
         </div>
-        <p className="mt-3 font-mono text-xs uppercase tracking-widest text-muted-foreground">
-          Static preview — first tab shown
-        </p>
       </div>
     </section>
   );

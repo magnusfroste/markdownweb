@@ -6,7 +6,6 @@ theme: brutalist
 
 ::nav{brand="MarkdownWeb"}
 - Docs → /docs
-- Exempel → /docs
 - GitHub → https://github.com/lovable-dev/markdownweb
 ::
 
@@ -40,7 +39,7 @@ Den bästa abstraktionen är den du redan kan skriva i en textfil.
   period: mån
   features: 1 sajt | Markdown source | Community support | Lovable subdomain
   cta: Kom igång gratis
-  ctaHref: /signup
+  ctaHref: https://github.com/lovable-dev/markdownweb
 - name: Pro
   tagline: För indie hackers & freelancers
   price: $19
@@ -48,15 +47,15 @@ Den bästa abstraktionen är den du redan kan skriva i en textfil.
   featured: "true"
   badge: Populärast
   features: Obegränsade sajter | Custom domains | AI-edit via prompt | Versionshistorik | Email support
-  cta: Starta 14 dagar gratis
-  ctaHref: /signup?plan=pro
+  cta: Läs docs
+  ctaHref: /docs
 - name: Studio
   tagline: För team & byråer
   price: $79
   period: mån
   features: Allt i Pro | Team collaboration | White-label | Priority support | SLA
-  cta: Kontakta sälj
-  ctaHref: /contact
+  cta: Se på GitHub
+  ctaHref: https://github.com/lovable-dev/markdownweb
 ::
 
 ::cta{background="primary"}
