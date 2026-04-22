@@ -1,5 +1,21 @@
-import matter from "gray-matter";
 import yaml from "js-yaml";
+
+/**
+ * Browser-safe frontmatter extractor.
+ * Replaces gray-matter (which depends on Node's Buffer).
+ */
+function extractFrontmatter(source: string): { data: Record<string, unknown>; content: string } {
+  // Normalize line endings
+  const src = source.replace(/\r\n/g, "\n");
+  const match = /^---\n([\s\S]*?)\n---\n?([\s\S]*)$/.exec(src);
+  if (!match) return { data: {}, content: src };
+  try {
+    const data = (yaml.load(match[1]) ?? {}) as Record<string, unknown>;
+    return { data, content: match[2] };
+  } catch {
+    return { data: {}, content: match[2] };
+  }
+}
 
 export type DirectiveBlock = {
   kind: "directive";
@@ -94,9 +110,7 @@ function splitBlocks(body: string): Block[] {
 }
 
 export function parseMarkdownWeb(source: string): ParsedDoc {
-  const { data, content } = matter(source, {
-    engines: { yaml: (s) => yaml.load(s) as object },
-  });
+  const { data, content } = extractFrontmatter(source);
   return {
     frontmatter: data,
     blocks: splitBlocks(content),
