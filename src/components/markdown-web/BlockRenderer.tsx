@@ -208,7 +208,7 @@ function FooterBlock({ block }: { block: DirectiveBlock }) {
 function MarkdownProse({ md }: { md: string }) {
   return (
     <section className="bg-background">
-      <div className="mx-auto max-w-3xl px-6 py-12 [&_h1]:text-4xl [&_h1]:font-display [&_h1]:mb-4 [&_h2]:text-2xl [&_h2]:font-display [&_h2]:mt-8 [&_h2]:mb-3 [&_p]:mb-4 [&_p]:leading-relaxed [&_a]:underline">
+      <div className="mx-auto max-w-3xl px-6 py-12 [&_h1]:text-4xl [&_h1]:font-display [&_h1]:mb-4 [&_h2]:text-2xl [&_h2]:font-display [&_h2]:mt-8 [&_h2]:mb-3 [&_p]:mb-4 [&_p]:leading-relaxed [&_a]:underline [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:mb-4 [&_ul]:space-y-1 [&_li]:leading-relaxed [&_code]:bg-muted [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-sm [&_pre]:relative [&_pre]:bg-foreground [&_pre]:text-background [&_pre]:border-brutal [&_pre]:shadow-brutal-sm [&_pre]:p-5 [&_pre]:pt-9 [&_pre]:overflow-x-auto [&_pre]:my-6 [&_pre]:before:content-['MARKDOWN_SOURCE'] [&_pre]:before:absolute [&_pre]:before:top-0 [&_pre]:before:left-0 [&_pre]:before:bg-primary [&_pre]:before:text-primary-foreground [&_pre]:before:px-3 [&_pre]:before:py-1 [&_pre]:before:font-mono [&_pre]:before:text-[10px] [&_pre]:before:uppercase [&_pre]:before:tracking-widest [&_pre_code]:bg-transparent [&_pre_code]:text-background [&_pre_code]:p-0 [&_pre_code]:text-sm">
         <div dangerouslySetInnerHTML={renderMd(md)} />
       </div>
     </section>
