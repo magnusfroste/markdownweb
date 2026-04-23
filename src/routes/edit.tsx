@@ -397,7 +397,7 @@ function EditorPage() {
             </div>
           )}
 
-          <BlockRenderer blocks={doc.blocks} />
+          <BlockRenderer blocks={doc.blocks} idPrefix={BLOCK_ID} />
         </div>
       </div>
     </div>
