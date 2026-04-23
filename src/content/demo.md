@@ -66,15 +66,30 @@ Because it's just text, **every tool already supports it**.
 ::
 
 ::testimonials{title="People are shipping"}
-- quote: I rebuilt my landing in 20 minutes by editing one file.
-  author: Ada L.
+- quote: I rebuilt my landing in 20 minutes by editing one file. Git diff on copy changes is a superpower.
+  author: Ada Lovelace
   role: Indie hacker
-- quote: My LLM owns my marketing site now. It's faster than me.
-  author: Linus T.
-  role: Founder
-- quote: Git diff on copy changes. Finally.
-  author: Grace H.
-  role: Tech writer
+  avatar: https://i.pravatar.cc/120?img=47
+- quote: My LLM owns my marketing site now. It iterates faster than any CMS workflow I've ever used.
+  author: Linus Torvalds
+  role: Founder, Kernel Co
+  avatar: https://i.pravatar.cc/120?img=12
+- quote: Finally — a stack where my writers and my AI agents edit the exact same file. No more sync drama.
+  author: Grace Hopper
+  role: Head of Content
+  avatar: https://i.pravatar.cc/120?img=32
+- quote: Replaced 4 plugins and a headless CMS with a folder of .md files. Bundle size dropped 80%.
+  author: Margaret Hamilton
+  role: Staff Engineer
+  avatar: https://i.pravatar.cc/120?img=45
+- quote: Onboarding a new marketer used to take a week. Now it's 'here's the repo, edit hero.md'.
+  author: Alan Turing
+  role: CTO, Bletchley
+  avatar: https://i.pravatar.cc/120?img=15
+- quote: The diff-friendly format means design review actually happens in PRs now. Game changer.
+  author: Katherine Johnson
+  role: Design Lead
+  avatar: https://i.pravatar.cc/120?img=49
 ::
 
 ::quote{author="Ada Lovelace" role="Computing Pioneer"}
