@@ -303,35 +303,62 @@ function PricingBlock({ block }: { block: DirectiveBlock }) {
   );
 }
 
-export function BlockRenderer({ blocks }: { blocks: Block[] }) {
+export function BlockRenderer({
+  blocks,
+  idPrefix,
+}: {
+  blocks: Block[];
+  /** When set, each top-level block gets id={idPrefix}{index} and scroll-mt for jump anchors. */
+  idPrefix?: string;
+}) {
+  const wrap = (i: number, node: React.ReactNode) => {
+    if (!idPrefix) return node;
+    return (
+      <div
+        key={i}
+        id={`${idPrefix}${i}`}
+        data-mw-block-index={i}
+        className="scroll-mt-16"
+      >
+        {node}
+      </div>
+    );
+  };
+
   return (
     <>
       {blocks.map((b, i) => {
-        if (b.kind === "markdown") return <MarkdownProse key={i} md={b.body} />;
-        switch (b.name) {
-          case "nav": return <NavBlock key={i} block={b} />;
-          case "hero": return <HeroBlock key={i} block={b} />;
-          case "features": return <FeaturesBlock key={i} block={b} />;
-          case "pricing": return <PricingBlock key={i} block={b} />;
-          case "quote": return <QuoteBlock key={i} block={b} />;
-          case "cta": return <CtaBlock key={i} block={b} />;
-          case "footer": return <FooterBlock key={i} block={b} />;
-          case "stats": return <StatsBlock key={i} block={b} />;
-          case "logos": return <LogosBlock key={i} block={b} />;
-          case "testimonials": return <TestimonialsBlock key={i} block={b} />;
-          case "faq": return <FaqBlock key={i} block={b} />;
-          case "gallery": return <GalleryBlock key={i} block={b} />;
-          case "timeline": return <TimelineBlock key={i} block={b} />;
-          case "steps": return <StepsBlock key={i} block={b} />;
-          case "tabs": return <TabsBlock key={i} block={b} />;
-          case "divider": return <DividerBlock key={i} block={b} />;
-          default:
-            return (
-              <div key={i} className="border-brutal bg-destructive/10 p-4 m-6 font-mono text-sm">
-                Unknown block: <strong>::{b.name}::</strong>
-              </div>
-            );
+        let node: React.ReactNode;
+        if (b.kind === "markdown") {
+          node = <MarkdownProse md={b.body} />;
+        } else {
+          switch (b.name) {
+            case "nav": node = <NavBlock block={b} />; break;
+            case "hero": node = <HeroBlock block={b} />; break;
+            case "features": node = <FeaturesBlock block={b} />; break;
+            case "pricing": node = <PricingBlock block={b} />; break;
+            case "quote": node = <QuoteBlock block={b} />; break;
+            case "cta": node = <CtaBlock block={b} />; break;
+            case "footer": node = <FooterBlock block={b} />; break;
+            case "stats": node = <StatsBlock block={b} />; break;
+            case "logos": node = <LogosBlock block={b} />; break;
+            case "testimonials": node = <TestimonialsBlock block={b} />; break;
+            case "faq": node = <FaqBlock block={b} />; break;
+            case "gallery": node = <GalleryBlock block={b} />; break;
+            case "timeline": node = <TimelineBlock block={b} />; break;
+            case "steps": node = <StepsBlock block={b} />; break;
+            case "tabs": node = <TabsBlock block={b} />; break;
+            case "divider": node = <DividerBlock block={b} />; break;
+            default:
+              node = (
+                <div className="border-brutal bg-destructive/10 p-4 m-6 font-mono text-sm">
+                  Unknown block: <strong>::{b.name}::</strong>
+                </div>
+              );
+          }
         }
+        if (idPrefix) return wrap(i, node);
+        return <div key={i}>{node}</div>;
       })}
     </>
   );
