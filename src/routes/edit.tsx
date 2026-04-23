@@ -130,7 +130,82 @@ function EditorPage() {
     el.scrollTop = Math.max(0, (safeLine - 3) * lineHeight);
   };
 
-  const handleDownload = () => {
+  // Auto-highlight outline as the user scrolls the preview.
+  // Uses IntersectionObserver against the preview scroll container as root,
+  // picking the topmost intersecting block as "active".
+  useEffect(() => {
+    const root = previewScrollRef.current;
+    if (!root) return;
+    const els = doc.blocks
+      .map((_, i) => document.getElementById(`${BLOCK_ID}${i}`))
+      .filter((el): el is HTMLElement => el !== null);
+    if (els.length === 0) return;
+
+    // Track per-element intersection state and recompute the topmost visible.
+    const visible = new Map<HTMLElement, number>();
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        // Ignore observer updates briefly after a programmatic jump so
+        // smooth-scrolling doesn't fight the user-clicked active state.
+        if (Date.now() < suppressObserverUntil.current) return;
+
+        for (const entry of entries) {
+          const el = entry.target as HTMLElement;
+          if (entry.isIntersecting) {
+            visible.set(el, entry.intersectionRatio);
+          } else {
+            visible.delete(el);
+          }
+        }
+
+        if (visible.size === 0) return;
+        // Pick the visible block whose top is closest to (but at/below) the
+        // top of the scroll viewport — that's what the user is "reading".
+        const rootTop = root.getBoundingClientRect().top;
+        let bestEl: HTMLElement | null = null;
+        let bestDist = Infinity;
+        for (const el of visible.keys()) {
+          const top = el.getBoundingClientRect().top - rootTop;
+          // Prefer blocks whose top has scrolled past or just reached the top.
+          const dist = top >= -8 ? top : Math.abs(top) + 1000;
+          if (dist < bestDist) {
+            bestDist = dist;
+            bestEl = el;
+          }
+        }
+        if (bestEl) {
+          const idx = Number(bestEl.dataset.mwBlockIndex ?? "0");
+          setActiveBlock((prev) => (prev === idx ? prev : idx));
+        }
+      },
+      {
+        root,
+        // Bias toward the top: shrink the bottom so blocks count as
+        // "active" only once they enter the upper portion of the viewport.
+        rootMargin: "0px 0px -60% 0px",
+        threshold: [0, 0.25, 0.5, 1],
+      },
+    );
+
+    els.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, [doc.blocks]);
+
+  // Jump preview + editor to a specific block.
+  const jumpToBlock = (index: number) => {
+    const block = doc.blocks[index];
+    if (!block) return;
+    setActiveBlock(index);
+    // Suppress observer briefly so it doesn't override our active selection
+    // mid-scroll.
+    suppressObserverUntil.current = Date.now() + 800;
+    const el = document.getElementById(`${BLOCK_ID}${index}`);
+    if (el && previewScrollRef.current) {
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+    jumpToLine(block.startLine);
+  };
     const blob = new Blob([source], { type: "text/markdown;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
