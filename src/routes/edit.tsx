@@ -334,7 +334,7 @@ function EditorPage() {
         </div>
 
         {/* RIGHT: live preview */}
-        <div className="bg-background lg:overflow-y-auto">
+        <div ref={previewScrollRef} className="bg-background lg:overflow-y-auto">
           <div className="sticky top-0 bg-background border-b-4 border-foreground px-4 py-2 flex items-center justify-between font-mono text-xs uppercase tracking-widest z-10">
             <span className="flex items-center gap-2">
               <span className="inline-block w-2 h-2 bg-primary" />
