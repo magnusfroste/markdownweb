@@ -220,6 +220,70 @@ export function TabsBlock({ block }: { block: DirectiveBlock }) {
   );
 }
 
+export function SplitBlock({ block }: { block: DirectiveBlock }) {
+  const image = block.attrs.image as string | undefined;
+  const imageAlt = (block.attrs.imageAlt as string) ?? "";
+  const imageHref = block.attrs.imageHref as string | undefined;
+  const imageCredit = block.attrs.imageCredit as string | undefined;
+  const reverse = String(block.attrs.reverse ?? "") === "true";
+  const bg = block.attrs.background === "secondary" ? "bg-secondary" : "bg-background";
+  const eyebrow = block.attrs.eyebrow as string | undefined;
+
+  const ImageSide = (
+    <div className="relative">
+      <div className="border-brutal shadow-brutal overflow-hidden bg-muted aspect-[4/3]">
+        {image ? (
+          <img src={image} alt={imageAlt} className="w-full h-full object-cover" loading="lazy" />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center font-mono text-xs uppercase tracking-widest text-muted-foreground">
+            no image
+          </div>
+        )}
+      </div>
+      {(imageHref || imageCredit) && (
+        <div className="absolute -bottom-3 -right-3 bg-foreground text-background border-brutal px-3 py-1 font-mono text-[10px] uppercase tracking-widest">
+          {imageHref ? (
+            <a href={imageHref} target="_blank" rel="noopener" className="hover:text-primary">
+              {imageCredit ?? "stock photo ↗"}
+            </a>
+          ) : (
+            imageCredit
+          )}
+        </div>
+      )}
+    </div>
+  );
+
+  const TextSide = (
+    <div className="[&_h2]:text-3xl [&_h2]:md:text-4xl [&_h2]:font-display [&_h2]:mb-4 [&_h3]:font-display [&_h3]:text-xl [&_h3]:mb-2 [&_p]:text-muted-foreground [&_p]:mb-4 [&_p]:leading-relaxed [&_a]:underline [&_a]:underline-offset-4 [&_strong]:bg-secondary [&_strong]:px-1">
+      {eyebrow && (
+        <div className="inline-block bg-foreground text-background px-3 py-1 mb-6 font-mono text-xs uppercase tracking-widest">
+          {eyebrow}
+        </div>
+      )}
+      <div dangerouslySetInnerHTML={renderMd(block.body)} />
+    </div>
+  );
+
+  return (
+    <section className={`border-b-4 border-foreground ${bg}`}>
+      <div className="mx-auto max-w-6xl px-6 py-20 grid gap-12 md:grid-cols-2 items-center">
+        {reverse ? (
+          <>
+            {TextSide}
+            {ImageSide}
+          </>
+        ) : (
+          <>
+            {ImageSide}
+            {TextSide}
+          </>
+        )}
+      </div>
+    </section>
+  );
+}
+
 export function DividerBlock({ block }: { block: DirectiveBlock }) {
   const label = block.attrs.label as string | undefined;
   return (

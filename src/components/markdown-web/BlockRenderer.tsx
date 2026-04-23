@@ -12,6 +12,7 @@ import {
   StepsBlock,
   TabsBlock,
   DividerBlock,
+  SplitBlock,
 } from "./blocks/extras";
 
 function ActionLink({ link }: { link: ParsedLink }) {
@@ -350,6 +351,7 @@ export function BlockRenderer({
             case "steps": node = <StepsBlock block={b} />; break;
             case "tabs": node = <TabsBlock block={b} />; break;
             case "divider": node = <DividerBlock block={b} />; break;
+            case "split": node = <SplitBlock block={b} />; break;
             default:
               node = (
                 <div className="border-brutal bg-destructive/10 p-4 m-6 font-mono text-sm">

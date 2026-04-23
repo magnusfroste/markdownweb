@@ -29,6 +29,45 @@ theme: brutalist
   body: ::hero::, ::features::, ::cta:: — structured blocks with markdown content.
 ::
 
+::split{image="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=1200&q=80" imageAlt="Code on a screen" imageHref="https://unsplash.com/photos/monitor-showing-java-programming-iar-afB0QQw" imageCredit="photo · unsplash ↗" eyebrow="how it works"}
+## Markdown in. **Site out.**
+
+Drop a `.md` file in your repo. We parse the frontmatter, render directive blocks like `::hero::` and `::pricing::`, and pass the rest through standard markdown.
+
+No build step. No CMS. No JSX. Just text you can edit anywhere — your editor, GitHub web UI, or an LLM chat.
+::
+
+::stats{title="By the numbers"}
+- value: 1
+  label: File per page
+- value: 0
+  label: Build steps
+- value: 16
+  label: Block types
+- value: ∞
+  label: LLM-editable
+::
+
+::split{image="https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=1200&q=80" imageAlt="Laptop on a desk" imageHref="https://unsplash.com/photos/macbook-pro-on-brown-wooden-table-OQMZwNd3ThU" imageCredit="photo · unsplash ↗" reverse=true background="secondary" eyebrow="for humans & AIs"}
+## Edit it **anywhere**.
+
+Open it in VS Code. Edit it on your phone via GitHub. Tell Claude to "add a testimonial from Ada Lovelace" and paste the result back.
+
+Because it's just text, **every tool already supports it**.
+::
+
+::testimonials{title="People are shipping"}
+- quote: I rebuilt my landing in 20 minutes by editing one file.
+  author: Ada L.
+  role: Indie hacker
+- quote: My LLM owns my marketing site now. It's faster than me.
+  author: Linus T.
+  role: Founder
+- quote: Git diff on copy changes. Finally.
+  author: Grace H.
+  role: Tech writer
+::
+
 ::quote{author="Ada Lovelace" role="Computing Pioneer"}
 The best abstraction is the one you can already write in a text file.
 ::
