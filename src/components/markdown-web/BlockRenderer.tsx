@@ -12,6 +12,7 @@ import {
   StepsBlock,
   TabsBlock,
   DividerBlock,
+  SplitBlock,
 } from "./blocks/extras";
 
 function ActionLink({ link }: { link: ParsedLink }) {
