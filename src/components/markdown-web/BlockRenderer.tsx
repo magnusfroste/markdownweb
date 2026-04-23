@@ -303,33 +303,51 @@ function PricingBlock({ block }: { block: DirectiveBlock }) {
   );
 }
 
-export function BlockRenderer({ blocks }: { blocks: Block[] }) {
+export function BlockRenderer({
+  blocks,
+  idPrefix,
+}: {
+  blocks: Block[];
+  /** When set, wraps each block in a div with id `${idPrefix}${index}` so
+   * outline panels / scroll-into-view can target it. */
+  idPrefix?: string;
+}) {
+  const wrap = (i: number, node: React.ReactNode) =>
+    idPrefix ? (
+      <div key={i} id={`${idPrefix}${i}`} className="scroll-mt-12">
+        {node}
+      </div>
+    ) : (
+      <div key={i}>{node}</div>
+    );
+
   return (
     <>
       {blocks.map((b, i) => {
-        if (b.kind === "markdown") return <MarkdownProse key={i} md={b.body} />;
+        if (b.kind === "markdown") return wrap(i, <MarkdownProse md={b.body} />);
         switch (b.name) {
-          case "nav": return <NavBlock key={i} block={b} />;
-          case "hero": return <HeroBlock key={i} block={b} />;
-          case "features": return <FeaturesBlock key={i} block={b} />;
-          case "pricing": return <PricingBlock key={i} block={b} />;
-          case "quote": return <QuoteBlock key={i} block={b} />;
-          case "cta": return <CtaBlock key={i} block={b} />;
-          case "footer": return <FooterBlock key={i} block={b} />;
-          case "stats": return <StatsBlock key={i} block={b} />;
-          case "logos": return <LogosBlock key={i} block={b} />;
-          case "testimonials": return <TestimonialsBlock key={i} block={b} />;
-          case "faq": return <FaqBlock key={i} block={b} />;
-          case "gallery": return <GalleryBlock key={i} block={b} />;
-          case "timeline": return <TimelineBlock key={i} block={b} />;
-          case "steps": return <StepsBlock key={i} block={b} />;
-          case "tabs": return <TabsBlock key={i} block={b} />;
-          case "divider": return <DividerBlock key={i} block={b} />;
+          case "nav": return wrap(i, <NavBlock block={b} />);
+          case "hero": return wrap(i, <HeroBlock block={b} />);
+          case "features": return wrap(i, <FeaturesBlock block={b} />);
+          case "pricing": return wrap(i, <PricingBlock block={b} />);
+          case "quote": return wrap(i, <QuoteBlock block={b} />);
+          case "cta": return wrap(i, <CtaBlock block={b} />);
+          case "footer": return wrap(i, <FooterBlock block={b} />);
+          case "stats": return wrap(i, <StatsBlock block={b} />);
+          case "logos": return wrap(i, <LogosBlock block={b} />);
+          case "testimonials": return wrap(i, <TestimonialsBlock block={b} />);
+          case "faq": return wrap(i, <FaqBlock block={b} />);
+          case "gallery": return wrap(i, <GalleryBlock block={b} />);
+          case "timeline": return wrap(i, <TimelineBlock block={b} />);
+          case "steps": return wrap(i, <StepsBlock block={b} />);
+          case "tabs": return wrap(i, <TabsBlock block={b} />);
+          case "divider": return wrap(i, <DividerBlock block={b} />);
           default:
-            return (
-              <div key={i} className="border-brutal bg-destructive/10 p-4 m-6 font-mono text-sm">
+            return wrap(
+              i,
+              <div className="border-brutal bg-destructive/10 p-4 m-6 font-mono text-sm">
                 Unknown block: <strong>::{b.name}::</strong>
-              </div>
+              </div>,
             );
         }
       })}

@@ -106,6 +106,25 @@ function EditorPage() {
     el.scrollTop = Math.max(0, (safeLine - 3) * lineHeight);
   };
 
+  const previewScrollRef = useRef<HTMLDivElement>(null);
+  const [activeBlock, setActiveBlock] = useState<number | null>(null);
+  const BLOCK_ID = "mw-block-";
+
+  // Click an outline item: scroll preview to the block AND jump editor to its line.
+  const jumpToBlock = (index: number) => {
+    setActiveBlock(index);
+    const block = doc.blocks[index];
+    if (block) jumpToLine(block.startLine);
+    const el = document.getElementById(`${BLOCK_ID}${index}`);
+    const scroller = previewScrollRef.current;
+    if (el && scroller) {
+      const top = el.offsetTop - scroller.offsetTop - 48;
+      scroller.scrollTo({ top, behavior: "smooth" });
+    } else if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
   const handleDownload = () => {
     const blob = new Blob([source], { type: "text/markdown;charset=utf-8" });
     const url = URL.createObjectURL(blob);
@@ -223,8 +242,76 @@ function EditorPage() {
         </div>
       </div>
 
-      {/* Split layout */}
-      <div className="flex-1 lg:grid lg:grid-cols-2 lg:h-[calc(100vh-2.5rem)]">
+      {/* Three-pane layout: outline | editor | preview */}
+      <div className="flex-1 lg:grid lg:grid-cols-[220px_1fr_1fr] lg:h-[calc(100vh-2.5rem)]">
+        {/* OUTLINE */}
+        <aside className="bg-background border-b-4 lg:border-b-0 lg:border-r-4 border-foreground lg:overflow-y-auto">
+          <div className="sticky top-0 bg-background border-b-4 border-foreground px-3 py-2 font-mono text-xs uppercase tracking-widest flex items-center justify-between z-10">
+            <span className="flex items-center gap-2">
+              <span className="inline-block w-2 h-2 bg-primary" />
+              outline
+            </span>
+            <span className="text-muted-foreground normal-case tracking-normal">
+              {doc.blocks.length}
+            </span>
+          </div>
+          {doc.blocks.length === 0 ? (
+            <p className="px-3 py-4 font-mono text-xs text-muted-foreground">
+              No blocks yet.
+            </p>
+          ) : (
+            <ol className="py-1">
+              {doc.blocks.map((b, i) => {
+                const isActive = activeBlock === i;
+                const label =
+                  b.kind === "directive"
+                    ? `::${b.name}`
+                    : (b.body.split("\n")[0] || "markdown")
+                        .replace(/^#+\s*/, "")
+                        .slice(0, 28) || "text";
+                const subtitle =
+                  b.kind === "directive"
+                    ? (b.attrs.title as string | undefined) ||
+                      (b.attrs.eyebrow as string | undefined) ||
+                      (b.attrs.brand as string | undefined) ||
+                      ""
+                    : "paragraph";
+                return (
+                  <li key={i}>
+                    <button
+                      type="button"
+                      onClick={() => jumpToBlock(i)}
+                      className={[
+                        "w-full text-left px-3 py-2 flex items-start gap-2 border-l-4 transition-colors",
+                        isActive
+                          ? "border-primary bg-secondary"
+                          : "border-transparent hover:bg-muted",
+                      ].join(" ")}
+                    >
+                      <span className="shrink-0 font-mono text-[10px] text-muted-foreground tabular-nums w-6">
+                        {String(i + 1).padStart(2, "0")}
+                      </span>
+                      <span className="flex-1 min-w-0">
+                        <span className="block font-mono text-xs font-bold truncate">
+                          {label}
+                        </span>
+                        {subtitle && (
+                          <span className="block font-mono text-[10px] text-muted-foreground truncate">
+                            {subtitle}
+                          </span>
+                        )}
+                      </span>
+                      <span className="shrink-0 font-mono text-[10px] text-muted-foreground tabular-nums">
+                        L{b.startLine}
+                      </span>
+                    </button>
+                  </li>
+                );
+              })}
+            </ol>
+          )}
+        </aside>
+
         {/* LEFT: textarea editor */}
         <div className="bg-foreground text-background lg:overflow-hidden flex flex-col lg:border-r-4 lg:border-foreground">
           <div className="sticky top-0 bg-foreground border-b-4 border-primary px-4 py-2 flex items-center justify-between font-mono text-xs uppercase tracking-widest z-10">
@@ -247,7 +334,7 @@ function EditorPage() {
         </div>
 
         {/* RIGHT: live preview */}
-        <div className="bg-background lg:overflow-y-auto">
+        <div ref={previewScrollRef} className="bg-background lg:overflow-y-auto">
           <div className="sticky top-0 bg-background border-b-4 border-foreground px-4 py-2 flex items-center justify-between font-mono text-xs uppercase tracking-widest z-10">
             <span className="flex items-center gap-2">
               <span className="inline-block w-2 h-2 bg-primary" />
@@ -310,7 +397,7 @@ function EditorPage() {
             </div>
           )}
 
-          <BlockRenderer blocks={doc.blocks} />
+          <BlockRenderer blocks={doc.blocks} idPrefix={BLOCK_ID} />
         </div>
       </div>
     </div>
