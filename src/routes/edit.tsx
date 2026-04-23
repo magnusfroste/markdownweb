@@ -75,8 +75,9 @@ function EditorPage() {
     };
   }, [source, hydrated]);
 
-  // Parse on every change. Wrapped in try/catch so a malformed edit doesn't
-  // blow up the whole page — we just keep showing the previous good doc.
+  // Parse on every change. The parser is fault-tolerant and returns
+  // diagnostics inline rather than throwing — we still keep a try/catch
+  // as a last-resort safety net.
   const lastGoodDoc = useRef(parseMarkdownWeb(source));
   const doc = useMemo(() => {
     try {
@@ -87,6 +88,23 @@ function EditorPage() {
       return lastGoodDoc.current;
     }
   }, [source]);
+
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Jump the textarea cursor to a 1-indexed line, focus and scroll it into view.
+  const jumpToLine = (line: number) => {
+    const el = textareaRef.current;
+    if (!el) return;
+    const lines = source.split("\n");
+    const safeLine = Math.max(1, Math.min(line, lines.length));
+    let pos = 0;
+    for (let i = 0; i < safeLine - 1; i++) pos += lines[i].length + 1;
+    el.focus();
+    el.setSelectionRange(pos, pos + (lines[safeLine - 1]?.length ?? 0));
+    // Approximate scroll position based on line height.
+    const lineHeight = parseFloat(getComputedStyle(el).lineHeight) || 18;
+    el.scrollTop = Math.max(0, (safeLine - 3) * lineHeight);
+  };
 
   const handleDownload = () => {
     const blob = new Blob([source], { type: "text/markdown;charset=utf-8" });
@@ -219,6 +237,7 @@ function EditorPage() {
             </span>
           </div>
           <textarea
+            ref={textareaRef}
             value={source}
             onChange={(e) => setSource(e.target.value)}
             spellCheck={false}
@@ -236,8 +255,61 @@ function EditorPage() {
             </span>
             <span className="text-muted-foreground normal-case tracking-normal">
               {doc.blocks.length} block{doc.blocks.length === 1 ? "" : "s"}
+              {doc.diagnostics.length > 0 && (
+                <>
+                  {" · "}
+                  <span className="text-destructive">
+                    {doc.diagnostics.length} issue
+                    {doc.diagnostics.length === 1 ? "" : "s"}
+                  </span>
+                </>
+              )}
             </span>
           </div>
+
+          {doc.diagnostics.length > 0 && (
+            <div className="border-b-4 border-foreground bg-destructive/10">
+              <ul className="divide-y-2 divide-foreground/20">
+                {doc.diagnostics.map((d, i) => {
+                  const isErr = d.severity === "error";
+                  return (
+                    <li key={i} className="px-4 py-3">
+                      <button
+                        type="button"
+                        onClick={() => jumpToLine(d.line)}
+                        className="w-full text-left flex items-start gap-3 group"
+                      >
+                        <span
+                          className={[
+                            "shrink-0 inline-block px-2 py-0.5 font-mono text-[10px] uppercase tracking-widest border-2 border-foreground",
+                            isErr
+                              ? "bg-destructive text-destructive-foreground"
+                              : "bg-secondary text-foreground",
+                          ].join(" ")}
+                        >
+                          {isErr ? "error" : "warn"} · L{d.line}
+                        </span>
+                        <span className="flex-1 min-w-0">
+                          <span className="block text-sm font-mono text-foreground group-hover:underline break-words">
+                            {d.message}
+                          </span>
+                          {d.hint && (
+                            <span className="block mt-1 text-xs text-muted-foreground break-words">
+                              {d.hint}
+                            </span>
+                          )}
+                        </span>
+                        <span className="shrink-0 font-mono text-[10px] uppercase tracking-widest text-muted-foreground group-hover:text-foreground">
+                          jump →
+                        </span>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          )}
+
           <BlockRenderer blocks={doc.blocks} />
         </div>
       </div>

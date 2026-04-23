@@ -1,20 +1,53 @@
 import yaml from "js-yaml";
 
+export type ParseDiagnostic = {
+  severity: "error" | "warning";
+  message: string;
+  /** 1-indexed line number in the original source (incl. frontmatter). */
+  line: number;
+  /** Optional hint shown under the message. */
+  hint?: string;
+};
+
 /**
  * Browser-safe frontmatter extractor.
- * Replaces gray-matter (which depends on Node's Buffer).
+ * Returns the line offset (1-indexed) where the body content starts in the
+ * original source so downstream errors can point at the right line.
  */
-function extractFrontmatter(source: string): { data: Record<string, unknown>; content: string } {
-  // Normalize line endings
+function extractFrontmatter(source: string): {
+  data: Record<string, unknown>;
+  content: string;
+  /** Number of lines consumed by the frontmatter block (0 if none). */
+  bodyStartLine: number;
+  diagnostics: ParseDiagnostic[];
+} {
+  const diagnostics: ParseDiagnostic[] = [];
   const src = source.replace(/\r\n/g, "\n");
   const match = /^---\n([\s\S]*?)\n---\n?([\s\S]*)$/.exec(src);
-  if (!match) return { data: {}, content: src };
+  if (!match) return { data: {}, content: src, bodyStartLine: 0, diagnostics };
+
+  // Lines: opening "---" + frontmatter lines + closing "---" + optional newline
+  const fmLineCount = match[1].split("\n").length;
+  const bodyStartLine = 1 /* opening --- */ + fmLineCount + 1 /* closing --- */;
+
+  let data: Record<string, unknown> = {};
   try {
-    const data = (yaml.load(match[1]) ?? {}) as Record<string, unknown>;
-    return { data, content: match[2] };
-  } catch {
-    return { data: {}, content: match[2] };
+    data = (yaml.load(match[1]) ?? {}) as Record<string, unknown>;
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    // js-yaml errors carry a `mark` with the line number inside the YAML chunk.
+    const yamlLine =
+      err && typeof err === "object" && "mark" in err && (err as { mark?: { line?: number } }).mark
+        ? ((err as { mark?: { line?: number } }).mark!.line ?? 0)
+        : 0;
+    diagnostics.push({
+      severity: "error",
+      message: `Invalid frontmatter YAML: ${msg.split("\n")[0]}`,
+      line: 1 + 1 + yamlLine, // opening --- + 1-indexed
+      hint: "Check indentation and quote any value containing : or # ",
+    });
   }
+  return { data, content: match[2], bodyStartLine, diagnostics };
 }
 
 export type DirectiveBlock = {
@@ -23,11 +56,17 @@ export type DirectiveBlock = {
   attrs: Record<string, string | number | boolean>;
   /** Raw inner content between ::name and :: */
   body: string;
+  /** 1-indexed line where the opening ::name line lives in the source. */
+  startLine: number;
+  /** 1-indexed line where the body content begins (line after ::name). */
+  bodyStartLine: number;
 };
 
 export type MarkdownBlock = {
   kind: "markdown";
   body: string;
+  /** 1-indexed line where this markdown block starts in the source. */
+  startLine: number;
 };
 
 export type Block = DirectiveBlock | MarkdownBlock;
@@ -35,15 +74,41 @@ export type Block = DirectiveBlock | MarkdownBlock;
 export type ParsedDoc = {
   frontmatter: Record<string, unknown>;
   blocks: Block[];
+  diagnostics: ParseDiagnostic[];
 };
 
 /**
  * Parse attribute string like:  variant="split" columns=3 dark
- * into a record.
+ * into a record. Reports unterminated quotes as diagnostics.
  */
-function parseAttrs(raw: string): Record<string, string | number | boolean> {
+function parseAttrs(
+  raw: string,
+  line: number,
+  diagnostics: ParseDiagnostic[],
+): Record<string, string | number | boolean> {
   const out: Record<string, string | number | boolean> = {};
   if (!raw) return out;
+
+  // Detect obviously unbalanced quotes — common LLM/typo mistake.
+  const dq = (raw.match(/"/g) ?? []).length;
+  const sq = (raw.match(/'/g) ?? []).length;
+  if (dq % 2 !== 0) {
+    diagnostics.push({
+      severity: "error",
+      message: `Unbalanced double-quote in directive attributes: \`${raw}\``,
+      line,
+      hint: 'Each `key="value"` needs both opening and closing ".',
+    });
+  }
+  if (sq % 2 !== 0) {
+    diagnostics.push({
+      severity: "error",
+      message: `Unbalanced single-quote in directive attributes: \`${raw}\``,
+      line,
+      hint: "Each key='value' needs both opening and closing '.",
+    });
+  }
+
   const re = /([\w-]+)(?:=(?:"([^"]*)"|'([^']*)'|([^\s]+)))?/g;
   let m: RegExpExecArray | null;
   while ((m = re.exec(raw)) !== null) {
@@ -62,19 +127,52 @@ function parseAttrs(raw: string): Record<string, string | number | boolean> {
   return out;
 }
 
+const KNOWN_DIRECTIVES = new Set([
+  "nav",
+  "hero",
+  "features",
+  "pricing",
+  "quote",
+  "cta",
+  "footer",
+  "stats",
+  "logos",
+  "testimonials",
+  "faq",
+  "gallery",
+  "timeline",
+  "steps",
+  "tabs",
+  "divider",
+]);
+
 /**
  * Splits a markdown body into top-level blocks.
  * Directives:  ::name{attrs}\n ...body... \n::
  * Anything else becomes a "markdown" block.
+ *
+ * `lineOffset` is the 1-indexed line of `body` inside the *original* source,
+ * so block-level diagnostics point at the right line in the editor.
  */
-function splitBlocks(body: string): Block[] {
+function splitBlocks(
+  body: string,
+  lineOffset: number,
+  diagnostics: ParseDiagnostic[],
+): Block[] {
   const lines = body.split("\n");
   const blocks: Block[] = [];
   let buf: string[] = [];
+  let bufStart = 0; // index into `lines` where current md buffer began
 
   const flushMd = () => {
     const text = buf.join("\n").trim();
-    if (text) blocks.push({ kind: "markdown", body: text });
+    if (text) {
+      blocks.push({
+        kind: "markdown",
+        body: text,
+        startLine: lineOffset + bufStart,
+      });
+    }
     buf = [];
   };
 
@@ -83,6 +181,7 @@ function splitBlocks(body: string): Block[] {
   let fenceMarker = "";
   while (i < lines.length) {
     const line = lines[i];
+    const sourceLine = lineOffset + i; // 1-indexed line in original source
 
     // Track fenced code blocks (``` or ~~~) so directives inside them
     // are treated as plain markdown content, not parsed as blocks.
@@ -91,39 +190,96 @@ function splitBlocks(body: string): Block[] {
       const marker = fenceOpen[2];
       if (!inFence) {
         inFence = true;
-        fenceMarker = marker[0]; // ` or ~
+        fenceMarker = marker[0];
       } else if (marker[0] === fenceMarker) {
         inFence = false;
         fenceMarker = "";
       }
+      if (buf.length === 0) bufStart = i;
       buf.push(line);
       i++;
       continue;
     }
 
     if (!inFence) {
+      // Stray closing `::` outside any directive — common copy-paste mistake.
+      if (line.trim() === "::") {
+        diagnostics.push({
+          severity: "error",
+          message: "Stray closing `::` with no matching opening directive.",
+          line: sourceLine,
+          hint: "Remove this line or add an opening like `::hero` above.",
+        });
+        i++;
+        continue;
+      }
+
       const open = /^::([\w-]+)(?:\{([^}]*)\})?\s*$/.exec(line);
+      // Detect malformed opener: starts with :: but doesn't match.
+      const looksLikeOpener = /^::\S/.test(line) && !open;
+      if (looksLikeOpener) {
+        diagnostics.push({
+          severity: "error",
+          message: `Malformed directive opener: \`${line.trim()}\``,
+          line: sourceLine,
+          hint: "Expected `::name` or `::name{key=\"value\"}` on its own line.",
+        });
+        if (buf.length === 0) bufStart = i;
+        buf.push(line);
+        i++;
+        continue;
+      }
+
       if (open) {
         flushMd();
         const name = open[1];
-        const attrs = parseAttrs(open[2] ?? "");
+        const attrs = parseAttrs(open[2] ?? "", sourceLine, diagnostics);
+
+        if (!KNOWN_DIRECTIVES.has(name)) {
+          diagnostics.push({
+            severity: "warning",
+            message: `Unknown directive \`::${name}\`. It will render as an error placeholder.`,
+            line: sourceLine,
+            hint: `Known: ${Array.from(KNOWN_DIRECTIVES).sort().join(", ")}`,
+          });
+        }
+
+        const startLine = sourceLine;
+        const bodyStartLine = sourceLine + 1;
         const inner: string[] = [];
         i++;
-        while (i < lines.length && lines[i].trim() !== "::") {
+        let closed = false;
+        while (i < lines.length) {
+          if (lines[i].trim() === "::") {
+            closed = true;
+            break;
+          }
           inner.push(lines[i]);
           i++;
         }
-        // skip closing ::
-        i++;
+        if (!closed) {
+          diagnostics.push({
+            severity: "error",
+            message: `Unclosed directive \`::${name}\` — missing trailing \`::\`.`,
+            line: startLine,
+            hint: "Add a line containing only `::` to close the block.",
+          });
+        } else {
+          // skip closing ::
+          i++;
+        }
         blocks.push({
           kind: "directive",
           name,
           attrs,
           body: inner.join("\n"),
+          startLine,
+          bodyStartLine,
         });
         continue;
       }
     }
+    if (buf.length === 0) bufStart = i;
     buf.push(line);
     i++;
   }
@@ -132,10 +288,14 @@ function splitBlocks(body: string): Block[] {
 }
 
 export function parseMarkdownWeb(source: string): ParsedDoc {
-  const { data, content } = extractFrontmatter(source);
+  const { data, content, bodyStartLine, diagnostics } = extractFrontmatter(source);
+  // Body lines start at `bodyStartLine + 1` if frontmatter exists, otherwise 1.
+  const offset = bodyStartLine === 0 ? 1 : bodyStartLine + 1;
+  const blocks = splitBlocks(content, offset, diagnostics);
   return {
     frontmatter: data,
-    blocks: splitBlocks(content),
+    blocks,
+    diagnostics,
   };
 }
 
@@ -152,7 +312,6 @@ export function parseListItems(body: string): Array<Record<string, string>> {
   } catch {
     // fall through
   }
-  // Fallback: each "- foo" line becomes { title: "foo" }
   return body
     .split("\n")
     .map((l) => l.trim())
