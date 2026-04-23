@@ -6,6 +6,7 @@ theme: brutalist
 
 ::nav{brand="MarkdownWeb"}
 - Docs → /docs
+- Editor → /edit
 - GitHub → https://github.com/lovable-dev/markdownweb
 ::
 

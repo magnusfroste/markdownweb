@@ -6,6 +6,7 @@ description: "Every block type with live examples. Write your site in markdown w
 ::nav{brand="MarkdownWeb"}
 - Home → /
 - Docs → /docs
+- Editor → /edit
 - GitHub → https://github.com/lovable-dev/markdownweb
 ::
 
