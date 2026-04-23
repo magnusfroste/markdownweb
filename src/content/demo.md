@@ -17,6 +17,15 @@ theme: brutalist
 [Get started](/docs){.primary} [See the source ↓](#source){.ghost}
 ::
 
+::logos{title="Trusted by builders at"}
+- GitHub
+- Vercel
+- Linear
+- Stripe
+- Notion
+- Figma
+::
+
 ::features{columns=3 title="Why markdown?"}
 - icon: 🤖
   title: LLM-native
@@ -96,6 +105,13 @@ The best abstraction is the one you can already write in a text file.
   features: Everything in Pro | Team collaboration | White-label | Priority support | SLA
   cta: View on GitHub
   ctaHref: https://github.com/lovable-dev/markdownweb
+::
+
+::hero{eyebrow="ready when you are"}
+# Ship a site **today**.
+## One markdown file. Zero config. Deploy in minutes — edit forever.
+
+[Start building](https://github.com/lovable-dev/markdownweb){.primary} [Browse the docs →](/docs){.ghost}
 ::
 
 ::cta{background="primary"}
