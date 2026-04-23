@@ -1,3 +1,4 @@
+import type * as React from "react";
 import { type Block, type DirectiveBlock, parseListItems } from "@/lib/markdown-web/parser";
 import { renderMd, extractActionLinks, type ParsedLink } from "@/lib/markdown-web/inline";
 import { Link } from "@tanstack/react-router";
