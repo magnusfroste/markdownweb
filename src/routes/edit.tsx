@@ -106,6 +106,25 @@ function EditorPage() {
     el.scrollTop = Math.max(0, (safeLine - 3) * lineHeight);
   };
 
+  const previewScrollRef = useRef<HTMLDivElement>(null);
+  const [activeBlock, setActiveBlock] = useState<number | null>(null);
+  const BLOCK_ID = "mw-block-";
+
+  // Click an outline item: scroll preview to the block AND jump editor to its line.
+  const jumpToBlock = (index: number) => {
+    setActiveBlock(index);
+    const block = doc.blocks[index];
+    if (block) jumpToLine(block.startLine);
+    const el = document.getElementById(`${BLOCK_ID}${index}`);
+    const scroller = previewScrollRef.current;
+    if (el && scroller) {
+      const top = el.offsetTop - scroller.offsetTop - 48;
+      scroller.scrollTo({ top, behavior: "smooth" });
+    } else if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
   const handleDownload = () => {
     const blob = new Blob([source], { type: "text/markdown;charset=utf-8" });
     const url = URL.createObjectURL(blob);
