@@ -303,13 +303,30 @@ function PricingBlock({ block }: { block: DirectiveBlock }) {
   );
 }
 
-export function BlockRenderer({ blocks }: { blocks: Block[] }) {
+export function BlockRenderer({
+  blocks,
+  idPrefix,
+}: {
+  blocks: Block[];
+  /** When set, wraps each block in a div with id `${idPrefix}${index}` so
+   * outline panels / scroll-into-view can target it. */
+  idPrefix?: string;
+}) {
+  const wrap = (i: number, node: React.ReactNode) =>
+    idPrefix ? (
+      <div key={i} id={`${idPrefix}${i}`} className="scroll-mt-12">
+        {node}
+      </div>
+    ) : (
+      <div key={i}>{node}</div>
+    );
+
   return (
     <>
       {blocks.map((b, i) => {
-        if (b.kind === "markdown") return <MarkdownProse key={i} md={b.body} />;
+        if (b.kind === "markdown") return wrap(i, <MarkdownProse md={b.body} />);
         switch (b.name) {
-          case "nav": return <NavBlock key={i} block={b} />;
+          case "nav": return wrap(i, <NavBlock block={b} />);
           case "hero": return <HeroBlock key={i} block={b} />;
           case "features": return <FeaturesBlock key={i} block={b} />;
           case "pricing": return <PricingBlock key={i} block={b} />;
