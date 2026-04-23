@@ -59,15 +59,40 @@ export function TestimonialsBlock({ block }: { block: DirectiveBlock }) {
       <div className="mx-auto max-w-6xl px-6 py-20">
         {title && <h2 className="text-3xl md:text-4xl font-display mb-10">{title}</h2>}
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {items.map((it, i) => (
-            <figure key={i} className="border-brutal bg-background shadow-brutal-sm p-6 flex flex-col">
-              <blockquote className="text-base mb-6 flex-1">"{it.quote ?? it.body}"</blockquote>
-              <figcaption className="font-mono text-xs uppercase tracking-widest">
-                — {it.author}
-                {it.role && <span className="text-muted-foreground">, {it.role}</span>}
-              </figcaption>
-            </figure>
-          ))}
+          {items.map((it, i) => {
+            const author = String(it.author ?? "");
+            const initials = author
+              .split(/\s+/)
+              .map((p) => p[0])
+              .filter(Boolean)
+              .slice(0, 2)
+              .join("")
+              .toUpperCase();
+            const avatar = it.avatar as string | undefined;
+            return (
+              <figure
+                key={i}
+                className="border-brutal bg-background shadow-brutal-sm p-6 flex flex-col hover:shadow-brutal hover:-translate-x-1 hover:-translate-y-1 transition-all"
+              >
+                <blockquote className="text-base leading-relaxed mb-6 flex-1">
+                  "{it.quote ?? it.body}"
+                </blockquote>
+                <figcaption className="flex items-center gap-3 pt-4 border-t-4 border-foreground">
+                  <div className="w-12 h-12 border-brutal bg-primary text-primary-foreground flex items-center justify-center overflow-hidden shrink-0">
+                    {avatar ? (
+                      <img src={String(avatar)} alt={author} className="w-full h-full object-cover" loading="lazy" />
+                    ) : (
+                      <span className="font-display text-lg">{initials || "?"}</span>
+                    )}
+                  </div>
+                  <div className="font-mono text-xs uppercase tracking-widest leading-tight">
+                    <div>{author}</div>
+                    {it.role && <div className="text-muted-foreground normal-case tracking-normal font-sans text-xs mt-0.5">{String(it.role)}</div>}
+                  </div>
+                </figcaption>
+              </figure>
+            );
+          })}
         </div>
       </div>
     </section>
