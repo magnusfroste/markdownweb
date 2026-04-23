@@ -1,99 +1,114 @@
 ---
 title: "MarkdownWeb — Docs & Block Reference"
-description: "Alla blocktyper med exempel. Skriv din sajt i markdown med frontmatter och MDC-direktiv."
+description: "Every block type with live examples. Write your site in markdown with frontmatter and MDC directives."
 ---
 
 ::nav{brand="MarkdownWeb"}
-- Hem → /
+- Home → /
 - Docs → /docs
 - GitHub → https://github.com/lovable-dev/markdownweb
 ::
 
 ::hero{eyebrow="Docs · v0.1"}
-# Block-referens
-## Frontmatter + MDC-direktiv. Inga JSX-imports, inga byggsteg. Bara `.md`.
+# Block reference
+## Frontmatter + MDC directives. No JSX imports, no build step. Just `.md`.
 ::
 
-# Syntax i två minuter
+# Syntax in two minutes
 
-Varje sida är en `.md`-fil. Toppen är **YAML-frontmatter** (titel, meta, tema). Resten är vanlig markdown blandat med **MDC-direktiv** — `::name{attrs}` … `::`.
+Every page is a `.md` file. The top is **YAML frontmatter** (title, meta, theme). The rest is regular markdown mixed with **MDC directives** — `::name{attrs}` … `::`.
 
 ```md
 ---
-title: "Min sajt"
-description: "Skriven i markdown."
+title: "My site"
+description: "Written in markdown."
 ---
 
 ::hero{eyebrow="v1"}
-# Stor rubrik
-## Underrubrik
+# Big headline
+## Subheadline
 
-[Kom igång](/start){.primary}
+[Get started](/start){.primary}
 ::
 ```
 
-Inuti ett direktiv är innehållet **vanlig markdown**. Listor (`- key: value`) tolkas som strukturerad data när blocket vill ha det (t.ex. `features`, `pricing`).
+Inside a directive, the content is **plain markdown**. Lists (`- key: value`) are parsed as structured data when the block expects it (e.g. `features`, `pricing`).
 
-## Standard vi följer
+## Standards we follow
 
-- **Frontmatter:** YAML mellan `---`-rader. Samma som Jekyll, Hugo, Astro, Next.
-- **Direktiv:** [MDC](https://content.nuxt.com/docs/files/markdown) (Markdown Components) — Nuxt Content's syntax. Också nära `remark-directive` / MDX directive proposal.
-- **Inline:** standard CommonMark + GFM (länkar, **fet**, `kod`, listor).
+- **Frontmatter:** YAML between `---` lines. Same as Jekyll, Hugo, Astro, Next.
+- **Directives:** [MDC](https://content.nuxt.com/docs/files/markdown) (Markdown Components) — Nuxt Content's syntax. Close to `remark-directive` / the MDX directive proposal.
+- **Inline:** standard CommonMark + GFM (links, **bold**, `code`, lists).
 
-Vi valde **inte** full MDX — det kräver JSX-kompilator och bryter "any LLM kan editera". MDC ger 90% av nyttan med 10% av komplexiteten.
+We **did not** choose full MDX — it requires a JSX compiler and breaks "any LLM can edit it". MDC gives 90% of the value at 10% of the complexity.
 
-::divider{label="Block reference"}
+::divider{label="Block reference — preview, then source"}
 ::
 
 ::hero{eyebrow="01 · hero"}
-# Hero-block
-## Stor rubrik, valfri underrubrik och CTA-knappar via markdown-länkar.
+# Hero block
+## Big headline, optional subheadline, and CTA buttons via markdown links.
 
-[Primär](/start){.primary} [Sekundär](#){.ghost}
+[Primary](/start){.primary} [Secondary](#){.ghost}
+::
+
+::divider{label="↓ source"}
 ::
 
 ```md
 ::hero{eyebrow="v1"}
-# Rubrik
-## Underrubrik
+# Headline
+## Subheadline
 
-[CTA](/x){.primary} [Mer](#){.ghost}
+[CTA](/x){.primary} [More](#){.ghost}
 ::
 ```
 
-::features{columns=3 title="02 · features"}
+::divider{label="02 · features"}
+::
+
+::features{columns=3 title="Features"}
 - icon: ⚡
-  title: Snabbt
-  body: En .md-fil renderar direkt utan byggsteg.
+  title: Fast
+  body: A .md file renders directly without a build step.
 - icon: 🧱
-  title: Komponerbart
-  body: Blanda direktiv-block med vanlig markdown.
+  title: Composable
+  body: Mix directive blocks with plain markdown.
 - icon: 🔍
-  title: Sökbart
-  body: Plain text — git diff, grep, LLM, allt funkar.
+  title: Searchable
+  body: Plain text — git diff, grep, LLM, everything works.
+::
+
+::divider{label="↓ source"}
 ::
 
 ```md
-::features{columns=3 title="Varför?"}
+::features{columns=3 title="Why?"}
 - icon: ⚡
-  title: Snabbt
-  body: Beskrivning här.
+  title: Fast
+  body: Description here.
 ::
 ```
 
-::stats{title="03 · stats"}
+::divider{label="03 · stats"}
+::
+
+::stats{title="By the numbers"}
 - value: 100%
   label: Markdown
 - value: 0
   label: Build steps
 - value: ∞
   label: LLM-friendly
-- value: 9
+- value: 11
   label: Block types
 ::
 
+::divider{label="↓ source"}
+::
+
 ```md
-::stats{title="Siffror"}
+::stats{title="Numbers"}
 - value: 100%
   label: Markdown
 - value: 0
@@ -101,12 +116,18 @@ Vi valde **inte** full MDX — det kräver JSX-kompilator och bryter "any LLM ka
 ::
 ```
 
-::logos{title="04 · logos — used by"}
+::divider{label="04 · logos"}
+::
+
+::logos{title="Used by"}
 - name: Acme
 - name: Globex
 - name: Initech
 - name: Umbrella
 - name: Stark
+::
+
+::divider{label="↓ source"}
 ::
 
 ```md
@@ -116,87 +137,114 @@ Vi valde **inte** full MDX — det kräver JSX-kompilator och bryter "any LLM ka
 ::
 ```
 
-::testimonials{title="05 · testimonials"}
-- quote: Äntligen en CMS som inte är en CMS.
+::divider{label="05 · testimonials"}
+::
+
+::testimonials{title="What people say"}
+- quote: Finally a CMS that isn't a CMS.
   author: Ada L.
   role: Indie hacker
-- quote: Min LLM editar sajten direkt. Galet.
+- quote: My LLM edits the site directly. Wild.
   author: Linus T.
   role: Founder
-- quote: Git blame på copy. Drömläge.
+- quote: Git blame on copy. Dream setup.
   author: Grace H.
   role: Tech writer
 ::
 
+::divider{label="↓ source"}
+::
+
 ```md
-::testimonials{title="Vad folk säger"}
-- quote: Citatet här.
-  author: Namn
-  role: Titel
+::testimonials{title="Reviews"}
+- quote: The quote here.
+  author: Name
+  role: Title
 ::
 ```
 
-::pricing{title="06 · pricing" columns=3}
+::divider{label="06 · pricing"}
+::
+
+::pricing{title="Pricing" columns=3}
 - name: Free
   price: $0
-  period: mån
-  features: 1 sajt | Subdomain | Community
-  cta: Starta
+  period: mo
+  features: 1 site | Subdomain | Community
+  cta: Start
   ctaHref: https://github.com/lovable-dev/markdownweb
 - name: Pro
   price: $19
-  period: mån
+  period: mo
   featured: "true"
-  features: Allt i Free | Custom domain | AI-edit
-  cta: Prova gratis
+  features: Everything in Free | Custom domain | AI edit
+  cta: Try free
   ctaHref: https://github.com/lovable-dev/markdownweb
 - name: Team
   price: $79
-  period: mån
-  features: Allt i Pro | Collaboration | SLA
-  cta: Kontakt
+  period: mo
+  features: Everything in Pro | Collaboration | SLA
+  cta: Contact
   ctaHref: https://github.com/lovable-dev/markdownweb
 ::
 
+::divider{label="↓ source"}
+::
+
 ```md
-::pricing{title="Priser" columns=3}
+::pricing{title="Pricing" columns=3}
 - name: Pro
   price: $19
-  period: mån
+  period: mo
   featured: "true"
   features: A | B | C
-  cta: Kom igång
+  cta: Get started
   ctaHref: /signup
 ::
 ```
+
+::divider{label="07 · quote"}
+::
 
 ::quote{author="Donald Knuth" role="Literate Programming"}
 Programs are meant to be read by humans and only incidentally for computers to execute.
 ::
 
-```md
-::quote{author="Namn" role="Titel"}
-Citatet här.
-::
-```
-
-::faq{title="07 · faq"}
-- q: Måste jag lära mig MDX?
-  a: Nej. Bara markdown + `::direktiv::`-block. Ingen JSX.
-- q: Kan jag redigera sajten med en LLM?
-  a: Ja — det är hela poängen. Säg "lägg till en pricing-sektion" och få tillbaka markdown.
-- q: Kan jag styla själv?
-  a: Temat är globalt (här Brutalist Pop). Block ärver tokens från `styles.css`.
+::divider{label="↓ source"}
 ::
 
 ```md
-::faq{title="Vanliga frågor"}
-- q: Frågan?
-  a: Svaret med **markdown**.
+::quote{author="Name" role="Title"}
+The quote here.
 ::
 ```
 
-::gallery{columns=3 title="08 · gallery"}
+::divider{label="08 · faq"}
+::
+
+::faq{title="FAQ"}
+- q: Do I have to learn MDX?
+  a: No. Just markdown + `::directive::` blocks. No JSX.
+- q: Can I edit the site with an LLM?
+  a: Yes — that's the whole point. Say "add a pricing section" and get markdown back.
+- q: Can I style it myself?
+  a: The theme is global (here Brutalist Pop). Blocks inherit tokens from `styles.css`.
+::
+
+::divider{label="↓ source"}
+::
+
+```md
+::faq{title="FAQ"}
+- q: The question?
+  a: The answer with **markdown**.
+::
+```
+
+::divider{label="09 · gallery"}
+::
+
+::gallery{columns=3 title="Gallery"}
 - alt: Brutal grid 1
   caption: 01 · grid
 - alt: Brutal grid 2
@@ -205,85 +253,106 @@ Citatet här.
   caption: 03 · void
 ::
 
+::divider{label="↓ source"}
+::
+
 ```md
-::gallery{columns=3 title="Galleri"}
+::gallery{columns=3 title="Gallery"}
 - src: /img/a.jpg
-  alt: Beskrivning
-  caption: Bildtext
+  alt: Description
+  caption: Caption
 ::
 ```
 
-::timeline{title="09 · timeline"}
+::divider{label="10 · timeline"}
+::
+
+::timeline{title="Roadmap"}
 - date: 2026-04
   title: MVP
-  body: Renderare, hero, features, pricing.
+  body: Renderer, hero, features, pricing.
 - date: 2026-05
   title: Multi-page
-  body: Flera .md-filer som routes.
+  body: Several .md files as routes.
 - date: 2026-06
-  title: AI-edit
-  body: Inline LLM-redigering av källan.
+  title: AI edit
+  body: Inline LLM editing of the source.
+::
+
+::divider{label="↓ source"}
 ::
 
 ```md
 ::timeline{title="Roadmap"}
 - date: 2026-04
   title: MVP
-  body: Beskrivning.
+  body: Description.
 ::
 ```
 
-::steps{title="10 · steps"}
-- title: Skriv markdown
-  body: Öppna .md-filen och redigera fritt.
-- title: Lägg till block
-  body: Använd ::direktiv:: för struktur.
-- title: Publicera
-  body: Pusha till git, sajten byggs.
+::divider{label="11 · steps"}
+::
+
+::steps{title="How it works"}
+- title: Write markdown
+  body: Open the .md file and edit freely.
+- title: Add blocks
+  body: Use ::directive:: for structure.
+- title: Publish
+  body: Push to git, the site builds.
+::
+
+::divider{label="↓ source"}
 ::
 
 ```md
-::steps{title="Hur det funkar"}
-- title: Steg ett
-  body: Beskrivning.
+::steps{title="How it works"}
+- title: Step one
+  body: Description.
 ::
 ```
+
+::divider{label="12 · tabs"}
+::
 
 ::tabs
 - label: Install
   body: |
-    Klona repot och kör `npm install`. Sen `npm run dev`.
+    Clone the repo and run `npm install`. Then `npm run dev`.
 - label: Deploy
   body: |
-    Pusha till main. Auto-deploy via Lovable Cloud.
+    Push to main. Auto-deploy via Lovable Cloud.
+::
+
+::divider{label="↓ source"}
 ::
 
 ```md
 ::tabs
 - label: Tab 1
   body: |
-    Innehåll med **markdown**.
+    Content with **markdown**.
 - label: Tab 2
   body: |
-    Annat innehåll.
+    Other content.
 ::
 ```
 
-::divider{label="layout helpers"}
+::divider{label="13 · divider"}
 ::
 
 ```md
-::divider{label="Sektion"}
+::divider{label="Section"}
 ::
 ```
 
 ::cta{background="primary"}
-# Redo att skriva din sajt i markdown?
-## En .md-fil. Inga steg. Bara push.
+# Ready to write your site in markdown?
+## One .md file. No steps. Just push.
 
-[Klona repot](https://github.com/lovable-dev/markdownweb){.primary} [Tillbaka hem](/){.ghost}
+[Clone the repo](https://github.com/lovable-dev/markdownweb){.primary} [Back home](/){.ghost}
 ::
 
 ::footer
-© 2026 MarkdownWeb · Skrivet i `docs.md`
+© 2026 MarkdownWeb · Written in `docs.md`
 ::

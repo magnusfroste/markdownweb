@@ -12,10 +12,10 @@ const initialDoc = parseMarkdownWeb(demoSource);
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "MarkdownWeb — Skriv din sajt i markdown" },
-      { name: "description", content: "Sajter vars källkod är ett .md-dokument. LLM-vänlig, git-vänlig, människo-vänlig." },
-      { property: "og:title", content: "MarkdownWeb — Skriv din sajt i markdown" },
-      { property: "og:description", content: "Sajter vars källkod är ett .md-dokument." },
+      { title: "MarkdownWeb — Write your site in markdown" },
+      { name: "description", content: "Sites whose source is a .md document. LLM-friendly, git-friendly, human-friendly." },
+      { property: "og:title", content: "MarkdownWeb — Write your site in markdown" },
+      { property: "og:description", content: "Sites whose source is a .md document." },
     ],
   }),
   component: Index,
