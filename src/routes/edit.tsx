@@ -75,8 +75,9 @@ function EditorPage() {
     };
   }, [source, hydrated]);
 
-  // Parse on every change. Wrapped in try/catch so a malformed edit doesn't
-  // blow up the whole page — we just keep showing the previous good doc.
+  // Parse on every change. The parser is fault-tolerant and returns
+  // diagnostics inline rather than throwing — we still keep a try/catch
+  // as a last-resort safety net.
   const lastGoodDoc = useRef(parseMarkdownWeb(source));
   const doc = useMemo(() => {
     try {
@@ -87,6 +88,23 @@ function EditorPage() {
       return lastGoodDoc.current;
     }
   }, [source]);
+
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Jump the textarea cursor to a 1-indexed line, focus and scroll it into view.
+  const jumpToLine = (line: number) => {
+    const el = textareaRef.current;
+    if (!el) return;
+    const lines = source.split("\n");
+    const safeLine = Math.max(1, Math.min(line, lines.length));
+    let pos = 0;
+    for (let i = 0; i < safeLine - 1; i++) pos += lines[i].length + 1;
+    el.focus();
+    el.setSelectionRange(pos, pos + (lines[safeLine - 1]?.length ?? 0));
+    // Approximate scroll position based on line height.
+    const lineHeight = parseFloat(getComputedStyle(el).lineHeight) || 18;
+    el.scrollTop = Math.max(0, (safeLine - 3) * lineHeight);
+  };
 
   const handleDownload = () => {
     const blob = new Blob([source], { type: "text/markdown;charset=utf-8" });
