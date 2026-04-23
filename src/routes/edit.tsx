@@ -206,6 +206,8 @@ function EditorPage() {
     }
     jumpToLine(block.startLine);
   };
+
+  const handleDownload = () => {
     const blob = new Blob([source], { type: "text/markdown;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
