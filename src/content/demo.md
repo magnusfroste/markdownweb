@@ -96,6 +96,21 @@ Because it's just text, **every tool already supports it**.
 The best abstraction is the one you can already write in a text file.
 ::
 
+::features{columns=4 title="Pick a style" subtitle="Set theme: in your frontmatter. Same markdown, different vibe."}
+- icon: 🧱
+  title: Brutalist Pop
+  body: Thick borders, hard shadows, loud accents. (current)
+- icon: 📰
+  title: Editorial
+  body: Serif headlines, generous whitespace, magazine-style.
+- icon: 🌙
+  title: Midnight
+  body: Dark mode first. Soft glows, low-contrast surfaces.
+- icon: ✨
+  title: Minimal
+  body: Swiss grid, neutral palette, type does the work.
+::
+
 ::pricing{title="Simple pricing" subtitle="No salespeople. No tricks. Just one .md file per plan." columns=3}
 - name: Hobby
   tagline: For personal sites
