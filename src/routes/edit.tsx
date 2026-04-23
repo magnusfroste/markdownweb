@@ -38,6 +38,27 @@ const TEMPLATES: Template[] = [
   },
 ];
 
+const BLOCK_ID = "mw-block-";
+
+function blockLabel(block: ReturnType<typeof parseMarkdownWeb>["blocks"][number]): {
+  name: string;
+  hint?: string;
+} {
+  if (block.kind === "markdown") {
+    const firstHeading = block.body.split("\n").find((l) => /^#{1,6}\s+/.test(l));
+    const text = firstHeading?.replace(/^#{1,6}\s+/, "").trim();
+    return { name: "markdown", hint: text || block.body.slice(0, 40).trim() };
+  }
+  const a = block.attrs as Record<string, unknown>;
+  const hint =
+    (a.title as string) ||
+    (a.eyebrow as string) ||
+    (a.brand as string) ||
+    (a.subtitle as string) ||
+    undefined;
+  return { name: block.name, hint };
+}
+
 function EditorPage() {
   // Hydrate from localStorage on the client only — SSR must render the demo
   // source to avoid hydration mismatch.
@@ -45,7 +66,10 @@ function EditorPage() {
   const [hydrated, setHydrated] = useState(false);
   const [savedAt, setSavedAt] = useState<number | null>(null);
   const [copied, setCopied] = useState(false);
+  const [activeBlock, setActiveBlock] = useState(0);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const previewScrollRef = useRef<HTMLDivElement>(null);
+  const suppressObserverUntil = useRef(0);
 
   // Load saved source on mount.
   useEffect(() => {
