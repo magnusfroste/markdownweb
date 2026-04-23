@@ -324,9 +324,68 @@ function EditorPage() {
         </div>
       </div>
 
-      {/* Split layout */}
-      <div className="flex-1 lg:grid lg:grid-cols-2 lg:h-[calc(100vh-2.5rem)]">
-        {/* LEFT: textarea editor */}
+      {/* Three-pane layout: outline | editor | preview */}
+      <div className="flex-1 lg:grid lg:grid-cols-[240px_1fr_1fr] lg:h-[calc(100vh-2.5rem)]">
+        {/* OUTLINE */}
+        <aside className="bg-background border-r-4 border-foreground lg:overflow-y-auto">
+          <div className="sticky top-0 bg-background border-b-4 border-foreground px-3 py-2 flex items-center justify-between font-mono text-[10px] uppercase tracking-widest z-10">
+            <span className="flex items-center gap-2">
+              <span className="inline-block w-2 h-2 bg-primary" />
+              outline
+            </span>
+            <span className="text-muted-foreground normal-case tracking-normal">
+              {doc.blocks.length}
+            </span>
+          </div>
+          {doc.blocks.length === 0 ? (
+            <div className="p-3 font-mono text-xs text-muted-foreground">No blocks yet.</div>
+          ) : (
+            <ol className="py-1">
+              {doc.blocks.map((b, i) => {
+                const { name, hint } = blockLabel(b);
+                const active = i === activeBlock;
+                return (
+                  <li key={i}>
+                    <button
+                      type="button"
+                      onClick={() => jumpToBlock(i)}
+                      className={[
+                        "w-full text-left px-3 py-2 flex items-start gap-2 border-l-4 transition-colors font-mono text-xs",
+                        active
+                          ? "border-l-primary bg-primary/15 text-foreground"
+                          : "border-l-transparent hover:bg-secondary/60 text-muted-foreground hover:text-foreground",
+                      ].join(" ")}
+                      aria-current={active ? "true" : undefined}
+                    >
+                      <span
+                        className={[
+                          "shrink-0 inline-block px-1.5 py-0.5 text-[10px] uppercase tracking-widest border-2 border-foreground",
+                          active
+                            ? "bg-foreground text-background"
+                            : "bg-background text-foreground",
+                        ].join(" ")}
+                      >
+                        {name}
+                      </span>
+                      <span className="flex-1 min-w-0">
+                        {hint && (
+                          <span className="block truncate normal-case tracking-normal">
+                            {hint}
+                          </span>
+                        )}
+                        <span className="block text-[10px] text-muted-foreground mt-0.5">
+                          L{b.startLine}
+                        </span>
+                      </span>
+                    </button>
+                  </li>
+                );
+              })}
+            </ol>
+          )}
+        </aside>
+
+        {/* EDITOR */}
         <div className="bg-foreground text-background lg:overflow-hidden flex flex-col lg:border-r-4 lg:border-foreground">
           <div className="sticky top-0 bg-foreground border-b-4 border-primary px-4 py-2 flex items-center justify-between font-mono text-xs uppercase tracking-widest z-10">
             <span className="flex items-center gap-2">
@@ -347,8 +406,8 @@ function EditorPage() {
           />
         </div>
 
-        {/* RIGHT: live preview */}
-        <div className="bg-background lg:overflow-y-auto">
+        {/* PREVIEW */}
+        <div ref={previewScrollRef} className="bg-background lg:overflow-y-auto">
           <div className="sticky top-0 bg-background border-b-4 border-foreground px-4 py-2 flex items-center justify-between font-mono text-xs uppercase tracking-widest z-10">
             <span className="flex items-center gap-2">
               <span className="inline-block w-2 h-2 bg-primary" />
@@ -411,7 +470,7 @@ function EditorPage() {
             </div>
           )}
 
-          <BlockRenderer blocks={doc.blocks} />
+          <BlockRenderer blocks={doc.blocks} idPrefix={BLOCK_ID} />
         </div>
       </div>
     </div>
