@@ -38,6 +38,27 @@ const TEMPLATES: Template[] = [
   },
 ];
 
+const BLOCK_ID = "mw-block-";
+
+function blockLabel(block: ReturnType<typeof parseMarkdownWeb>["blocks"][number]): {
+  name: string;
+  hint?: string;
+} {
+  if (block.kind === "markdown") {
+    const firstHeading = block.body.split("\n").find((l) => /^#{1,6}\s+/.test(l));
+    const text = firstHeading?.replace(/^#{1,6}\s+/, "").trim();
+    return { name: "markdown", hint: text || block.body.slice(0, 40).trim() };
+  }
+  const a = block.attrs as Record<string, unknown>;
+  const hint =
+    (a.title as string) ||
+    (a.eyebrow as string) ||
+    (a.brand as string) ||
+    (a.subtitle as string) ||
+    undefined;
+  return { name: block.name, hint };
+}
+
 function EditorPage() {
   // Hydrate from localStorage on the client only — SSR must render the demo
   // source to avoid hydration mismatch.
@@ -45,7 +66,10 @@ function EditorPage() {
   const [hydrated, setHydrated] = useState(false);
   const [savedAt, setSavedAt] = useState<number | null>(null);
   const [copied, setCopied] = useState(false);
+  const [activeBlock, setActiveBlock] = useState(0);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const previewScrollRef = useRef<HTMLDivElement>(null);
+  const suppressObserverUntil = useRef(0);
 
   // Load saved source on mount.
   useEffect(() => {
@@ -106,23 +130,81 @@ function EditorPage() {
     el.scrollTop = Math.max(0, (safeLine - 3) * lineHeight);
   };
 
-  const previewScrollRef = useRef<HTMLDivElement>(null);
-  const [activeBlock, setActiveBlock] = useState<number | null>(null);
-  const BLOCK_ID = "mw-block-";
+  // Auto-highlight outline as the user scrolls the preview.
+  // Uses IntersectionObserver against the preview scroll container as root,
+  // picking the topmost intersecting block as "active".
+  useEffect(() => {
+    const root = previewScrollRef.current;
+    if (!root) return;
+    const els = doc.blocks
+      .map((_, i) => document.getElementById(`${BLOCK_ID}${i}`))
+      .filter((el): el is HTMLElement => el !== null);
+    if (els.length === 0) return;
 
-  // Click an outline item: scroll preview to the block AND jump editor to its line.
+    // Track per-element intersection state and recompute the topmost visible.
+    const visible = new Map<HTMLElement, number>();
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        // Ignore observer updates briefly after a programmatic jump so
+        // smooth-scrolling doesn't fight the user-clicked active state.
+        if (Date.now() < suppressObserverUntil.current) return;
+
+        for (const entry of entries) {
+          const el = entry.target as HTMLElement;
+          if (entry.isIntersecting) {
+            visible.set(el, entry.intersectionRatio);
+          } else {
+            visible.delete(el);
+          }
+        }
+
+        if (visible.size === 0) return;
+        // Pick the visible block whose top is closest to (but at/below) the
+        // top of the scroll viewport — that's what the user is "reading".
+        const rootTop = root.getBoundingClientRect().top;
+        let bestEl: HTMLElement | null = null;
+        let bestDist = Infinity;
+        for (const el of visible.keys()) {
+          const top = el.getBoundingClientRect().top - rootTop;
+          // Prefer blocks whose top has scrolled past or just reached the top.
+          const dist = top >= -8 ? top : Math.abs(top) + 1000;
+          if (dist < bestDist) {
+            bestDist = dist;
+            bestEl = el;
+          }
+        }
+        if (bestEl) {
+          const idx = Number(bestEl.dataset.mwBlockIndex ?? "0");
+          setActiveBlock((prev) => (prev === idx ? prev : idx));
+        }
+      },
+      {
+        root,
+        // Bias toward the top: shrink the bottom so blocks count as
+        // "active" only once they enter the upper portion of the viewport.
+        rootMargin: "0px 0px -60% 0px",
+        threshold: [0, 0.25, 0.5, 1],
+      },
+    );
+
+    els.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, [doc.blocks]);
+
+  // Jump preview + editor to a specific block.
   const jumpToBlock = (index: number) => {
-    setActiveBlock(index);
     const block = doc.blocks[index];
-    if (block) jumpToLine(block.startLine);
+    if (!block) return;
+    setActiveBlock(index);
+    // Suppress observer briefly so it doesn't override our active selection
+    // mid-scroll.
+    suppressObserverUntil.current = Date.now() + 800;
     const el = document.getElementById(`${BLOCK_ID}${index}`);
-    const scroller = previewScrollRef.current;
-    if (el && scroller) {
-      const top = el.offsetTop - scroller.offsetTop - 48;
-      scroller.scrollTo({ top, behavior: "smooth" });
-    } else if (el) {
+    if (el && previewScrollRef.current) {
       el.scrollIntoView({ behavior: "smooth", block: "start" });
     }
+    jumpToLine(block.startLine);
   };
 
   const handleDownload = () => {
@@ -243,10 +325,10 @@ function EditorPage() {
       </div>
 
       {/* Three-pane layout: outline | editor | preview */}
-      <div className="flex-1 lg:grid lg:grid-cols-[220px_1fr_1fr] lg:h-[calc(100vh-2.5rem)]">
+      <div className="flex-1 lg:grid lg:grid-cols-[240px_1fr_1fr] lg:h-[calc(100vh-2.5rem)]">
         {/* OUTLINE */}
-        <aside className="bg-background border-b-4 lg:border-b-0 lg:border-r-4 border-foreground lg:overflow-y-auto">
-          <div className="sticky top-0 bg-background border-b-4 border-foreground px-3 py-2 font-mono text-xs uppercase tracking-widest flex items-center justify-between z-10">
+        <aside className="bg-background border-r-4 border-foreground lg:overflow-y-auto">
+          <div className="sticky top-0 bg-background border-b-4 border-foreground px-3 py-2 flex items-center justify-between font-mono text-[10px] uppercase tracking-widest z-10">
             <span className="flex items-center gap-2">
               <span className="inline-block w-2 h-2 bg-primary" />
               outline
@@ -256,53 +338,44 @@ function EditorPage() {
             </span>
           </div>
           {doc.blocks.length === 0 ? (
-            <p className="px-3 py-4 font-mono text-xs text-muted-foreground">
-              No blocks yet.
-            </p>
+            <div className="p-3 font-mono text-xs text-muted-foreground">No blocks yet.</div>
           ) : (
             <ol className="py-1">
               {doc.blocks.map((b, i) => {
-                const isActive = activeBlock === i;
-                const label =
-                  b.kind === "directive"
-                    ? `::${b.name}`
-                    : (b.body.split("\n")[0] || "markdown")
-                        .replace(/^#+\s*/, "")
-                        .slice(0, 28) || "text";
-                const subtitle =
-                  b.kind === "directive"
-                    ? (b.attrs.title as string | undefined) ||
-                      (b.attrs.eyebrow as string | undefined) ||
-                      (b.attrs.brand as string | undefined) ||
-                      ""
-                    : "paragraph";
+                const { name, hint } = blockLabel(b);
+                const active = i === activeBlock;
                 return (
                   <li key={i}>
                     <button
                       type="button"
                       onClick={() => jumpToBlock(i)}
                       className={[
-                        "w-full text-left px-3 py-2 flex items-start gap-2 border-l-4 transition-colors",
-                        isActive
-                          ? "border-primary bg-secondary"
-                          : "border-transparent hover:bg-muted",
+                        "w-full text-left px-3 py-2 flex items-start gap-2 border-l-4 transition-colors font-mono text-xs",
+                        active
+                          ? "border-l-primary bg-primary/15 text-foreground"
+                          : "border-l-transparent hover:bg-secondary/60 text-muted-foreground hover:text-foreground",
                       ].join(" ")}
+                      aria-current={active ? "true" : undefined}
                     >
-                      <span className="shrink-0 font-mono text-[10px] text-muted-foreground tabular-nums w-6">
-                        {String(i + 1).padStart(2, "0")}
+                      <span
+                        className={[
+                          "shrink-0 inline-block px-1.5 py-0.5 text-[10px] uppercase tracking-widest border-2 border-foreground",
+                          active
+                            ? "bg-foreground text-background"
+                            : "bg-background text-foreground",
+                        ].join(" ")}
+                      >
+                        {name}
                       </span>
                       <span className="flex-1 min-w-0">
-                        <span className="block font-mono text-xs font-bold truncate">
-                          {label}
-                        </span>
-                        {subtitle && (
-                          <span className="block font-mono text-[10px] text-muted-foreground truncate">
-                            {subtitle}
+                        {hint && (
+                          <span className="block truncate normal-case tracking-normal">
+                            {hint}
                           </span>
                         )}
-                      </span>
-                      <span className="shrink-0 font-mono text-[10px] text-muted-foreground tabular-nums">
-                        L{b.startLine}
+                        <span className="block text-[10px] text-muted-foreground mt-0.5">
+                          L{b.startLine}
+                        </span>
                       </span>
                     </button>
                   </li>
@@ -312,7 +385,7 @@ function EditorPage() {
           )}
         </aside>
 
-        {/* LEFT: textarea editor */}
+        {/* EDITOR */}
         <div className="bg-foreground text-background lg:overflow-hidden flex flex-col lg:border-r-4 lg:border-foreground">
           <div className="sticky top-0 bg-foreground border-b-4 border-primary px-4 py-2 flex items-center justify-between font-mono text-xs uppercase tracking-widest z-10">
             <span className="flex items-center gap-2">
@@ -333,7 +406,7 @@ function EditorPage() {
           />
         </div>
 
-        {/* RIGHT: live preview */}
+        {/* PREVIEW */}
         <div ref={previewScrollRef} className="bg-background lg:overflow-y-auto">
           <div className="sticky top-0 bg-background border-b-4 border-foreground px-4 py-2 flex items-center justify-between font-mono text-xs uppercase tracking-widest z-10">
             <span className="flex items-center gap-2">
