@@ -54,11 +54,7 @@ function PreviewPage() {
       <div className="bg-foreground text-background px-4 py-2 text-xs uppercase tracking-widest">
         MCP preview · {site.slug}
       </div>
-      <div>
-        {doc.blocks.map((block, i) => (
-          <BlockRenderer key={i} block={block} />
-        ))}
-      </div>
+      <BlockRenderer blocks={doc.blocks} />
     </div>
   );
 }
