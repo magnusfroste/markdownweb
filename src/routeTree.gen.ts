@@ -9,10 +9,18 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as McpRouteImport } from './routes/mcp'
 import { Route as EditRouteImport } from './routes/edit'
 import { Route as DocsRouteImport } from './routes/docs'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiMcpRouteImport } from './routes/api.mcp'
+import { Route as McpPreviewSlugRouteImport } from './routes/mcp.preview.$slug'
 
+const McpRoute = McpRouteImport.update({
+  id: '/mcp',
+  path: '/mcp',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EditRoute = EditRouteImport.update({
   id: '/edit',
   path: '/edit',
@@ -28,39 +36,80 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiMcpRoute = ApiMcpRouteImport.update({
+  id: '/api/mcp',
+  path: '/api/mcp',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const McpPreviewSlugRoute = McpPreviewSlugRouteImport.update({
+  id: '/preview/$slug',
+  path: '/preview/$slug',
+  getParentRoute: () => McpRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/docs': typeof DocsRoute
   '/edit': typeof EditRoute
+  '/mcp': typeof McpRouteWithChildren
+  '/api/mcp': typeof ApiMcpRoute
+  '/mcp/preview/$slug': typeof McpPreviewSlugRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/docs': typeof DocsRoute
   '/edit': typeof EditRoute
+  '/mcp': typeof McpRouteWithChildren
+  '/api/mcp': typeof ApiMcpRoute
+  '/mcp/preview/$slug': typeof McpPreviewSlugRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/docs': typeof DocsRoute
   '/edit': typeof EditRoute
+  '/mcp': typeof McpRouteWithChildren
+  '/api/mcp': typeof ApiMcpRoute
+  '/mcp/preview/$slug': typeof McpPreviewSlugRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/docs' | '/edit'
+  fullPaths:
+    | '/'
+    | '/docs'
+    | '/edit'
+    | '/mcp'
+    | '/api/mcp'
+    | '/mcp/preview/$slug'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/docs' | '/edit'
-  id: '__root__' | '/' | '/docs' | '/edit'
+  to: '/' | '/docs' | '/edit' | '/mcp' | '/api/mcp' | '/mcp/preview/$slug'
+  id:
+    | '__root__'
+    | '/'
+    | '/docs'
+    | '/edit'
+    | '/mcp'
+    | '/api/mcp'
+    | '/mcp/preview/$slug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DocsRoute: typeof DocsRoute
   EditRoute: typeof EditRoute
+  McpRoute: typeof McpRouteWithChildren
+  ApiMcpRoute: typeof ApiMcpRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/mcp': {
+      id: '/mcp'
+      path: '/mcp'
+      fullPath: '/mcp'
+      preLoaderRoute: typeof McpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/edit': {
       id: '/edit'
       path: '/edit'
@@ -82,14 +131,49 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/mcp': {
+      id: '/api/mcp'
+      path: '/api/mcp'
+      fullPath: '/api/mcp'
+      preLoaderRoute: typeof ApiMcpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mcp/preview/$slug': {
+      id: '/mcp/preview/$slug'
+      path: '/preview/$slug'
+      fullPath: '/mcp/preview/$slug'
+      preLoaderRoute: typeof McpPreviewSlugRouteImport
+      parentRoute: typeof McpRoute
+    }
   }
 }
+
+interface McpRouteChildren {
+  McpPreviewSlugRoute: typeof McpPreviewSlugRoute
+}
+
+const McpRouteChildren: McpRouteChildren = {
+  McpPreviewSlugRoute: McpPreviewSlugRoute,
+}
+
+const McpRouteWithChildren = McpRoute._addFileChildren(McpRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DocsRoute: DocsRoute,
   EditRoute: EditRoute,
+  McpRoute: McpRouteWithChildren,
+  ApiMcpRoute: ApiMcpRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
