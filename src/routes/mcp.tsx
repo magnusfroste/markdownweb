@@ -1,23 +1,33 @@
 /**
- * MCP settings page — minimal admin view.
- *  - Shows endpoint URL and key status
- *  - Lists exposed skills
- *  - Shows last 50 activity rows from the in-memory store
+ * MCP settings page — admin view.
+ *  - Endpoint URL + admin key status
+ *  - Listed skills (admin vs scoped)
+ *  - All MCP-managed sites with status/tags
+ *  - Recent activity (last 50)
  *
- * Activity is fetched via a server fn so it reflects real Worker-side state.
+ * State comes from a server fn so it reflects the Worker-side in-memory store.
  */
 
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { skills } from "@/lib/mcp/skills";
-import { listActivity, listSites, type ActivityEntry, type Site } from "@/lib/mcp/store";
+import {
+  listActivity,
+  listSites,
+  listKeys,
+  type ActivityEntry,
+  type Site,
+  type ApiKey,
+} from "@/lib/mcp/store";
 
 const getMcpStatus = createServerFn({ method: "GET" }).handler(async () => {
+  const { items } = listSites({ limit: 200 });
   return {
     keyConfigured: Boolean(process.env.MCP_ADMIN_KEY),
     activity: listActivity(50),
-    sites: listSites(),
+    sites: items,
+    keys: listKeys(),
   };
 });
 
@@ -25,17 +35,17 @@ type Status = {
   keyConfigured: boolean;
   activity: ActivityEntry[];
   sites: Site[];
+  keys: ApiKey[];
 };
 
 const skillSummaries = skills.map((s) => ({
   name: s.name,
   description: s.description,
+  adminOnly: Boolean(s.adminOnly),
 }));
 
 export const Route = createFileRoute("/mcp")({
-  head: () => ({
-    meta: [{ title: "MCP — MarkdownWeb" }],
-  }),
+  head: () => ({ meta: [{ title: "MCP — MarkdownWeb" }] }),
   loader: () => getMcpStatus(),
   component: McpSettingsPage,
 });
@@ -69,17 +79,14 @@ function McpSettingsPage() {
             <div className="text-xs uppercase tracking-widest opacity-60">Settings</div>
             <h1 className="text-2xl font-black uppercase">MCP server</h1>
           </div>
-          <Link
-            to="/"
-            className="text-xs uppercase tracking-widest underline underline-offset-4"
-          >
+          <Link to="/" className="text-xs uppercase tracking-widest underline underline-offset-4">
             ← Home
           </Link>
         </div>
       </header>
 
       <main className="max-w-6xl mx-auto p-6 space-y-8">
-        {/* Connection panel */}
+        {/* Endpoint */}
         <section className="border-4 border-foreground p-6 space-y-4">
           <h2 className="text-xl font-black uppercase">Endpoint</h2>
           <div className="flex flex-col sm:flex-row gap-3 items-stretch">
@@ -98,7 +105,7 @@ function McpSettingsPage() {
           <div className="grid sm:grid-cols-2 gap-3 text-sm">
             <div className="border-2 border-foreground p-3">
               <div className="text-xs uppercase tracking-widest opacity-60">Auth header</div>
-              <code className="font-mono">Authorization: Bearer &lt;MCP_ADMIN_KEY&gt;</code>
+              <code className="font-mono">Authorization: Bearer &lt;token&gt;</code>
             </div>
             <div className="border-2 border-foreground p-3">
               <div className="text-xs uppercase tracking-widest opacity-60">Admin key</div>
@@ -106,27 +113,27 @@ function McpSettingsPage() {
                 <span className="font-bold text-green-700">Configured ✓</span>
               ) : (
                 <span className="font-bold text-destructive">
-                  Missing — set the MCP_ADMIN_KEY secret
+                  Missing — set MCP_ADMIN_KEY
                 </span>
               )}
             </div>
           </div>
-          <p className="text-xs text-muted-foreground">
-            POST JSON-RPC 2.0 with{" "}
-            <code className="font-mono">Accept: application/json, text/event-stream</code>.
-            Methods: <code>initialize</code>, <code>tools/list</code>, <code>tools/call</code>.
-          </p>
         </section>
 
         {/* Skills */}
         <section className="border-4 border-foreground p-6 space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-black uppercase">Skills ({skillSummaries.length})</h2>
-          </div>
+          <h2 className="text-xl font-black uppercase">Skills ({skillSummaries.length})</h2>
           <ul className="divide-y-2 divide-foreground">
             {skillSummaries.map((s) => (
-              <li key={s.name} className="py-3 grid sm:grid-cols-[200px_1fr] gap-3">
-                <code className="font-mono font-bold">{s.name}</code>
+              <li key={s.name} className="py-3 grid sm:grid-cols-[220px_1fr] gap-3">
+                <code className="font-mono font-bold flex items-center gap-2">
+                  {s.name}
+                  {s.adminOnly && (
+                    <span className="text-[10px] bg-foreground text-background px-1 py-0.5 uppercase">
+                      admin
+                    </span>
+                  )}
+                </code>
                 <p className="text-sm text-muted-foreground">{s.description}</p>
               </li>
             ))}
@@ -136,9 +143,7 @@ function McpSettingsPage() {
         {/* Sites */}
         <section className="border-4 border-foreground p-6 space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-black uppercase">
-              MCP sites ({status.sites.length})
-            </h2>
+            <h2 className="text-xl font-black uppercase">Sites ({status.sites.length})</h2>
             <button
               type="button"
               onClick={refresh}
@@ -149,15 +154,30 @@ function McpSettingsPage() {
           </div>
           {status.sites.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              No sites yet. An agent connected via MCP can call{" "}
-              <code className="font-mono">create_site</code> to add one.
+              No sites yet. Call <code className="font-mono">create_site</code> via MCP.
             </p>
           ) : (
             <ul className="divide-y-2 divide-foreground">
               {status.sites.map((s) => (
                 <li key={s.id} className="py-3 flex items-center justify-between gap-3">
-                  <div>
-                    <div className="font-bold">{s.title}</div>
+                  <div className="min-w-0">
+                    <div className="font-bold flex items-center gap-2 flex-wrap">
+                      {s.title}
+                      <span
+                        className={`text-[10px] px-1 py-0.5 uppercase border ${
+                          s.status === "published"
+                            ? "bg-foreground text-background"
+                            : "border-foreground"
+                        }`}
+                      >
+                        {s.status}
+                      </span>
+                      {s.tags.map((t) => (
+                        <span key={t} className="text-[10px] bg-muted px-1 py-0.5 font-mono">
+                          #{t}
+                        </span>
+                      ))}
+                    </div>
                     <div className="text-xs text-muted-foreground font-mono">
                       /{s.slug} · {new Date(s.updatedAt).toLocaleString()}
                     </div>
@@ -165,7 +185,7 @@ function McpSettingsPage() {
                   <Link
                     to="/mcp/preview/$slug"
                     params={{ slug: s.slug }}
-                    className="border-2 border-foreground px-3 py-1 text-xs uppercase font-bold hover:bg-foreground hover:text-background transition-colors"
+                    className="border-2 border-foreground px-3 py-1 text-xs uppercase font-bold hover:bg-foreground hover:text-background transition-colors shrink-0"
                   >
                     Preview →
                   </Link>
@@ -175,15 +195,43 @@ function McpSettingsPage() {
           )}
         </section>
 
+        {/* API Keys */}
+        <section className="border-4 border-foreground p-6 space-y-4">
+          <h2 className="text-xl font-black uppercase">Scoped keys ({status.keys.length})</h2>
+          {status.keys.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              No scoped keys yet. Mint one with{" "}
+              <code className="font-mono">create_key</code> (admin-only). The
+              global admin key always works.
+            </p>
+          ) : (
+            <ul className="divide-y-2 divide-foreground">
+              {status.keys.map((k) => (
+                <li key={k.id} className="py-3 flex items-center justify-between gap-3">
+                  <div>
+                    <div className="font-bold">
+                      {k.label}{" "}
+                      <span className="font-mono text-xs opacity-60">…{k.tail}</span>
+                    </div>
+                    <div className="text-xs text-muted-foreground font-mono">
+                      {k.siteScopes.length === 0
+                        ? "all sites"
+                        : `${k.siteScopes.length} site(s)`}{" "}
+                      · {new Date(k.createdAt).toLocaleString()}
+                      {k.revokedAt && " · revoked"}
+                    </div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+
         {/* Activity */}
         <section className="border-4 border-foreground p-6 space-y-4">
-          <h2 className="text-xl font-black uppercase">
-            Activity ({status.activity.length})
-          </h2>
+          <h2 className="text-xl font-black uppercase">Activity ({status.activity.length})</h2>
           {status.activity.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
-              No MCP calls yet. Connect an agent and start invoking skills.
-            </p>
+            <p className="text-sm text-muted-foreground">No MCP calls yet.</p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">

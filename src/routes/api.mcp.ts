@@ -6,20 +6,27 @@
  *   - tools/list
  *   - tools/call
  *
- * Auth: Bearer token via `Authorization` header, compared to MCP_ADMIN_KEY.
- *
- * Returns plain `application/json` responses (we do not stream SSE here),
- * but advertises both content types via the `Accept` header per spec.
+ * Auth: Bearer token. The global `MCP_ADMIN_KEY` (admin) OR any active key
+ * minted via the `create_key` skill is accepted. Admin-only skills require
+ * the global admin key. Per-key site scopes are enforced for skills that
+ * target a single site (`idOrSlug`).
  */
 
 import { createFileRoute } from "@tanstack/react-router";
 import { skills, getSkill } from "@/lib/mcp/skills";
-import { recordActivity } from "@/lib/mcp/store";
+import {
+  recordActivity,
+  findKeyByToken,
+  keyAllowsSite,
+  getSite,
+  type ApiKey,
+} from "@/lib/mcp/store";
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization, Accept, Mcp-Session-Id",
+  "Access-Control-Allow-Headers":
+    "Content-Type, Authorization, Accept, Mcp-Session-Id",
   "Access-Control-Max-Age": "86400",
 } as const;
 
@@ -44,11 +51,10 @@ function jsonRpcError(
 
 function summariseArgs(args: Record<string, unknown> | undefined): string {
   if (!args) return "";
-  const keys = Object.keys(args);
-  return keys
-    .map((k) => {
-      const v = args[k];
-      if (typeof v === "string") return `${k}=${v.slice(0, 40)}${v.length > 40 ? "…" : ""}`;
+  return Object.entries(args)
+    .map(([k, v]) => {
+      if (typeof v === "string")
+        return `${k}=${v.slice(0, 40)}${v.length > 40 ? "…" : ""}`;
       return `${k}=${JSON.stringify(v).slice(0, 40)}`;
     })
     .join(" ");
@@ -63,11 +69,11 @@ export const Route = createFileRoute("/api/mcp")({
         new Response(
           JSON.stringify({
             name: "markdownweb-mcp",
-            version: "0.1.0",
+            version: "0.2.0",
             transport: "streamable-http",
             skills: skills.map((s) => s.name),
             usage:
-              "POST JSON-RPC 2.0 to this URL with `Authorization: Bearer <MCP_ADMIN_KEY>` and `Accept: application/json, text/event-stream`.",
+              "POST JSON-RPC 2.0 to this URL with `Authorization: Bearer <token>` (admin or scoped) and `Accept: application/json, text/event-stream`.",
           }),
           {
             status: 200,
@@ -101,7 +107,15 @@ export const Route = createFileRoute("/api/mcp")({
         if (!adminKey) {
           return jsonRpcError(id, -32001, "Server missing MCP_ADMIN_KEY", 500);
         }
-        if (!token || token !== adminKey) {
+
+        let isAdmin = false;
+        let scopedKey: ApiKey | undefined;
+        if (token && token === adminKey) {
+          isAdmin = true;
+        } else if (token) {
+          scopedKey = await findKeyByToken(token);
+        }
+        if (!isAdmin && !scopedKey) {
           return jsonRpcError(id, -32001, "Unauthorized", 401);
         }
 
@@ -113,7 +127,7 @@ export const Route = createFileRoute("/api/mcp")({
             return jsonRpcResult(id, {
               protocolVersion: "2025-06-18",
               capabilities: { tools: { listChanged: false } },
-              serverInfo: { name: "markdownweb-mcp", version: "0.1.0" },
+              serverInfo: { name: "markdownweb-mcp", version: "0.2.0" },
             });
           }
 
@@ -122,8 +136,9 @@ export const Route = createFileRoute("/api/mcp")({
           }
 
           if (method === "tools/list") {
+            const visible = isAdmin ? skills : skills.filter((s) => !s.adminOnly);
             return jsonRpcResult(id, {
-              tools: skills.map((s) => ({
+              tools: visible.map((s) => ({
                 name: s.name,
                 description: s.description,
                 inputSchema: s.inputSchema,
@@ -149,9 +164,37 @@ export const Route = createFileRoute("/api/mcp")({
               return jsonRpcError(id, -32601, `Unknown tool: ${name}`);
             }
 
+            if (skill.adminOnly && !isAdmin) {
+              recordActivity({
+                skill: name,
+                keyTail,
+                args: summariseArgs(args),
+                status: "error",
+                message: "Admin-only",
+                durationMs: 0,
+              });
+              return jsonRpcError(id, -32001, "This tool requires the admin key");
+            }
+
+            // Per-key site scope check.
+            if (!isAdmin && scopedKey && typeof args.idOrSlug === "string") {
+              const site = getSite(args.idOrSlug);
+              if (site && !keyAllowsSite(scopedKey, site.id)) {
+                recordActivity({
+                  skill: name,
+                  keyTail,
+                  args: summariseArgs(args),
+                  status: "error",
+                  message: "Key not allowed for this site",
+                  durationMs: 0,
+                });
+                return jsonRpcError(id, -32001, "Forbidden: key scope");
+              }
+            }
+
             const start = Date.now();
             try {
-              const result = skill.handler(args, { origin });
+              const result = await skill.handler(args, { origin, isAdmin });
               const durationMs = Date.now() - start;
               recordActivity({
                 skill: name,
@@ -164,7 +207,7 @@ export const Route = createFileRoute("/api/mcp")({
                 content: [
                   { type: "text", text: JSON.stringify(result, null, 2) },
                 ],
-                structuredContent: result,
+                structuredContent: result as Record<string, unknown>,
                 isError: false,
               });
             } catch (err) {
