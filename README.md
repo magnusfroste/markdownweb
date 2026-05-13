@@ -89,6 +89,13 @@ takes `idOrSlug`.
 `publish_site`, `unpublish_site`, `list_sites` (filter by `search`,
 `status`, `tag`, paginated).
 
+**Templates** — `list_templates`, `get_template`,
+`create_site_from_template`. Nine pre-built blueprints (saas-landing,
+portfolio, agency, personal-blog, event, product-launch, docs-home,
+restaurant, nonprofit, coming-soon) shipped as markdown files in
+`src/content/templates/` with YAML frontmatter and `{{variables}}` the
+agent fills at instantiation. Each template lists `recommendedThemes`.
+
 **Directive discovery** — `list_directives`, `get_directive_schema`. The
 agent should call these before writing markdown so it knows which
 `::blocks::` exist and what attrs they take.
