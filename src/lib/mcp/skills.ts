@@ -315,6 +315,134 @@ export const skills: Skill[] = [
     },
   },
 
+  // ───────── theming ─────────
+  {
+    name: "list_themes",
+    description:
+      "List all curated design templates. Each theme is a vetted token set (palette + typography + radius). Use `set_theme` to apply one.",
+    inputSchema: { type: "object", properties: {} },
+    handler: () =>
+      themes.map((t) => ({
+        slug: t.slug,
+        name: t.name,
+        description: t.description,
+        preview: {
+          background: t.tokens.background,
+          foreground: t.tokens.foreground,
+          primary: t.tokens.primary,
+          accent: t.tokens.accent,
+          fontDisplay: t.tokens.fontDisplay,
+          radius: t.tokens.radius,
+        },
+      })),
+  },
+  {
+    name: "get_theme",
+    description: "Return the full token spec for one theme.",
+    inputSchema: {
+      type: "object",
+      required: ["slug"],
+      properties: { slug: { type: "string" } },
+    },
+    handler: (args) => {
+      const t = getTheme(asString(args.slug, "slug"));
+      if (!t) throw new Error(`Unknown theme: ${args.slug}`);
+      return t;
+    },
+  },
+  {
+    name: "set_theme",
+    description:
+      "Apply a theme to a site (resets any token overrides). Use `update_theme_tokens` afterwards to brand it.",
+    inputSchema: {
+      type: "object",
+      required: ["idOrSlug", "themeSlug"],
+      properties: {
+        idOrSlug: { type: "string" },
+        themeSlug: { type: "string" },
+      },
+    },
+    handler: (args, ctx) => {
+      const themeSlug = asString(args.themeSlug, "themeSlug");
+      if (!getTheme(themeSlug)) {
+        throw new Error(`Unknown theme: ${themeSlug}. Call list_themes.`);
+      }
+      const site = setSiteTheme(asString(args.idOrSlug, "idOrSlug"), themeSlug);
+      if (!site) throw new Error("Site not found");
+      return {
+        id: site.id,
+        themeSlug: site.themeSlug,
+        previewUrl: previewUrl(ctx.origin, site.slug),
+      };
+    },
+  },
+  {
+    name: "get_site_theme",
+    description: "Return the resolved theme tokens (theme defaults merged with overrides) for a site.",
+    inputSchema: {
+      type: "object",
+      required: ["idOrSlug"],
+      properties: { idOrSlug: { type: "string" } },
+    },
+    handler: (args) => {
+      const site = getSite(asString(args.idOrSlug, "idOrSlug"));
+      if (!site) throw new Error("Site not found");
+      const { theme, tokens } = resolveTokens(site.themeSlug, site.themeOverrides);
+      return {
+        themeSlug: theme.slug,
+        themeName: theme.name,
+        overrides: site.themeOverrides,
+        resolved: tokens,
+      };
+    },
+  },
+  {
+    name: "update_theme_tokens",
+    description: `Override a whitelist of theme tokens for one site. Allowed tokens: ${OVERRIDABLE_TOKENS.join(", ")}. Pass color values as hex (#rrggbb), radius as CSS length, logoUrl as URL.`,
+    inputSchema: {
+      type: "object",
+      required: ["idOrSlug", "tokens"],
+      properties: {
+        idOrSlug: { type: "string" },
+        tokens: {
+          type: "object",
+          description: "Map of token name → string value.",
+        },
+      },
+    },
+    handler: (args, ctx) => {
+      const overrides = sanitizeOverrides(args.tokens);
+      const site = updateThemeOverrides(
+        asString(args.idOrSlug, "idOrSlug"),
+        overrides,
+      );
+      if (!site) throw new Error("Site not found");
+      return {
+        id: site.id,
+        overrides: site.themeOverrides,
+        previewUrl: previewUrl(ctx.origin, site.slug),
+      };
+    },
+  },
+  {
+    name: "reset_theme_tokens",
+    description: "Clear all per-site token overrides; revert to the theme's defaults.",
+    inputSchema: {
+      type: "object",
+      required: ["idOrSlug"],
+      properties: { idOrSlug: { type: "string" } },
+    },
+    handler: (args, ctx) => {
+      const site = resetThemeOverrides(asString(args.idOrSlug, "idOrSlug"));
+      if (!site) throw new Error("Site not found");
+      return {
+        id: site.id,
+        themeSlug: site.themeSlug,
+        previewUrl: previewUrl(ctx.origin, site.slug),
+      };
+    },
+  },
+
   // ───────── directives ─────────
   {
     name: "list_directives",
