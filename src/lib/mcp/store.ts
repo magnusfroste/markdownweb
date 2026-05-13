@@ -240,12 +240,15 @@ export function duplicateSite(
 ): Site | undefined {
   const src = getSite(idOrSlug);
   if (!src) return undefined;
-  return createSite({
+  const dup = createSite({
     title: newTitle ?? `${src.title} (copy)`,
     markdown: src.markdown,
     tags: [...src.tags],
     owner: src.owner,
+    themeSlug: src.themeSlug,
   });
+  dup.themeOverrides = { ...src.themeOverrides };
+  return dup;
 }
 
 export function renameSlug(idOrSlug: string, newSlug: string): Site | undefined {
