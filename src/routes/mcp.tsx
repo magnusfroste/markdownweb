@@ -179,7 +179,7 @@ function McpSettingsPage() {
                       ))}
                     </div>
                     <div className="text-xs text-muted-foreground font-mono">
-                      /{s.slug} · {new Date(s.updatedAt).toLocaleString()}
+                      /{s.slug} · theme: {s.themeSlug} · {new Date(s.updatedAt).toLocaleString()}
                     </div>
                   </div>
                   <Link
