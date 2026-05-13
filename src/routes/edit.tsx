@@ -11,9 +11,11 @@ import {
   tokensToCssVars,
   DEFAULT_THEME_SLUG,
 } from "@/lib/mcp/themes";
+import { layoutFamilies, DEFAULT_LAYOUT_FAMILY } from "@/lib/mcp/layouts";
 
 const STORAGE_KEY = "markdownweb:editor:source";
 const THEME_KEY = "markdownweb:editor:theme";
+const LAYOUT_KEY = "markdownweb:editor:layout";
 
 export const Route = createFileRoute("/edit")({
   head: () => ({
@@ -87,6 +89,7 @@ function EditorPage() {
   // source to avoid hydration mismatch.
   const [source, setSource] = useState<string>(demoSource);
   const [themeSlug, setThemeSlug] = useState<string>(DEFAULT_THEME_SLUG);
+  const [layoutFamily, setLayoutFamily] = useState<string>(DEFAULT_LAYOUT_FAMILY);
   const [hydrated, setHydrated] = useState(false);
   const [savedAt, setSavedAt] = useState<number | null>(null);
   const [copied, setCopied] = useState(false);
