@@ -394,11 +394,24 @@ function EditorPage() {
               </optgroup>
             </select>
             <select
+              aria-label="Layout family"
+              value={layoutFamily}
+              onChange={(e) => setLayoutFamily(e.target.value)}
+              className="bg-background text-foreground px-2 py-1 font-mono text-[10px] uppercase tracking-widest border-2 border-background"
+              title="Composition: picks block variants (split vs marquee hero, bento vs grid features, …)"
+            >
+              {layoutFamilies.map((f) => (
+                <option key={f.slug} value={f.slug}>
+                  ▦ {f.name}
+                </option>
+              ))}
+            </select>
+            <select
               aria-label="Theme"
               value={themeSlug}
               onChange={(e) => setThemeSlug(e.target.value)}
               className="bg-primary text-primary-foreground px-2 py-1 font-mono text-[10px] uppercase tracking-widest border-2 border-primary"
-              title="Apply a curated theme to the preview"
+              title="Apply a curated color theme to the preview"
             >
               {mcpThemes.map((t) => (
                 <option key={t.slug} value={t.slug}>
