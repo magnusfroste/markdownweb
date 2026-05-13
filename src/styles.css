@@ -91,3 +91,48 @@
   .shadow-brutal-sm { box-shadow: var(--shadow-brutal-sm); }
   .shadow-brutal-lg { box-shadow: var(--shadow-brutal-lg); }
 }
+
+/* ─── Layout-family chrome overrides ───
+   Blocks render with a brutalist baseline (border-b-4 + thick borders).
+   These soften that for non-brutalist families so the same markdown reads
+   as SaaS / editorial without sharp lines everywhere. */
+
+.mw-fam-momentum section { border-bottom-width: 0 !important; }
+.mw-fam-momentum nav {
+  border-bottom: 1px solid color-mix(in oklab, var(--foreground) 8%, transparent) !important;
+  backdrop-filter: saturate(140%) blur(8px);
+  background: color-mix(in oklab, var(--background) 80%, transparent) !important;
+}
+.mw-fam-momentum .border-brutal {
+  border: 1px solid color-mix(in oklab, var(--foreground) 12%, transparent);
+}
+.mw-fam-momentum .shadow-brutal,
+.mw-fam-momentum .shadow-brutal-sm,
+.mw-fam-momentum .shadow-brutal-lg {
+  box-shadow: 0 10px 30px -12px color-mix(in oklab, var(--foreground) 20%, transparent);
+}
+.mw-fam-momentum nav span[class*="bg-primary"][class*="border-2"] {
+  border-radius: 9999px;
+  border-width: 0 !important;
+  width: 0.6rem;
+  height: 0.6rem;
+}
+
+.mw-fam-editorial section {
+  border-bottom: 1px solid color-mix(in oklab, var(--foreground) 10%, transparent) !important;
+}
+.mw-fam-editorial nav {
+  border-bottom: 1px solid color-mix(in oklab, var(--foreground) 12%, transparent) !important;
+}
+.mw-fam-editorial .border-brutal {
+  border: 1px solid color-mix(in oklab, var(--foreground) 15%, transparent);
+}
+.mw-fam-editorial .shadow-brutal,
+.mw-fam-editorial .shadow-brutal-sm,
+.mw-fam-editorial .shadow-brutal-lg { box-shadow: none; }
+.mw-fam-editorial nav span[class*="bg-primary"][class*="border-2"] {
+  border-radius: 9999px;
+  border-width: 0 !important;
+  width: 0.5rem;
+  height: 0.5rem;
+}
