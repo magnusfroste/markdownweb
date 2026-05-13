@@ -358,7 +358,7 @@ export const skills: Skill[] = [
   {
     name: "create_site_from_template",
     description:
-      "Create a new site by rendering a template with `variables`. If `themeSlug` omitted, the template's first recommended theme is used.",
+      "Create a new site by rendering a template with `variables`. If `themeSlug` omitted, the template's first recommended theme is used. `layoutFamily` defaults to `momentum`.",
     inputSchema: {
       type: "object",
       required: ["templateSlug", "title"],
@@ -367,6 +367,7 @@ export const skills: Skill[] = [
         title: { type: "string" },
         slug: { type: "string" },
         themeSlug: { type: "string" },
+        layoutFamily: { type: "string", description: "momentum | editorial | brutalist" },
         tags: { type: "array", items: { type: "string" } },
         owner: { type: "string" },
         variables: {
@@ -402,6 +403,8 @@ export const skills: Skill[] = [
         tags: Array.isArray(args.tags) ? asStringArray(args.tags, "tags") : undefined,
         owner: typeof args.owner === "string" ? args.owner : undefined,
         themeSlug,
+        layoutFamily:
+          typeof args.layoutFamily === "string" ? args.layoutFamily : undefined,
       });
 
       return {
@@ -409,8 +412,55 @@ export const skills: Skill[] = [
         slug: site.slug,
         title: site.title,
         themeSlug: site.themeSlug,
+        layoutFamily: site.layoutFamily,
         templateSlug: tpl.slug,
         unresolvedVariables: missing,
+        previewUrl: previewUrl(ctx.origin, site.slug),
+      };
+    },
+  },
+
+  // ───────── layout families ─────────
+  {
+    name: "list_layout_families",
+    description:
+      "List the layout families. A family decides which visual variant each block (hero/features/cta) renders as. Combine with a color theme for fundamentally different sites from the same markdown.",
+    inputSchema: { type: "object", properties: {} },
+    handler: () =>
+      layoutFamilies.map((f) => ({
+        slug: f.slug,
+        name: f.name,
+        description: f.description,
+        vibe: f.vibe,
+        defaultVariants: f.defaultVariants,
+      })),
+  },
+  {
+    name: "set_layout_family",
+    description:
+      "Switch a site's layout family. Same markdown, different composition (split vs marquee hero, bento vs grid features, banner vs bold CTA, …).",
+    inputSchema: {
+      type: "object",
+      required: ["idOrSlug", "layoutFamily"],
+      properties: {
+        idOrSlug: { type: "string" },
+        layoutFamily: { type: "string", description: "momentum | editorial | brutalist" },
+      },
+    },
+    handler: (args, ctx) => {
+      const layoutFamily = asString(args.layoutFamily, "layoutFamily");
+      if (!layoutFamilies.some((f) => f.slug === layoutFamily)) {
+        throw new Error(
+          `Unknown layoutFamily: ${layoutFamily}. Call list_layout_families.`,
+        );
+      }
+      // getLayoutFamily call to keep import alive even if validation moves later.
+      void getLayoutFamily(layoutFamily);
+      const site = setSiteLayoutFamily(asString(args.idOrSlug, "idOrSlug"), layoutFamily);
+      if (!site) throw new Error("Site not found");
+      return {
+        id: site.id,
+        layoutFamily: site.layoutFamily,
         previewUrl: previewUrl(ctx.origin, site.slug),
       };
     },
