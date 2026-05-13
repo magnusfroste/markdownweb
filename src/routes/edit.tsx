@@ -114,13 +114,48 @@ function EditorPage() {
   // Load saved source on mount.
   useEffect(() => {
     try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored && stored.length > 0) setSource(stored);
+      // ?template=mcp:saas-landing or ?template=demo overrides saved draft
+      const params = new URLSearchParams(window.location.search);
+      const wanted = params.get("template");
+      if (wanted) {
+        const tpl = TEMPLATES.find((t) => t.id === wanted || t.id === `mcp:${wanted}`);
+        if (tpl) setSource(tpl.source);
+      } else {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored && stored.length > 0) setSource(stored);
+      }
+      const storedTheme = localStorage.getItem(THEME_KEY);
+      if (storedTheme && mcpThemes.some((t) => t.slug === storedTheme)) {
+        setThemeSlug(storedTheme);
+      }
     } catch {
       // ignore
     }
     setHydrated(true);
   }, []);
+
+  // Inject Google Fonts <link> for the active theme. We append per theme
+  // so switching is instant without flashing the previous font.
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    const id = `mw-fonts-${themeSlug}`;
+    if (document.getElementById(id)) return;
+    const link = document.createElement("link");
+    link.id = id;
+    link.rel = "stylesheet";
+    link.href = themeData.fontsHref;
+    document.head.appendChild(link);
+  }, [themeSlug, themeData.fontsHref]);
+
+  // Persist theme.
+  useEffect(() => {
+    if (!hydrated) return;
+    try {
+      localStorage.setItem(THEME_KEY, themeSlug);
+    } catch {
+      // ignore
+    }
+  }, [themeSlug, hydrated]);
 
   // Debounced autosave.
   useEffect(() => {
