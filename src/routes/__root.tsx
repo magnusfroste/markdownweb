@@ -29,23 +29,61 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Markdown Weaver generates websites from plain Markdown files, enabling content creation with structured blocks." },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Markdown Weaver generates websites from plain Markdown files, enabling content creation with structured blocks." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-      { name: "twitter:site", content: "@Lovable" },
-      { name: "twitter:title", content: "Lovable App" },
-      { name: "twitter:description", content: "Markdown Weaver generates websites from plain Markdown files, enabling content creation with structured blocks." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/14746da6-f5d2-4964-ac96-6ed8991cdc5f/id-preview-3892f915--f886653d-8fdc-44f0-a1b0-56bba1fde572.lovable.app-1776900529336.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/14746da6-f5d2-4964-ac96-6ed8991cdc5f/id-preview-3892f915--f886653d-8fdc-44f0-a1b0-56bba1fde572.lovable.app-1776900529336.png" },
-    ],
-    links: [
+      { title: "MarkdownWeb — Sites you write in Markdown" },
       {
-        rel: "stylesheet",
-        href: appCss,
+        name: "description",
+        content:
+          "MarkdownWeb turns a single .md file into a themed, SEO-ready website. LLM-friendly, git-friendly, human-friendly.",
+      },
+      { name: "author", content: "MarkdownWeb" },
+      { property: "og:site_name", content: "MarkdownWeb" },
+      { property: "og:type", content: "website" },
+      { property: "og:title", content: "MarkdownWeb — Sites you write in Markdown" },
+      {
+        property: "og:description",
+        content:
+          "Turn a single .md file into a themed, SEO-ready site. Built for AI agents and humans.",
+      },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "MarkdownWeb — Sites you write in Markdown" },
+      {
+        name: "twitter:description",
+        content:
+          "Turn a single .md file into a themed, SEO-ready site. Built for AI agents and humans.",
+      },
+      { name: "theme-color", content: "#0a0a0a" },
+    ],
+    links: [{ rel: "stylesheet", href: appCss }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          name: "MarkdownWeb",
+          url: "https://mdsites.lovable.app",
+          description:
+            "MarkdownWeb turns a single .md file into a themed, SEO-ready website.",
+          potentialAction: {
+            "@type": "SearchAction",
+            target:
+              "https://mdsites.lovable.app/docs?q={search_term_string}",
+            "query-input": "required name=search_term_string",
+          },
+        }),
+      },
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "SoftwareApplication",
+          name: "MarkdownWeb",
+          applicationCategory: "WebApplication",
+          operatingSystem: "Any",
+          description:
+            "Author and publish websites from a single Markdown file. Includes 10 themes and 10 templates, plus an MCP API for AI agents.",
+          offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+        }),
       },
     ],
   }),
