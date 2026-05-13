@@ -15,7 +15,7 @@ import { Route as EditRouteImport } from './routes/edit'
 import { Route as DocsRouteImport } from './routes/docs'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiMcpRouteImport } from './routes/api.mcp'
-import { Route as McpPreviewSlugDotmdRouteImport } from './routes/mcp.preview.$slug[.]md'
+import { Route as McpSourceSlugRouteImport } from './routes/mcp.source.$slug'
 import { Route as McpPreviewSlugRouteImport } from './routes/mcp.preview.$slug'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
@@ -48,9 +48,9 @@ const ApiMcpRoute = ApiMcpRouteImport.update({
   path: '/api/mcp',
   getParentRoute: () => rootRouteImport,
 } as any)
-const McpPreviewSlugDotmdRoute = McpPreviewSlugDotmdRouteImport.update({
-  id: '/preview/$slug.md',
-  path: '/preview/$slug.md',
+const McpSourceSlugRoute = McpSourceSlugRouteImport.update({
+  id: '/source/$slug',
+  path: '/source/$slug',
   getParentRoute: () => McpRoute,
 } as any)
 const McpPreviewSlugRoute = McpPreviewSlugRouteImport.update({
@@ -67,7 +67,7 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/api/mcp': typeof ApiMcpRoute
   '/mcp/preview/$slug': typeof McpPreviewSlugRoute
-  '/mcp/preview/$slug.md': typeof McpPreviewSlugDotmdRoute
+  '/mcp/source/$slug': typeof McpSourceSlugRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -77,7 +77,7 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/api/mcp': typeof ApiMcpRoute
   '/mcp/preview/$slug': typeof McpPreviewSlugRoute
-  '/mcp/preview/$slug.md': typeof McpPreviewSlugDotmdRoute
+  '/mcp/source/$slug': typeof McpSourceSlugRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -88,7 +88,7 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/api/mcp': typeof ApiMcpRoute
   '/mcp/preview/$slug': typeof McpPreviewSlugRoute
-  '/mcp/preview/$slug.md': typeof McpPreviewSlugDotmdRoute
+  '/mcp/source/$slug': typeof McpSourceSlugRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -100,7 +100,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/api/mcp'
     | '/mcp/preview/$slug'
-    | '/mcp/preview/$slug.md'
+    | '/mcp/source/$slug'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -110,7 +110,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/api/mcp'
     | '/mcp/preview/$slug'
-    | '/mcp/preview/$slug.md'
+    | '/mcp/source/$slug'
   id:
     | '__root__'
     | '/'
@@ -120,7 +120,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/api/mcp'
     | '/mcp/preview/$slug'
-    | '/mcp/preview/$slug.md'
+    | '/mcp/source/$slug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -176,11 +176,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiMcpRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/mcp/preview/$slug.md': {
-      id: '/mcp/preview/$slug.md'
-      path: '/preview/$slug.md'
-      fullPath: '/mcp/preview/$slug.md'
-      preLoaderRoute: typeof McpPreviewSlugDotmdRouteImport
+    '/mcp/source/$slug': {
+      id: '/mcp/source/$slug'
+      path: '/source/$slug'
+      fullPath: '/mcp/source/$slug'
+      preLoaderRoute: typeof McpSourceSlugRouteImport
       parentRoute: typeof McpRoute
     }
     '/mcp/preview/$slug': {
@@ -195,12 +195,12 @@ declare module '@tanstack/react-router' {
 
 interface McpRouteChildren {
   McpPreviewSlugRoute: typeof McpPreviewSlugRoute
-  McpPreviewSlugDotmdRoute: typeof McpPreviewSlugDotmdRoute
+  McpSourceSlugRoute: typeof McpSourceSlugRoute
 }
 
 const McpRouteChildren: McpRouteChildren = {
   McpPreviewSlugRoute: McpPreviewSlugRoute,
-  McpPreviewSlugDotmdRoute: McpPreviewSlugDotmdRoute,
+  McpSourceSlugRoute: McpSourceSlugRoute,
 }
 
 const McpRouteWithChildren = McpRoute._addFileChildren(McpRouteChildren)
