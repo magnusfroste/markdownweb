@@ -1,11 +1,19 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import demoSource from "@/content/demo.md?raw";
 import docsSource from "@/content/docs.md?raw";
 import { parseMarkdownWeb } from "@/lib/markdown-web/parser";
 import { BlockRenderer } from "@/components/markdown-web/BlockRenderer";
+import { templates as mcpTemplates, renderTemplate } from "@/lib/mcp/templates";
+import {
+  themes as mcpThemes,
+  resolveTokens,
+  tokensToCssVars,
+  DEFAULT_THEME_SLUG,
+} from "@/lib/mcp/themes";
 
 const STORAGE_KEY = "markdownweb:editor:source";
+const THEME_KEY = "markdownweb:editor:theme";
 
 export const Route = createFileRoute("/edit")({
   head: () => ({
@@ -14,29 +22,44 @@ export const Route = createFileRoute("/edit")({
       {
         name: "description",
         content:
-          "Edit markdown on the left, see your site render live on the right. Saved locally in your browser.",
+          "Edit markdown on the left, see your themed site render live on the right. 10 templates × 10 themes, autosaved in your browser.",
       },
       { property: "og:title", content: "Editor — MarkdownWeb" },
       {
         property: "og:description",
-        content: "Live markdown editor with split preview.",
+        content:
+          "Live markdown editor with 10 templates, 10 themes, split preview, autosave.",
       },
+      { property: "og:url", content: "https://mdsites.lovable.app/edit" },
     ],
+    links: [{ rel: "canonical", href: "https://mdsites.lovable.app/edit" }],
   }),
   component: EditorPage,
 });
 
-type Template = { id: string; label: string; source: string };
+type Template = { id: string; label: string; group: string; source: string };
 
-const TEMPLATES: Template[] = [
-  { id: "demo", label: "Landing (demo.md)", source: demoSource },
-  { id: "docs", label: "Docs reference (docs.md)", source: docsSource },
+const BUILTIN_TEMPLATES: Template[] = [
+  { id: "demo", label: "Landing (demo.md)", group: "Built-in", source: demoSource },
+  { id: "docs", label: "Docs reference (docs.md)", group: "Built-in", source: docsSource },
   {
     id: "blank",
     label: "Blank",
+    group: "Built-in",
     source: `---\ntitle: "Untitled"\n---\n\n::hero\n# New page\n## Start writing markdown.\n::\n`,
   },
 ];
+
+// Render every MCP template with its default variable values so the user can
+// load it straight into the editor — same blueprints agents get over MCP.
+const MCP_TEMPLATES: Template[] = mcpTemplates.map((t) => ({
+  id: `mcp:${t.slug}`,
+  label: `${t.name}`,
+  group: "MCP templates",
+  source: renderTemplate(t, {}).markdown,
+}));
+
+const TEMPLATES: Template[] = [...BUILTIN_TEMPLATES, ...MCP_TEMPLATES];
 
 const BLOCK_ID = "mw-block-";
 
