@@ -357,6 +357,12 @@ function EditorPage() {
             >
               docs
             </Link>
+            <Link
+              to="/mcp"
+              className="px-2 py-1 hover:bg-background hover:text-foreground transition-colors"
+            >
+              mcp
+            </Link>
             <span className="hidden md:inline-block w-px h-4 bg-background/30 mx-1" />
             <select
               aria-label="Load template"
@@ -367,10 +373,28 @@ function EditorPage() {
               }}
               className="bg-background text-foreground px-2 py-1 font-mono text-[10px] uppercase tracking-widest border-2 border-background"
             >
-              <option value="">load template…</option>
-              {TEMPLATES.map((t) => (
-                <option key={t.id} value={t.id}>
-                  {t.label}
+              <option value="">template…</option>
+              <optgroup label="Built-in">
+                {BUILTIN_TEMPLATES.map((t) => (
+                  <option key={t.id} value={t.id}>{t.label}</option>
+                ))}
+              </optgroup>
+              <optgroup label="MCP templates">
+                {MCP_TEMPLATES.map((t) => (
+                  <option key={t.id} value={t.id}>{t.label}</option>
+                ))}
+              </optgroup>
+            </select>
+            <select
+              aria-label="Theme"
+              value={themeSlug}
+              onChange={(e) => setThemeSlug(e.target.value)}
+              className="bg-primary text-primary-foreground px-2 py-1 font-mono text-[10px] uppercase tracking-widest border-2 border-primary"
+              title="Apply a curated theme to the preview"
+            >
+              {mcpThemes.map((t) => (
+                <option key={t.slug} value={t.slug}>
+                  ◐ {t.name}
                 </option>
               ))}
             </select>
