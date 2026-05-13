@@ -12,6 +12,9 @@ import {
   duplicateSite,
   renameSlug,
   setMetadata,
+  setSiteTheme,
+  updateThemeOverrides,
+  resetThemeOverrides,
   validateMarkdown,
   listSites,
   listRevisions,
@@ -27,6 +30,13 @@ import {
 } from "./store";
 import { directives, getDirective } from "./directives";
 import { serializeDoc, serializeBlock } from "./serialize";
+import {
+  themes,
+  getTheme,
+  resolveTokens,
+  sanitizeOverrides,
+  OVERRIDABLE_TOKENS,
+} from "./themes";
 import { parseMarkdownWeb, type Block } from "@/lib/markdown-web/parser";
 
 export type SkillCtx = { origin: string; isAdmin: boolean };
