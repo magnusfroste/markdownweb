@@ -141,6 +141,44 @@ function McpSettingsPage() {
           </ul>
         </section>
 
+        {/* Themes */}
+        <section className="border-4 border-foreground p-6 space-y-4">
+          <h2 className="text-xl font-black uppercase">Design themes ({themes.length})</h2>
+          <p className="text-sm text-muted-foreground">
+            Curated templates an MCP agent can apply via{" "}
+            <code className="font-mono">set_theme</code>. Per-site brand
+            tweaks via <code className="font-mono">update_theme_tokens</code>.
+          </p>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {themes.map((t) => (
+              <div
+                key={t.slug}
+                className="border-2 border-foreground p-3 space-y-2"
+                style={{ background: t.tokens.background, color: t.tokens.foreground }}
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <span className="font-bold text-sm" style={{ fontFamily: t.tokens.fontDisplay }}>
+                    {t.name}
+                  </span>
+                  <code className="text-[10px] opacity-70 font-mono">{t.slug}</code>
+                </div>
+                <div className="flex gap-1">
+                  {[t.tokens.primary, t.tokens.accent, t.tokens.foreground, t.tokens.muted].map((c) => (
+                    <span
+                      key={c}
+                      className="w-6 h-6 border"
+                      style={{ background: c, borderColor: t.tokens.border }}
+                    />
+                  ))}
+                </div>
+                <p className="text-xs opacity-80" style={{ fontFamily: t.tokens.fontBody }}>
+                  {t.description}
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
+
         {/* Sites */}
         <section className="border-4 border-foreground p-6 space-y-4">
           <div className="flex items-center justify-between">
