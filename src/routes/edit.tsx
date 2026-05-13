@@ -352,7 +352,7 @@ function EditorPage() {
               · {savedLabel}
             </span>
           </div>
-          <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center gap-2 flex-nowrap whitespace-nowrap">
             <Link
               to="/"
               className="px-2 py-1 hover:bg-background hover:text-foreground transition-colors"
