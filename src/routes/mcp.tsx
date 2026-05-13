@@ -12,6 +12,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { skills } from "@/lib/mcp/skills";
+import { themes } from "@/lib/mcp/themes";
 import {
   listActivity,
   listSites,
