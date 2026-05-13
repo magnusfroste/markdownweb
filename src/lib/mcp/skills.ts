@@ -13,6 +13,7 @@ import {
   renameSlug,
   setMetadata,
   setSiteTheme,
+  setSiteLayoutFamily,
   updateThemeOverrides,
   resetThemeOverrides,
   validateMarkdown,
@@ -37,6 +38,7 @@ import {
   sanitizeOverrides,
   OVERRIDABLE_TOKENS,
 } from "./themes";
+import { layoutFamilies, getLayoutFamily } from "./layouts";
 import { templates, getTemplate, renderTemplate } from "./templates";
 import { parseMarkdownWeb, type Block } from "@/lib/markdown-web/parser";
 
