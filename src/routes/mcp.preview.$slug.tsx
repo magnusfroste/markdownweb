@@ -140,9 +140,9 @@ function PreviewPage() {
         }
       `}</style>
       <div className="bg-foreground text-background px-4 py-2 text-xs uppercase tracking-widest">
-        MCP preview · {site.slug} · theme: {site.themeName}
+        MCP preview · {site.slug} · theme: {site.themeName} · layout: {site.layoutFamily}
       </div>
-      <BlockRenderer blocks={doc.blocks} />
+      <BlockRenderer blocks={doc.blocks} layoutFamily={site.layoutFamily} />
     </div>
   );
 }
