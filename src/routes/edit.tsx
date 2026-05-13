@@ -11,9 +11,11 @@ import {
   tokensToCssVars,
   DEFAULT_THEME_SLUG,
 } from "@/lib/mcp/themes";
+import { layoutFamilies, DEFAULT_LAYOUT_FAMILY } from "@/lib/mcp/layouts";
 
 const STORAGE_KEY = "markdownweb:editor:source";
 const THEME_KEY = "markdownweb:editor:theme";
+const LAYOUT_KEY = "markdownweb:editor:layout";
 
 export const Route = createFileRoute("/edit")({
   head: () => ({
@@ -87,6 +89,7 @@ function EditorPage() {
   // source to avoid hydration mismatch.
   const [source, setSource] = useState<string>(demoSource);
   const [themeSlug, setThemeSlug] = useState<string>(DEFAULT_THEME_SLUG);
+  const [layoutFamily, setLayoutFamily] = useState<string>(DEFAULT_LAYOUT_FAMILY);
   const [hydrated, setHydrated] = useState(false);
   const [savedAt, setSavedAt] = useState<number | null>(null);
   const [copied, setCopied] = useState(false);
@@ -128,6 +131,10 @@ function EditorPage() {
       if (storedTheme && mcpThemes.some((t) => t.slug === storedTheme)) {
         setThemeSlug(storedTheme);
       }
+      const storedLayout = localStorage.getItem(LAYOUT_KEY);
+      if (storedLayout && layoutFamilies.some((f) => f.slug === storedLayout)) {
+        setLayoutFamily(storedLayout);
+      }
     } catch {
       // ignore
     }
@@ -147,15 +154,16 @@ function EditorPage() {
     document.head.appendChild(link);
   }, [themeSlug, themeData.fontsHref]);
 
-  // Persist theme.
+  // Persist theme + layout family.
   useEffect(() => {
     if (!hydrated) return;
     try {
       localStorage.setItem(THEME_KEY, themeSlug);
+      localStorage.setItem(LAYOUT_KEY, layoutFamily);
     } catch {
       // ignore
     }
-  }, [themeSlug, hydrated]);
+  }, [themeSlug, layoutFamily, hydrated]);
 
   // Debounced autosave.
   useEffect(() => {
@@ -386,11 +394,24 @@ function EditorPage() {
               </optgroup>
             </select>
             <select
+              aria-label="Layout family"
+              value={layoutFamily}
+              onChange={(e) => setLayoutFamily(e.target.value)}
+              className="bg-background text-foreground px-2 py-1 font-mono text-[10px] uppercase tracking-widest border-2 border-background"
+              title="Composition: picks block variants (split vs marquee hero, bento vs grid features, …)"
+            >
+              {layoutFamilies.map((f) => (
+                <option key={f.slug} value={f.slug}>
+                  ▦ {f.name}
+                </option>
+              ))}
+            </select>
+            <select
               aria-label="Theme"
               value={themeSlug}
               onChange={(e) => setThemeSlug(e.target.value)}
               className="bg-primary text-primary-foreground px-2 py-1 font-mono text-[10px] uppercase tracking-widest border-2 border-primary"
-              title="Apply a curated theme to the preview"
+              title="Apply a curated color theme to the preview"
             >
               {mcpThemes.map((t) => (
                 <option key={t.slug} value={t.slug}>
@@ -511,8 +532,11 @@ function EditorPage() {
             <span className="flex items-center gap-2">
               <span className="inline-block w-2 h-2 bg-primary" />
               live preview
-              <span className="ml-2 px-2 py-0.5 bg-primary text-primary-foreground normal-case tracking-normal text-[10px]">
-                {themeData.theme.name}
+              <span className="ml-2 px-2 py-0.5 bg-foreground text-background normal-case tracking-normal text-[10px]">
+                ▦ {layoutFamily}
+              </span>
+              <span className="ml-1 px-2 py-0.5 bg-primary text-primary-foreground normal-case tracking-normal text-[10px]">
+                ◐ {themeData.theme.name}
               </span>
             </span>
             <span className="text-muted-foreground normal-case tracking-normal">
@@ -581,7 +605,7 @@ function EditorPage() {
                 font-family: var(--font-mono);
               }
             `}</style>
-            <BlockRenderer blocks={doc.blocks} idPrefix={BLOCK_ID} />
+            <BlockRenderer blocks={doc.blocks} idPrefix={BLOCK_ID} layoutFamily={layoutFamily} />
           </div>
         </div>
       </div>

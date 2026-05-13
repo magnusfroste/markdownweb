@@ -9,6 +9,7 @@ import {
   DEFAULT_THEME_SLUG,
   type ThemeOverrides,
 } from "./themes";
+import { DEFAULT_LAYOUT_FAMILY, getLayoutFamily } from "./layouts";
 
 export type SiteStatus = "draft" | "published";
 
@@ -22,6 +23,8 @@ export type Site = {
   owner?: string;
   themeSlug: string;
   themeOverrides: ThemeOverrides;
+  /** Composition family — picks block variants. */
+  layoutFamily: string;
   createdAt: string;
   updatedAt: string;
 };
@@ -159,6 +162,7 @@ export function createSite(input: {
   tags?: string[];
   owner?: string;
   themeSlug?: string;
+  layoutFamily?: string;
 }): Site {
   const now = new Date().toISOString();
   const site: Site = {
@@ -171,11 +175,20 @@ export function createSite(input: {
     owner: input.owner,
     themeSlug: input.themeSlug ?? DEFAULT_THEME_SLUG,
     themeOverrides: {},
+    layoutFamily: getLayoutFamily(input.layoutFamily).slug,
     createdAt: now,
     updatedAt: now,
   };
   sites.set(site.id, site);
   snapshot(site, "create_site");
+  return site;
+}
+
+export function setSiteLayoutFamily(idOrSlug: string, layoutFamily: string): Site | undefined {
+  const site = getSite(idOrSlug);
+  if (!site) return undefined;
+  site.layoutFamily = getLayoutFamily(layoutFamily).slug;
+  site.updatedAt = new Date().toISOString();
   return site;
 }
 
@@ -246,6 +259,7 @@ export function duplicateSite(
     tags: [...src.tags],
     owner: src.owner,
     themeSlug: src.themeSlug,
+    layoutFamily: src.layoutFamily,
   });
   dup.themeOverrides = { ...src.themeOverrides };
   return dup;
