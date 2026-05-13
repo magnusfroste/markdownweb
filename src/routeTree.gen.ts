@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as McpRouteImport } from './routes/mcp'
 import { Route as EditRouteImport } from './routes/edit'
 import { Route as DocsRouteImport } from './routes/docs'
@@ -16,6 +17,11 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiMcpRouteImport } from './routes/api.mcp'
 import { Route as McpPreviewSlugRouteImport } from './routes/mcp.preview.$slug'
 
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const McpRoute = McpRouteImport.update({
   id: '/mcp',
   path: '/mcp',
@@ -52,6 +58,7 @@ export interface FileRoutesByFullPath {
   '/docs': typeof DocsRoute
   '/edit': typeof EditRoute
   '/mcp': typeof McpRouteWithChildren
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/api/mcp': typeof ApiMcpRoute
   '/mcp/preview/$slug': typeof McpPreviewSlugRoute
 }
@@ -60,6 +67,7 @@ export interface FileRoutesByTo {
   '/docs': typeof DocsRoute
   '/edit': typeof EditRoute
   '/mcp': typeof McpRouteWithChildren
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/api/mcp': typeof ApiMcpRoute
   '/mcp/preview/$slug': typeof McpPreviewSlugRoute
 }
@@ -69,6 +77,7 @@ export interface FileRoutesById {
   '/docs': typeof DocsRoute
   '/edit': typeof EditRoute
   '/mcp': typeof McpRouteWithChildren
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/api/mcp': typeof ApiMcpRoute
   '/mcp/preview/$slug': typeof McpPreviewSlugRoute
 }
@@ -79,16 +88,25 @@ export interface FileRouteTypes {
     | '/docs'
     | '/edit'
     | '/mcp'
+    | '/sitemap.xml'
     | '/api/mcp'
     | '/mcp/preview/$slug'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/docs' | '/edit' | '/mcp' | '/api/mcp' | '/mcp/preview/$slug'
+  to:
+    | '/'
+    | '/docs'
+    | '/edit'
+    | '/mcp'
+    | '/sitemap.xml'
+    | '/api/mcp'
+    | '/mcp/preview/$slug'
   id:
     | '__root__'
     | '/'
     | '/docs'
     | '/edit'
     | '/mcp'
+    | '/sitemap.xml'
     | '/api/mcp'
     | '/mcp/preview/$slug'
   fileRoutesById: FileRoutesById
@@ -98,11 +116,19 @@ export interface RootRouteChildren {
   DocsRoute: typeof DocsRoute
   EditRoute: typeof EditRoute
   McpRoute: typeof McpRouteWithChildren
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   ApiMcpRoute: typeof ApiMcpRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/mcp': {
       id: '/mcp'
       path: '/mcp'
@@ -163,8 +189,18 @@ const rootRouteChildren: RootRouteChildren = {
   DocsRoute: DocsRoute,
   EditRoute: EditRoute,
   McpRoute: McpRouteWithChildren,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   ApiMcpRoute: ApiMcpRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}

@@ -1,0 +1,44 @@
+# MarkdownWeb (mdsites)
+
+> Sites whose source is a single Markdown document. LLM-friendly,
+> git-friendly, human-friendly. Built for AI agents to compose,
+> theme and publish web pages from plain `.md` files.
+
+MarkdownWeb parses `.md` files with YAML frontmatter and `::block`
+fences (hero, features, pricing, faq, gallery, testimonials, cta,
+footer, etc.) and renders them as accessible, SEO-ready pages with
+swappable themes.
+
+## Primary entry points
+
+- [Live demo & landing](https://mdsites.lovable.app/): Hero, blocks, themes overview.
+- [Editor](https://mdsites.lovable.app/edit): Browser editor with split preview, autosave, template + theme switcher.
+- [Docs](https://mdsites.lovable.app/docs): Block reference (frontmatter, ::hero, ::features, ::pricing, ::faq, ::gallery, ::testimonials, ::cta, ::footer).
+- [MCP dashboard](https://mdsites.lovable.app/mcp): Sites + themes + templates managed by AI agents over MCP.
+
+## For AI agents (MCP)
+
+- Endpoint: `POST https://mdsites.lovable.app/api/mcp` (JSON-RPC 2.0 / MCP).
+- Skills: `list_blocks`, `list_themes`, `get_theme`, `set_theme`,
+  `get_site_theme`, `update_theme_tokens`, `reset_theme_tokens`,
+  `list_templates`, `get_template`, `create_site_from_template`,
+  `create_site`, `update_site`, `get_site`, `list_sites`,
+  `duplicate_site`, `delete_site`, `render_preview`.
+- Each generated site is browsable at `/mcp/preview/{slug}` and the
+  raw markdown source is exposed at `/mcp/preview/{slug}.md`.
+
+## Templates (10)
+
+saas-landing, portfolio, agency, personal-blog, event,
+product-launch, docs-home, restaurant, nonprofit, coming-soon.
+
+## Themes (10)
+
+editorial-serif, modern-tech, brutalist-pop, soft-pastel,
+mono-noir, sunset-warm, ocean-cool, neon-cyber, forest-natural,
+luxury-gold.
+
+## License & attribution
+
+Free to crawl, summarize, and link. When citing a generated site,
+prefer the `.md` source URL — it's the canonical content.
