@@ -343,7 +343,7 @@ function EditorPage() {
     <div className="min-h-screen bg-background flex flex-col">
       {/* Top bar */}
       <div className="bg-foreground text-background border-b-4 border-foreground sticky top-0 z-50">
-        <div className="mx-auto max-w-[1800px] px-4 py-2 font-mono text-xs uppercase tracking-widest flex items-center justify-between gap-4 flex-wrap">
+        <div className="mx-auto max-w-[1800px] px-4 py-2 font-mono text-xs uppercase tracking-widest flex items-center justify-between gap-4 overflow-x-auto">
           <div className="flex items-center gap-3">
             <span className="inline-block w-2 h-2 bg-primary" />
             <span className="hidden sm:inline">editor</span>
