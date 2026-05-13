@@ -1,11 +1,19 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import demoSource from "@/content/demo.md?raw";
 import docsSource from "@/content/docs.md?raw";
 import { parseMarkdownWeb } from "@/lib/markdown-web/parser";
 import { BlockRenderer } from "@/components/markdown-web/BlockRenderer";
+import { templates as mcpTemplates, renderTemplate } from "@/lib/mcp/templates";
+import {
+  themes as mcpThemes,
+  resolveTokens,
+  tokensToCssVars,
+  DEFAULT_THEME_SLUG,
+} from "@/lib/mcp/themes";
 
 const STORAGE_KEY = "markdownweb:editor:source";
+const THEME_KEY = "markdownweb:editor:theme";
 
 export const Route = createFileRoute("/edit")({
   head: () => ({
@@ -14,29 +22,44 @@ export const Route = createFileRoute("/edit")({
       {
         name: "description",
         content:
-          "Edit markdown on the left, see your site render live on the right. Saved locally in your browser.",
+          "Edit markdown on the left, see your themed site render live on the right. 10 templates × 10 themes, autosaved in your browser.",
       },
       { property: "og:title", content: "Editor — MarkdownWeb" },
       {
         property: "og:description",
-        content: "Live markdown editor with split preview.",
+        content:
+          "Live markdown editor with 10 templates, 10 themes, split preview, autosave.",
       },
+      { property: "og:url", content: "https://mdsites.lovable.app/edit" },
     ],
+    links: [{ rel: "canonical", href: "https://mdsites.lovable.app/edit" }],
   }),
   component: EditorPage,
 });
 
-type Template = { id: string; label: string; source: string };
+type Template = { id: string; label: string; group: string; source: string };
 
-const TEMPLATES: Template[] = [
-  { id: "demo", label: "Landing (demo.md)", source: demoSource },
-  { id: "docs", label: "Docs reference (docs.md)", source: docsSource },
+const BUILTIN_TEMPLATES: Template[] = [
+  { id: "demo", label: "Landing (demo.md)", group: "Built-in", source: demoSource },
+  { id: "docs", label: "Docs reference (docs.md)", group: "Built-in", source: docsSource },
   {
     id: "blank",
     label: "Blank",
+    group: "Built-in",
     source: `---\ntitle: "Untitled"\n---\n\n::hero\n# New page\n## Start writing markdown.\n::\n`,
   },
 ];
+
+// Render every MCP template with its default variable values so the user can
+// load it straight into the editor — same blueprints agents get over MCP.
+const MCP_TEMPLATES: Template[] = mcpTemplates.map((t) => ({
+  id: `mcp:${t.slug}`,
+  label: `${t.name}`,
+  group: "MCP templates",
+  source: renderTemplate(t, {}).markdown,
+}));
+
+const TEMPLATES: Template[] = [...BUILTIN_TEMPLATES, ...MCP_TEMPLATES];
 
 const BLOCK_ID = "mw-block-";
 
@@ -63,6 +86,7 @@ function EditorPage() {
   // Hydrate from localStorage on the client only — SSR must render the demo
   // source to avoid hydration mismatch.
   const [source, setSource] = useState<string>(demoSource);
+  const [themeSlug, setThemeSlug] = useState<string>(DEFAULT_THEME_SLUG);
   const [hydrated, setHydrated] = useState(false);
   const [savedAt, setSavedAt] = useState<number | null>(null);
   const [copied, setCopied] = useState(false);
@@ -71,16 +95,67 @@ function EditorPage() {
   const previewScrollRef = useRef<HTMLDivElement>(null);
   const suppressObserverUntil = useRef(0);
 
+  // Resolved theme tokens → inline CSS vars on the preview wrapper.
+  const themeData = useMemo(() => {
+    const { theme, tokens } = resolveTokens(themeSlug, {});
+    return {
+      theme,
+      cssVars: tokensToCssVars(tokens) as Record<string, string>,
+      fontsHref: theme.fontsHref,
+    };
+  }, [themeSlug]);
+  const previewStyle: CSSProperties = {
+    ...(themeData.cssVars as unknown as CSSProperties),
+    backgroundColor: "var(--background)",
+    color: "var(--foreground)",
+    fontFamily: "var(--font-sans)",
+  };
+
   // Load saved source on mount.
   useEffect(() => {
     try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored && stored.length > 0) setSource(stored);
+      // ?template=mcp:saas-landing or ?template=demo overrides saved draft
+      const params = new URLSearchParams(window.location.search);
+      const wanted = params.get("template");
+      if (wanted) {
+        const tpl = TEMPLATES.find((t) => t.id === wanted || t.id === `mcp:${wanted}`);
+        if (tpl) setSource(tpl.source);
+      } else {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored && stored.length > 0) setSource(stored);
+      }
+      const storedTheme = localStorage.getItem(THEME_KEY);
+      if (storedTheme && mcpThemes.some((t) => t.slug === storedTheme)) {
+        setThemeSlug(storedTheme);
+      }
     } catch {
       // ignore
     }
     setHydrated(true);
   }, []);
+
+  // Inject Google Fonts <link> for the active theme. We append per theme
+  // so switching is instant without flashing the previous font.
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    const id = `mw-fonts-${themeSlug}`;
+    if (document.getElementById(id)) return;
+    const link = document.createElement("link");
+    link.id = id;
+    link.rel = "stylesheet";
+    link.href = themeData.fontsHref;
+    document.head.appendChild(link);
+  }, [themeSlug, themeData.fontsHref]);
+
+  // Persist theme.
+  useEffect(() => {
+    if (!hydrated) return;
+    try {
+      localStorage.setItem(THEME_KEY, themeSlug);
+    } catch {
+      // ignore
+    }
+  }, [themeSlug, hydrated]);
 
   // Debounced autosave.
   useEffect(() => {
@@ -282,6 +357,12 @@ function EditorPage() {
             >
               docs
             </Link>
+            <Link
+              to="/mcp"
+              className="px-2 py-1 hover:bg-background hover:text-foreground transition-colors"
+            >
+              mcp
+            </Link>
             <span className="hidden md:inline-block w-px h-4 bg-background/30 mx-1" />
             <select
               aria-label="Load template"
@@ -292,10 +373,28 @@ function EditorPage() {
               }}
               className="bg-background text-foreground px-2 py-1 font-mono text-[10px] uppercase tracking-widest border-2 border-background"
             >
-              <option value="">load template…</option>
-              {TEMPLATES.map((t) => (
-                <option key={t.id} value={t.id}>
-                  {t.label}
+              <option value="">template…</option>
+              <optgroup label="Built-in">
+                {BUILTIN_TEMPLATES.map((t) => (
+                  <option key={t.id} value={t.id}>{t.label}</option>
+                ))}
+              </optgroup>
+              <optgroup label="MCP templates">
+                {MCP_TEMPLATES.map((t) => (
+                  <option key={t.id} value={t.id}>{t.label}</option>
+                ))}
+              </optgroup>
+            </select>
+            <select
+              aria-label="Theme"
+              value={themeSlug}
+              onChange={(e) => setThemeSlug(e.target.value)}
+              className="bg-primary text-primary-foreground px-2 py-1 font-mono text-[10px] uppercase tracking-widest border-2 border-primary"
+              title="Apply a curated theme to the preview"
+            >
+              {mcpThemes.map((t) => (
+                <option key={t.slug} value={t.slug}>
+                  ◐ {t.name}
                 </option>
               ))}
             </select>
@@ -412,6 +511,9 @@ function EditorPage() {
             <span className="flex items-center gap-2">
               <span className="inline-block w-2 h-2 bg-primary" />
               live preview
+              <span className="ml-2 px-2 py-0.5 bg-primary text-primary-foreground normal-case tracking-normal text-[10px]">
+                {themeData.theme.name}
+              </span>
             </span>
             <span className="text-muted-foreground normal-case tracking-normal">
               {doc.blocks.length} block{doc.blocks.length === 1 ? "" : "s"}
@@ -470,7 +572,17 @@ function EditorPage() {
             </div>
           )}
 
-          <BlockRenderer blocks={doc.blocks} idPrefix={BLOCK_ID} />
+          <div style={previewStyle} className="mw-themed">
+            <style>{`
+              .mw-themed h1, .mw-themed h2, .mw-themed h3, .mw-themed h4 {
+                font-family: var(--font-display);
+              }
+              .mw-themed code, .mw-themed pre {
+                font-family: var(--font-mono);
+              }
+            `}</style>
+            <BlockRenderer blocks={doc.blocks} idPrefix={BLOCK_ID} />
+          </div>
         </div>
       </div>
     </div>

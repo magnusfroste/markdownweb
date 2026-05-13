@@ -261,13 +261,24 @@ function McpSettingsPage() {
                       /{s.slug} · theme: {s.themeSlug} · {new Date(s.updatedAt).toLocaleString()}
                     </div>
                   </div>
-                  <Link
-                    to="/mcp/preview/$slug"
-                    params={{ slug: s.slug }}
-                    className="border-2 border-foreground px-3 py-1 text-xs uppercase font-bold hover:bg-foreground hover:text-background transition-colors shrink-0"
-                  >
-                    Preview →
-                  </Link>
+                  <div className="flex flex-col gap-1 shrink-0">
+                    <Link
+                      to="/mcp/preview/$slug"
+                      params={{ slug: s.slug }}
+                      className="border-2 border-foreground px-3 py-1 text-xs uppercase font-bold hover:bg-foreground hover:text-background transition-colors text-center"
+                    >
+                      Preview →
+                    </Link>
+                    <a
+                      href={`/mcp/source/${s.slug}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="border-2 border-foreground px-3 py-1 text-xs uppercase font-bold hover:bg-primary hover:text-primary-foreground transition-colors text-center"
+                      title="Raw markdown for LLM crawlers"
+                    >
+                      .md ↗
+                    </a>
+                  </div>
                 </li>
               ))}
             </ul>

@@ -1,0 +1,28 @@
+# MarkdownWeb / mdsites
+# LLM-friendly markdown sites — crawlers welcome.
+
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /mcp/preview/
+
+# Explicitly welcome major AI crawlers
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+Sitemap: https://mdsites.lovable.app/sitemap.xml
