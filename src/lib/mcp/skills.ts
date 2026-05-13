@@ -316,6 +316,96 @@ export const skills: Skill[] = [
     },
   },
 
+  // ───────── templates ─────────
+  {
+    name: "list_templates",
+    description:
+      "List pre-built site templates with `{{variables}}`. Each template has a recommended set of themes. Use `create_site_from_template` to instantiate.",
+    inputSchema: { type: "object", properties: {} },
+    handler: () =>
+      templates.map((t) => ({
+        slug: t.slug,
+        name: t.name,
+        description: t.description,
+        recommendedThemes: t.recommendedThemes,
+        variables: t.variables,
+      })),
+  },
+  {
+    name: "get_template",
+    description: "Return the full template (raw markdown body with `{{variables}}` intact + variable specs).",
+    inputSchema: {
+      type: "object",
+      required: ["slug"],
+      properties: { slug: { type: "string" } },
+    },
+    handler: (args) => {
+      const t = getTemplate(asString(args.slug, "slug"));
+      if (!t) throw new Error(`Unknown template: ${args.slug}`);
+      return t;
+    },
+  },
+  {
+    name: "create_site_from_template",
+    description:
+      "Create a new site by rendering a template with `variables`. If `themeSlug` omitted, the template's first recommended theme is used.",
+    inputSchema: {
+      type: "object",
+      required: ["templateSlug", "title"],
+      properties: {
+        templateSlug: { type: "string" },
+        title: { type: "string" },
+        slug: { type: "string" },
+        themeSlug: { type: "string" },
+        tags: { type: "array", items: { type: "string" } },
+        owner: { type: "string" },
+        variables: {
+          type: "object",
+          description: "Map of variable name → value to substitute into the template body.",
+        },
+      },
+    },
+    handler: (args, ctx) => {
+      const tpl = getTemplate(asString(args.templateSlug, "templateSlug"));
+      if (!tpl) throw new Error(`Unknown template: ${args.templateSlug}`);
+
+      const values: Record<string, string> = {};
+      if (args.variables && typeof args.variables === "object") {
+        for (const [k, v] of Object.entries(args.variables as Record<string, unknown>)) {
+          if (typeof v === "string") values[k] = v;
+        }
+      }
+      const { markdown, missing } = renderTemplate(tpl, values);
+
+      const themeSlug =
+        typeof args.themeSlug === "string"
+          ? args.themeSlug
+          : tpl.recommendedThemes[0];
+      if (themeSlug && !getTheme(themeSlug)) {
+        throw new Error(`Unknown theme: ${themeSlug}. Call list_themes.`);
+      }
+
+      const site = createSite({
+        title: asString(args.title, "title"),
+        markdown,
+        slug: typeof args.slug === "string" ? args.slug : undefined,
+        tags: Array.isArray(args.tags) ? asStringArray(args.tags, "tags") : undefined,
+        owner: typeof args.owner === "string" ? args.owner : undefined,
+        themeSlug,
+      });
+
+      return {
+        id: site.id,
+        slug: site.slug,
+        title: site.title,
+        themeSlug: site.themeSlug,
+        templateSlug: tpl.slug,
+        unresolvedVariables: missing,
+        previewUrl: previewUrl(ctx.origin, site.slug),
+      };
+    },
+  },
+
   // ───────── theming ─────────
   {
     name: "list_themes",
