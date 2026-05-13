@@ -180,6 +180,45 @@ function McpSettingsPage() {
           </div>
         </section>
 
+        {/* Templates */}
+        <section className="border-4 border-foreground p-6 space-y-4">
+          <h2 className="text-xl font-black uppercase">Site templates ({templates.length})</h2>
+          <p className="text-sm text-muted-foreground">
+            Pre-built blueprints with <code className="font-mono">{`{{variables}}`}</code>.
+            Agents instantiate via{" "}
+            <code className="font-mono">create_site_from_template</code>.
+          </p>
+          <ul className="divide-y-2 divide-foreground">
+            {templates.map((t) => (
+              <li key={t.slug} className="py-3 grid sm:grid-cols-[200px_1fr] gap-3">
+                <div>
+                  <div className="font-bold">{t.name}</div>
+                  <code className="text-[10px] opacity-60 font-mono">{t.slug}</code>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-sm text-muted-foreground">{t.description}</p>
+                  <div className="flex flex-wrap gap-1 text-[10px]">
+                    {t.recommendedThemes.map((th) => (
+                      <span key={th} className="bg-muted px-1 py-0.5 font-mono">
+                        theme:{th}
+                      </span>
+                    ))}
+                    {t.variables.map((v) => (
+                      <span
+                        key={v.name}
+                        className="border border-foreground px-1 py-0.5 font-mono"
+                        title={v.description}
+                      >
+                        {`{{${v.name}}}`}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+
         {/* Sites */}
         <section className="border-4 border-foreground p-6 space-y-4">
           <div className="flex items-center justify-between">
