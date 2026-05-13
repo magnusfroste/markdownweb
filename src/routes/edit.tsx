@@ -86,6 +86,7 @@ function EditorPage() {
   // Hydrate from localStorage on the client only — SSR must render the demo
   // source to avoid hydration mismatch.
   const [source, setSource] = useState<string>(demoSource);
+  const [themeSlug, setThemeSlug] = useState<string>(DEFAULT_THEME_SLUG);
   const [hydrated, setHydrated] = useState(false);
   const [savedAt, setSavedAt] = useState<number | null>(null);
   const [copied, setCopied] = useState(false);
@@ -93,6 +94,22 @@ function EditorPage() {
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const previewScrollRef = useRef<HTMLDivElement>(null);
   const suppressObserverUntil = useRef(0);
+
+  // Resolved theme tokens → inline CSS vars on the preview wrapper.
+  const themeData = useMemo(() => {
+    const { theme, tokens } = resolveTokens(themeSlug, {});
+    return {
+      theme,
+      cssVars: tokensToCssVars(tokens) as Record<string, string>,
+      fontsHref: theme.fontsHref,
+    };
+  }, [themeSlug]);
+  const previewStyle: CSSProperties = {
+    ...(themeData.cssVars as unknown as CSSProperties),
+    backgroundColor: "var(--background)",
+    color: "var(--foreground)",
+    fontFamily: "var(--font-sans)",
+  };
 
   // Load saved source on mount.
   useEffect(() => {
