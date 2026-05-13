@@ -37,6 +37,7 @@ import {
   sanitizeOverrides,
   OVERRIDABLE_TOKENS,
 } from "./themes";
+import { templates, getTemplate, renderTemplate } from "./templates";
 import { parseMarkdownWeb, type Block } from "@/lib/markdown-web/parser";
 
 export type SkillCtx = { origin: string; isAdmin: boolean };
