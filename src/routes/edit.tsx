@@ -511,6 +511,9 @@ function EditorPage() {
             <span className="flex items-center gap-2">
               <span className="inline-block w-2 h-2 bg-primary" />
               live preview
+              <span className="ml-2 px-2 py-0.5 bg-primary text-primary-foreground normal-case tracking-normal text-[10px]">
+                {themeData.theme.name}
+              </span>
             </span>
             <span className="text-muted-foreground normal-case tracking-normal">
               {doc.blocks.length} block{doc.blocks.length === 1 ? "" : "s"}
