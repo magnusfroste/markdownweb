@@ -131,6 +131,10 @@ function EditorPage() {
       if (storedTheme && mcpThemes.some((t) => t.slug === storedTheme)) {
         setThemeSlug(storedTheme);
       }
+      const storedLayout = localStorage.getItem(LAYOUT_KEY);
+      if (storedLayout && layoutFamilies.some((f) => f.slug === storedLayout)) {
+        setLayoutFamily(storedLayout);
+      }
     } catch {
       // ignore
     }
@@ -150,15 +154,16 @@ function EditorPage() {
     document.head.appendChild(link);
   }, [themeSlug, themeData.fontsHref]);
 
-  // Persist theme.
+  // Persist theme + layout family.
   useEffect(() => {
     if (!hydrated) return;
     try {
       localStorage.setItem(THEME_KEY, themeSlug);
+      localStorage.setItem(LAYOUT_KEY, layoutFamily);
     } catch {
       // ignore
     }
-  }, [themeSlug, hydrated]);
+  }, [themeSlug, layoutFamily, hydrated]);
 
   // Debounced autosave.
   useEffect(() => {
