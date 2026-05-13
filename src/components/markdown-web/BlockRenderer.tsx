@@ -14,39 +14,54 @@ import {
   DividerBlock,
   SplitBlock,
 } from "./blocks/extras";
+import {
+  getLayoutFamily,
+  resolveVariant,
+  type LayoutFamily,
+} from "@/lib/mcp/layouts";
 
-function ActionLink({ link }: { link: ParsedLink }) {
+function ActionLink({ link, tone = "brutal" }: { link: ParsedLink; tone?: "brutal" | "soft" | "ghost" }) {
   const isExternal = link.href.startsWith("http");
   const isHash = link.href.startsWith("#");
-  const cls =
-    link.variant === "primary"
-      ? "inline-flex items-center gap-2 bg-primary text-primary-foreground border-brutal shadow-brutal-sm px-6 py-3 font-bold uppercase tracking-wide hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all"
-      : "inline-flex items-center gap-2 bg-background text-foreground border-brutal px-6 py-3 font-bold uppercase tracking-wide hover:bg-secondary transition-colors";
+
+  let cls = "";
+  if (tone === "brutal") {
+    cls =
+      link.variant === "primary"
+        ? "inline-flex items-center gap-2 bg-primary text-primary-foreground border-brutal shadow-brutal-sm px-6 py-3 font-bold uppercase tracking-wide hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all"
+        : "inline-flex items-center gap-2 bg-background text-foreground border-brutal px-6 py-3 font-bold uppercase tracking-wide hover:bg-secondary transition-colors";
+  } else if (tone === "soft") {
+    cls =
+      link.variant === "primary"
+        ? "inline-flex items-center gap-2 bg-primary text-primary-foreground rounded-full px-6 py-3 text-sm font-semibold hover:opacity-90 hover:-translate-y-0.5 transition-all shadow-lg shadow-primary/30"
+        : "inline-flex items-center gap-2 bg-foreground/5 text-foreground rounded-full px-6 py-3 text-sm font-semibold hover:bg-foreground/10 transition-colors backdrop-blur-sm";
+  } else {
+    // ghost — editorial
+    cls =
+      link.variant === "primary"
+        ? "inline-flex items-center gap-2 text-foreground border-b-2 border-foreground pb-1 text-base font-medium hover:gap-3 transition-all"
+        : "inline-flex items-center gap-2 text-muted-foreground hover:text-foreground text-base transition-colors";
+  }
 
   if (isExternal || isHash) {
     return (
       <a href={link.href} className={cls} target={isExternal ? "_blank" : undefined} rel={isExternal ? "noopener" : undefined}>
         {link.label}
+        {tone === "ghost" && link.variant === "primary" && <span aria-hidden>→</span>}
       </a>
     );
   }
   return (
     <Link to={link.href} className={cls}>
       {link.label}
+      {tone === "ghost" && link.variant === "primary" && <span aria-hidden>→</span>}
     </Link>
   );
 }
 
-function Prose({ md }: { md: string }) {
-  return (
-    <div
-      className="prose-md [&_h1]:text-5xl [&_h1]:md:text-7xl [&_h1]:font-display [&_h1]:mb-4 [&_h2]:text-2xl [&_h2]:md:text-3xl [&_h2]:font-sans [&_h2]:font-medium [&_h2]:text-muted-foreground [&_h2]:mb-6 [&_h2]:max-w-2xl [&_p]:mb-4 [&_p]:text-lg [&_strong]:bg-secondary [&_strong]:px-2 [&_code]:bg-muted [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-sm [&_a]:underline [&_a]:underline-offset-4"
-      dangerouslySetInnerHTML={renderMd(md)}
-    />
-  );
-}
+/* ─────────── HERO variants ─────────── */
 
-function HeroBlock({ block }: { block: DirectiveBlock }) {
+function HeroMarquee({ block }: { block: DirectiveBlock }) {
   const { links, rest } = extractActionLinks(block.body);
   const eyebrow = block.attrs.eyebrow as string | undefined;
   return (
@@ -57,10 +72,13 @@ function HeroBlock({ block }: { block: DirectiveBlock }) {
             {eyebrow}
           </div>
         )}
-        <Prose md={rest} />
+        <div
+          className="prose-md [&_h1]:text-5xl [&_h1]:md:text-7xl [&_h1]:font-display [&_h1]:mb-4 [&_h2]:text-2xl [&_h2]:md:text-3xl [&_h2]:font-sans [&_h2]:font-medium [&_h2]:text-muted-foreground [&_h2]:mb-6 [&_h2]:max-w-2xl [&_p]:mb-4 [&_p]:text-lg"
+          dangerouslySetInnerHTML={renderMd(rest)}
+        />
         {links.length > 0 && (
           <div className="flex flex-wrap gap-4 mt-10">
-            {links.map((l, i) => <ActionLink key={i} link={l} />)}
+            {links.map((l, i) => <ActionLink key={i} link={l} tone="brutal" />)}
           </div>
         )}
       </div>
@@ -70,7 +88,128 @@ function HeroBlock({ block }: { block: DirectiveBlock }) {
   );
 }
 
-function FeaturesBlock({ block }: { block: DirectiveBlock }) {
+function HeroSplit({ block }: { block: DirectiveBlock }) {
+  const { links, rest } = extractActionLinks(block.body);
+  const eyebrow = block.attrs.eyebrow as string | undefined;
+  const image = block.attrs.image as string | undefined;
+  const imageAlt = (block.attrs.imageAlt as string) ?? "";
+  return (
+    <section className="relative overflow-hidden bg-background">
+      {/* glow blobs */}
+      <div
+        className="pointer-events-none absolute -top-40 -right-32 w-[36rem] h-[36rem] rounded-full opacity-30 blur-3xl"
+        style={{ background: "radial-gradient(circle at center, var(--primary), transparent 60%)" }}
+      />
+      <div
+        className="pointer-events-none absolute -bottom-40 -left-32 w-[28rem] h-[28rem] rounded-full opacity-25 blur-3xl"
+        style={{ background: "radial-gradient(circle at center, var(--accent), transparent 60%)" }}
+      />
+      <div className="relative mx-auto max-w-6xl px-6 py-20 md:py-28 grid md:grid-cols-[1.1fr_0.9fr] gap-12 items-center">
+        <div>
+          {eyebrow && (
+            <div className="inline-flex items-center gap-2 rounded-full bg-foreground/5 backdrop-blur px-3 py-1 mb-6 text-xs font-medium text-foreground">
+              <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+              {eyebrow}
+            </div>
+          )}
+          <div
+            className="[&_h1]:text-4xl [&_h1]:md:text-6xl [&_h1]:font-display [&_h1]:tracking-tight [&_h1]:mb-5 [&_h1]:leading-[1.05] [&_h2]:text-lg [&_h2]:md:text-xl [&_h2]:text-muted-foreground [&_h2]:font-normal [&_h2]:mb-6 [&_h2]:max-w-xl [&_h2]:leading-relaxed [&_p]:text-lg [&_p]:text-muted-foreground [&_p]:max-w-xl [&_p]:mb-4"
+            dangerouslySetInnerHTML={renderMd(rest)}
+          />
+          {links.length > 0 && (
+            <div className="flex flex-wrap gap-3 mt-8">
+              {links.map((l, i) => <ActionLink key={i} link={l} tone="soft" />)}
+            </div>
+          )}
+        </div>
+        <div className="relative">
+          <div
+            className="absolute inset-0 -m-4 rounded-3xl opacity-60 blur-2xl"
+            style={{ background: "linear-gradient(135deg, var(--primary), var(--accent))" }}
+          />
+          <div
+            className="relative rounded-2xl overflow-hidden bg-card aspect-[4/5] md:aspect-[5/6]"
+            style={{ boxShadow: "0 30px 80px -20px rgba(0,0,0,0.25)" }}
+          >
+            {image ? (
+              <img src={image} alt={imageAlt} className="w-full h-full object-cover" loading="lazy" />
+            ) : (
+              <div className="absolute inset-0 flex flex-col">
+                {/* fake product chrome */}
+                <div className="flex items-center gap-1.5 px-4 py-3 border-b border-foreground/10">
+                  <span className="w-2.5 h-2.5 rounded-full bg-foreground/20" />
+                  <span className="w-2.5 h-2.5 rounded-full bg-foreground/20" />
+                  <span className="w-2.5 h-2.5 rounded-full bg-foreground/20" />
+                </div>
+                <div className="flex-1 p-5 grid grid-cols-3 gap-3">
+                  <div className="col-span-2 rounded-lg bg-foreground/5 p-3 flex flex-col gap-2">
+                    <div className="h-2 w-1/3 rounded-full bg-foreground/15" />
+                    <div className="h-8 rounded bg-gradient-to-br from-primary/30 to-accent/30" />
+                    <div className="h-2 w-2/3 rounded-full bg-foreground/15" />
+                    <div className="h-2 w-1/2 rounded-full bg-foreground/10" />
+                  </div>
+                  <div className="rounded-lg bg-primary/15 p-3 flex flex-col justify-between">
+                    <div className="h-2 w-2/3 rounded-full bg-primary/40" />
+                    <div className="h-6 w-6 rounded-full bg-primary" />
+                  </div>
+                  <div className="col-span-3 rounded-lg bg-foreground/5 p-3 flex items-center gap-3">
+                    <div className="h-8 w-8 rounded-full bg-accent/40" />
+                    <div className="flex-1 space-y-2">
+                      <div className="h-2 w-1/3 rounded-full bg-foreground/15" />
+                      <div className="h-2 w-2/3 rounded-full bg-foreground/10" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+          {/* floating chip */}
+          <div className="hidden md:flex absolute -top-4 -left-6 items-center gap-2 rounded-full bg-card px-3 py-2 text-xs font-medium shadow-lg border border-foreground/10">
+            <span className="inline-block w-2 h-2 rounded-full bg-primary" />
+            live
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function HeroCentered({ block }: { block: DirectiveBlock }) {
+  const { links, rest } = extractActionLinks(block.body);
+  const eyebrow = block.attrs.eyebrow as string | undefined;
+  return (
+    <section className="bg-background">
+      <div className="mx-auto max-w-3xl px-6 py-24 md:py-32 text-center">
+        {eyebrow && (
+          <div className="text-xs uppercase tracking-[0.3em] text-muted-foreground mb-8">
+            — {eyebrow} —
+          </div>
+        )}
+        <div
+          className="[&_h1]:text-5xl [&_h1]:md:text-7xl [&_h1]:font-display [&_h1]:font-normal [&_h1]:tracking-tight [&_h1]:leading-[1.05] [&_h1]:mb-6 [&_h2]:text-xl [&_h2]:md:text-2xl [&_h2]:font-normal [&_h2]:text-muted-foreground [&_h2]:mb-8 [&_h2]:leading-relaxed [&_p]:text-lg [&_p]:text-muted-foreground [&_p]:max-w-2xl [&_p]:mx-auto [&_p]:mb-4 [&_p]:leading-relaxed"
+          dangerouslySetInnerHTML={renderMd(rest)}
+        />
+        {links.length > 0 && (
+          <div className="flex flex-wrap gap-6 justify-center mt-10">
+            {links.map((l, i) => <ActionLink key={i} link={l} tone="ghost" />)}
+          </div>
+        )}
+      </div>
+      <div className="mx-auto max-w-xs h-px bg-foreground/15" />
+    </section>
+  );
+}
+
+function HeroBlock({ block, family }: { block: DirectiveBlock; family: LayoutFamily }) {
+  const v = resolveVariant("hero", family, block.attrs.variant);
+  if (v === "split") return <HeroSplit block={block} />;
+  if (v === "centered") return <HeroCentered block={block} />;
+  return <HeroMarquee block={block} />;
+}
+
+/* ─────────── FEATURES variants ─────────── */
+
+function FeaturesGrid({ block }: { block: DirectiveBlock }) {
   const items = parseListItems(block.body);
   const cols = (block.attrs.columns as number) ?? 3;
   const title = block.attrs.title as string | undefined;
@@ -98,6 +237,202 @@ function FeaturesBlock({ block }: { block: DirectiveBlock }) {
   );
 }
 
+function FeaturesBento({ block }: { block: DirectiveBlock }) {
+  const items = parseListItems(block.body);
+  const title = block.attrs.title as string | undefined;
+  // Bento spans repeat in cycles: big, small, small, wide, small, small …
+  const spans = ["md:col-span-2 md:row-span-2", "", "", "md:col-span-2", "", ""];
+  return (
+    <section className="bg-background">
+      <div className="mx-auto max-w-6xl px-6 py-20">
+        {title && (
+          <h2 className="text-3xl md:text-5xl font-display tracking-tight mb-3">{title}</h2>
+        )}
+        <div className="grid grid-cols-1 md:grid-cols-3 md:auto-rows-[minmax(180px,auto)] gap-4 mt-10">
+          {items.map((it, i) => {
+            const span = spans[i % spans.length];
+            const isHero = i % spans.length === 0;
+            return (
+              <div
+                key={i}
+                className={[
+                  "relative overflow-hidden rounded-2xl border border-foreground/10 p-6 group",
+                  span,
+                  isHero
+                    ? "bg-gradient-to-br from-primary/15 via-accent/10 to-transparent"
+                    : "bg-card hover:border-foreground/20",
+                  "transition-all hover:-translate-y-0.5",
+                ].join(" ")}
+              >
+                {isHero && (
+                  <div
+                    className="pointer-events-none absolute -top-12 -right-12 w-48 h-48 rounded-full opacity-40 blur-2xl"
+                    style={{ background: "radial-gradient(circle, var(--primary), transparent 60%)" }}
+                  />
+                )}
+                <div className="relative">
+                  {it.icon && (
+                    <div className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-foreground/5 mb-4 text-xl">
+                      {it.icon}
+                    </div>
+                  )}
+                  <h3 className={`font-display tracking-tight ${isHero ? "text-2xl md:text-3xl" : "text-lg"} mb-2`}>
+                    {it.title}
+                  </h3>
+                  {it.body && (
+                    <p className={`${isHero ? "text-base" : "text-sm"} text-muted-foreground leading-relaxed`}>
+                      {it.body}
+                    </p>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function FeaturesZigzag({ block }: { block: DirectiveBlock }) {
+  const items = parseListItems(block.body);
+  const title = block.attrs.title as string | undefined;
+  return (
+    <section className="bg-background">
+      <div className="mx-auto max-w-5xl px-6 py-20">
+        {title && (
+          <h2 className="text-3xl md:text-5xl font-display tracking-tight mb-12 max-w-2xl">
+            {title}
+          </h2>
+        )}
+        <div className="space-y-16">
+          {items.map((it, i) => {
+            const reverse = i % 2 === 1;
+            return (
+              <div
+                key={i}
+                className={`grid md:grid-cols-2 gap-10 items-center ${reverse ? "md:[&>*:first-child]:order-2" : ""}`}
+              >
+                <div className="aspect-[5/4] rounded-lg bg-muted overflow-hidden flex items-center justify-center text-4xl">
+                  {it.icon ?? "✦"}
+                </div>
+                <div>
+                  <div className="text-xs uppercase tracking-[0.25em] text-muted-foreground mb-3">
+                    Chapter {String(i + 1).padStart(2, "0")}
+                  </div>
+                  <h3 className="text-2xl md:text-3xl font-display tracking-tight mb-3">
+                    {it.title}
+                  </h3>
+                  {it.body && (
+                    <p className="text-muted-foreground leading-relaxed text-base">
+                      {it.body}
+                    </p>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function FeaturesBlock({ block, family }: { block: DirectiveBlock; family: LayoutFamily }) {
+  const v = resolveVariant("features", family, block.attrs.variant);
+  if (v === "bento") return <FeaturesBento block={block} />;
+  if (v === "zigzag") return <FeaturesZigzag block={block} />;
+  return <FeaturesGrid block={block} />;
+}
+
+/* ─────────── CTA variants ─────────── */
+
+function CtaBold({ block }: { block: DirectiveBlock }) {
+  const { links, rest } = extractActionLinks(block.body);
+  const bg = block.attrs.background === "primary" ? "bg-primary text-primary-foreground" : "bg-foreground text-background";
+  return (
+    <section className={`border-b-4 border-foreground ${bg}`}>
+      <div className="mx-auto max-w-5xl px-6 py-24">
+        <div className="[&_h1]:text-4xl [&_h1]:md:text-6xl [&_h1]:font-display [&_h1]:mb-4 [&_h2]:text-xl [&_h2]:md:text-2xl [&_h2]:font-sans [&_h2]:font-medium [&_h2]:opacity-80 [&_h2]:mb-8">
+          <div dangerouslySetInnerHTML={renderMd(rest)} />
+        </div>
+        {links.length > 0 && (
+          <div className="flex flex-wrap gap-4 mt-2">
+            {links.map((l, i) => <ActionLink key={i} link={l} tone="brutal" />)}
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
+function CtaBanner({ block }: { block: DirectiveBlock }) {
+  const { links, rest } = extractActionLinks(block.body);
+  return (
+    <section className="bg-background py-16">
+      <div className="mx-auto max-w-6xl px-6">
+        <div
+          className="relative overflow-hidden rounded-3xl px-8 md:px-14 py-14 md:py-20"
+          style={{
+            background:
+              "linear-gradient(135deg, color-mix(in oklab, var(--primary) 14%, var(--card)), color-mix(in oklab, var(--accent) 10%, var(--card)))",
+            boxShadow: "0 40px 100px -30px color-mix(in oklab, var(--primary) 35%, transparent)",
+          }}
+        >
+          <div
+            className="pointer-events-none absolute -top-20 -right-20 w-72 h-72 rounded-full opacity-40 blur-3xl"
+            style={{ background: "radial-gradient(circle, var(--primary), transparent 60%)" }}
+          />
+          <div
+            className="pointer-events-none absolute -bottom-24 -left-16 w-72 h-72 rounded-full opacity-30 blur-3xl"
+            style={{ background: "radial-gradient(circle, var(--accent), transparent 60%)" }}
+          />
+          <div className="relative grid md:grid-cols-[1.5fr_auto] gap-8 items-center">
+            <div className="[&_h1]:text-3xl [&_h1]:md:text-5xl [&_h1]:font-display [&_h1]:tracking-tight [&_h1]:mb-3 [&_h2]:text-lg [&_h2]:md:text-xl [&_h2]:text-muted-foreground [&_h2]:font-normal [&_h2]:mb-0 [&_p]:text-muted-foreground [&_p]:text-base [&_p]:max-w-xl">
+              <div dangerouslySetInnerHTML={renderMd(rest)} />
+            </div>
+            {links.length > 0 && (
+              <div className="flex flex-wrap gap-3 md:justify-end">
+                {links.map((l, i) => <ActionLink key={i} link={l} tone="soft" />)}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function CtaInline({ block }: { block: DirectiveBlock }) {
+  const { links, rest } = extractActionLinks(block.body);
+  return (
+    <section className="bg-background">
+      <div className="mx-auto max-w-3xl px-6 py-24 text-center">
+        <div className="text-xs uppercase tracking-[0.3em] text-muted-foreground mb-6">
+          — Next chapter —
+        </div>
+        <div className="[&_h1]:text-3xl [&_h1]:md:text-5xl [&_h1]:font-display [&_h1]:font-normal [&_h1]:tracking-tight [&_h1]:leading-tight [&_h1]:mb-4 [&_h2]:text-lg [&_h2]:md:text-xl [&_h2]:text-muted-foreground [&_h2]:font-normal [&_h2]:mb-0 [&_p]:text-muted-foreground">
+          <div dangerouslySetInnerHTML={renderMd(rest)} />
+        </div>
+        {links.length > 0 && (
+          <div className="flex flex-wrap gap-6 mt-10 justify-center">
+            {links.map((l, i) => <ActionLink key={i} link={l} tone="ghost" />)}
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
+function CtaBlock({ block, family }: { block: DirectiveBlock; family: LayoutFamily }) {
+  const v = resolveVariant("cta", family, block.attrs.variant);
+  if (v === "banner") return <CtaBanner block={block} />;
+  if (v === "inline") return <CtaInline block={block} />;
+  return <CtaBold block={block} />;
+}
+
+/* ─────────── unchanged blocks ─────────── */
+
 function QuoteBlock({ block }: { block: DirectiveBlock }) {
   return (
     <section className="border-b-4 border-foreground bg-background">
@@ -110,25 +445,6 @@ function QuoteBlock({ block }: { block: DirectiveBlock }) {
           <div className="font-mono text-sm uppercase tracking-widest">
             — {block.attrs.author as string}
             {block.attrs.role && <span className="text-muted-foreground">, {block.attrs.role as string}</span>}
-          </div>
-        )}
-      </div>
-    </section>
-  );
-}
-
-function CtaBlock({ block }: { block: DirectiveBlock }) {
-  const { links, rest } = extractActionLinks(block.body);
-  const bg = block.attrs.background === "primary" ? "bg-primary text-primary-foreground" : "bg-foreground text-background";
-  return (
-    <section className={`border-b-4 border-foreground ${bg}`}>
-      <div className="mx-auto max-w-5xl px-6 py-24">
-        <div className="[&_h1]:text-4xl [&_h1]:md:text-6xl [&_h1]:font-display [&_h1]:mb-4 [&_h2]:text-xl [&_h2]:md:text-2xl [&_h2]:font-sans [&_h2]:font-medium [&_h2]:opacity-80 [&_h2]:mb-8">
-          <div dangerouslySetInnerHTML={renderMd(rest)} />
-        </div>
-        {links.length > 0 && (
-          <div className="flex flex-wrap gap-4 mt-2">
-            {links.map((l, i) => <ActionLink key={i} link={l} />)}
           </div>
         )}
       </div>
@@ -161,13 +477,7 @@ function NavBlock({ block }: { block: DirectiveBlock }) {
             const isHash = it.href.startsWith("#");
             if (isExternal) {
               return (
-                <a
-                  key={i}
-                  href={it.href}
-                  target="_blank"
-                  rel="noopener"
-                  className="hover:bg-secondary px-2 py-1"
-                >
+                <a key={i} href={it.href} target="_blank" rel="noopener" className="hover:bg-secondary px-2 py-1">
                   {it.label} ↗
                 </a>
               );
@@ -308,11 +618,15 @@ function PricingBlock({ block }: { block: DirectiveBlock }) {
 export function BlockRenderer({
   blocks,
   idPrefix,
+  layoutFamily,
 }: {
   blocks: Block[];
-  /** When set, each top-level block gets id={idPrefix}{index} and scroll-mt for jump anchors. */
   idPrefix?: string;
+  /** Slug of the layout family that decides each block's default variant. */
+  layoutFamily?: string;
 }) {
+  const family = getLayoutFamily(layoutFamily);
+
   const wrap = (i: number, node: React.ReactNode) => {
     if (!idPrefix) return node;
     return (
@@ -336,11 +650,11 @@ export function BlockRenderer({
         } else {
           switch (b.name) {
             case "nav": node = <NavBlock block={b} />; break;
-            case "hero": node = <HeroBlock block={b} />; break;
-            case "features": node = <FeaturesBlock block={b} />; break;
+            case "hero": node = <HeroBlock block={b} family={family} />; break;
+            case "features": node = <FeaturesBlock block={b} family={family} />; break;
             case "pricing": node = <PricingBlock block={b} />; break;
             case "quote": node = <QuoteBlock block={b} />; break;
-            case "cta": node = <CtaBlock block={b} />; break;
+            case "cta": node = <CtaBlock block={b} family={family} />; break;
             case "footer": node = <FooterBlock block={b} />; break;
             case "stats": node = <StatsBlock block={b} />; break;
             case "logos": node = <LogosBlock block={b} />; break;
