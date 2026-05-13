@@ -84,7 +84,8 @@ export const skills: Skill[] = [
   // ───────── site lifecycle ─────────
   {
     name: "create_site",
-    description: "Create a new markdown-powered site. Returns id, slug, preview URL.",
+    description:
+      "Create a new markdown-powered site. Optionally set `themeSlug` (see list_themes). Returns id, slug, preview URL.",
     inputSchema: {
       type: "object",
       required: ["title", "markdown"],
@@ -94,23 +95,34 @@ export const skills: Skill[] = [
         slug: { type: "string" },
         tags: { type: "array", items: { type: "string" } },
         owner: { type: "string" },
+        themeSlug: {
+          type: "string",
+          description: "One of the slugs returned by list_themes.",
+        },
       },
     },
     handler: (args, ctx) => {
       const title = asString(args.title, "title");
       const markdown = asString(args.markdown, "markdown");
       const validation = validateMarkdown(markdown);
+      const themeSlug =
+        typeof args.themeSlug === "string" ? args.themeSlug : undefined;
+      if (themeSlug && !getTheme(themeSlug)) {
+        throw new Error(`Unknown theme: ${themeSlug}. Call list_themes.`);
+      }
       const site = createSite({
         title,
         markdown,
         slug: typeof args.slug === "string" ? args.slug : undefined,
         tags: Array.isArray(args.tags) ? (args.tags as string[]) : undefined,
         owner: typeof args.owner === "string" ? args.owner : undefined,
+        themeSlug,
       });
       return {
         id: site.id,
         slug: site.slug,
         title: site.title,
+        themeSlug: site.themeSlug,
         previewUrl: previewUrl(ctx.origin, site.slug),
         validation,
       };
