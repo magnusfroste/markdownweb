@@ -166,7 +166,8 @@ export const directives: DirectiveSpec[] = [
     description: "Tabbed content. Each item label becomes a tab.",
     bodyFormat: "list",
     attrs: [],
-    example: `::tabs\n- **Node** — \\`npm i mdweb\\`\n- **Bun** — \\`bun add mdweb\\`\n::`,
+    example:
+      "::tabs\n- **Node** — `npm i mdweb`\n- **Bun** — `bun add mdweb`\n::",
   },
   {
     name: "divider",
