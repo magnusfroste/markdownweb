@@ -5,6 +5,10 @@
  */
 
 import { parseMarkdownWeb, type ParseDiagnostic } from "@/lib/markdown-web/parser";
+import {
+  DEFAULT_THEME_SLUG,
+  type ThemeOverrides,
+} from "./themes";
 
 export type SiteStatus = "draft" | "published";
 
@@ -16,6 +20,8 @@ export type Site = {
   status: SiteStatus;
   tags: string[];
   owner?: string;
+  themeSlug: string;
+  themeOverrides: ThemeOverrides;
   createdAt: string;
   updatedAt: string;
 };
@@ -152,6 +158,7 @@ export function createSite(input: {
   slug?: string;
   tags?: string[];
   owner?: string;
+  themeSlug?: string;
 }): Site {
   const now = new Date().toISOString();
   const site: Site = {
@@ -162,11 +169,43 @@ export function createSite(input: {
     status: "draft",
     tags: input.tags ?? [],
     owner: input.owner,
+    themeSlug: input.themeSlug ?? DEFAULT_THEME_SLUG,
+    themeOverrides: {},
     createdAt: now,
     updatedAt: now,
   };
   sites.set(site.id, site);
   snapshot(site, "create_site");
+  return site;
+}
+
+// ───────────────────────── theming ─────────────────────────
+
+export function setSiteTheme(idOrSlug: string, themeSlug: string): Site | undefined {
+  const site = getSite(idOrSlug);
+  if (!site) return undefined;
+  site.themeSlug = themeSlug;
+  site.themeOverrides = {};
+  site.updatedAt = new Date().toISOString();
+  return site;
+}
+
+export function updateThemeOverrides(
+  idOrSlug: string,
+  overrides: ThemeOverrides,
+): Site | undefined {
+  const site = getSite(idOrSlug);
+  if (!site) return undefined;
+  site.themeOverrides = { ...site.themeOverrides, ...overrides };
+  site.updatedAt = new Date().toISOString();
+  return site;
+}
+
+export function resetThemeOverrides(idOrSlug: string): Site | undefined {
+  const site = getSite(idOrSlug);
+  if (!site) return undefined;
+  site.themeOverrides = {};
+  site.updatedAt = new Date().toISOString();
   return site;
 }
 
@@ -201,12 +240,15 @@ export function duplicateSite(
 ): Site | undefined {
   const src = getSite(idOrSlug);
   if (!src) return undefined;
-  return createSite({
+  const dup = createSite({
     title: newTitle ?? `${src.title} (copy)`,
     markdown: src.markdown,
     tags: [...src.tags],
     owner: src.owner,
+    themeSlug: src.themeSlug,
   });
+  dup.themeOverrides = { ...src.themeOverrides };
+  return dup;
 }
 
 export function renameSlug(idOrSlug: string, newSlug: string): Site | undefined {

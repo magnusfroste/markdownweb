@@ -12,6 +12,9 @@ import {
   duplicateSite,
   renameSlug,
   setMetadata,
+  setSiteTheme,
+  updateThemeOverrides,
+  resetThemeOverrides,
   validateMarkdown,
   listSites,
   listRevisions,
@@ -27,6 +30,13 @@ import {
 } from "./store";
 import { directives, getDirective } from "./directives";
 import { serializeDoc, serializeBlock } from "./serialize";
+import {
+  themes,
+  getTheme,
+  resolveTokens,
+  sanitizeOverrides,
+  OVERRIDABLE_TOKENS,
+} from "./themes";
 import { parseMarkdownWeb, type Block } from "@/lib/markdown-web/parser";
 
 export type SkillCtx = { origin: string; isAdmin: boolean };
@@ -74,7 +84,8 @@ export const skills: Skill[] = [
   // ───────── site lifecycle ─────────
   {
     name: "create_site",
-    description: "Create a new markdown-powered site. Returns id, slug, preview URL.",
+    description:
+      "Create a new markdown-powered site. Optionally set `themeSlug` (see list_themes). Returns id, slug, preview URL.",
     inputSchema: {
       type: "object",
       required: ["title", "markdown"],
@@ -84,23 +95,34 @@ export const skills: Skill[] = [
         slug: { type: "string" },
         tags: { type: "array", items: { type: "string" } },
         owner: { type: "string" },
+        themeSlug: {
+          type: "string",
+          description: "One of the slugs returned by list_themes.",
+        },
       },
     },
     handler: (args, ctx) => {
       const title = asString(args.title, "title");
       const markdown = asString(args.markdown, "markdown");
       const validation = validateMarkdown(markdown);
+      const themeSlug =
+        typeof args.themeSlug === "string" ? args.themeSlug : undefined;
+      if (themeSlug && !getTheme(themeSlug)) {
+        throw new Error(`Unknown theme: ${themeSlug}. Call list_themes.`);
+      }
       const site = createSite({
         title,
         markdown,
         slug: typeof args.slug === "string" ? args.slug : undefined,
         tags: Array.isArray(args.tags) ? (args.tags as string[]) : undefined,
         owner: typeof args.owner === "string" ? args.owner : undefined,
+        themeSlug,
       });
       return {
         id: site.id,
         slug: site.slug,
         title: site.title,
+        themeSlug: site.themeSlug,
         previewUrl: previewUrl(ctx.origin, site.slug),
         validation,
       };
@@ -289,6 +311,134 @@ export const skills: Skill[] = [
           updatedAt: s.updatedAt,
           previewUrl: previewUrl(ctx.origin, s.slug),
         })),
+      };
+    },
+  },
+
+  // ───────── theming ─────────
+  {
+    name: "list_themes",
+    description:
+      "List all curated design templates. Each theme is a vetted token set (palette + typography + radius). Use `set_theme` to apply one.",
+    inputSchema: { type: "object", properties: {} },
+    handler: () =>
+      themes.map((t) => ({
+        slug: t.slug,
+        name: t.name,
+        description: t.description,
+        preview: {
+          background: t.tokens.background,
+          foreground: t.tokens.foreground,
+          primary: t.tokens.primary,
+          accent: t.tokens.accent,
+          fontDisplay: t.tokens.fontDisplay,
+          radius: t.tokens.radius,
+        },
+      })),
+  },
+  {
+    name: "get_theme",
+    description: "Return the full token spec for one theme.",
+    inputSchema: {
+      type: "object",
+      required: ["slug"],
+      properties: { slug: { type: "string" } },
+    },
+    handler: (args) => {
+      const t = getTheme(asString(args.slug, "slug"));
+      if (!t) throw new Error(`Unknown theme: ${args.slug}`);
+      return t;
+    },
+  },
+  {
+    name: "set_theme",
+    description:
+      "Apply a theme to a site (resets any token overrides). Use `update_theme_tokens` afterwards to brand it.",
+    inputSchema: {
+      type: "object",
+      required: ["idOrSlug", "themeSlug"],
+      properties: {
+        idOrSlug: { type: "string" },
+        themeSlug: { type: "string" },
+      },
+    },
+    handler: (args, ctx) => {
+      const themeSlug = asString(args.themeSlug, "themeSlug");
+      if (!getTheme(themeSlug)) {
+        throw new Error(`Unknown theme: ${themeSlug}. Call list_themes.`);
+      }
+      const site = setSiteTheme(asString(args.idOrSlug, "idOrSlug"), themeSlug);
+      if (!site) throw new Error("Site not found");
+      return {
+        id: site.id,
+        themeSlug: site.themeSlug,
+        previewUrl: previewUrl(ctx.origin, site.slug),
+      };
+    },
+  },
+  {
+    name: "get_site_theme",
+    description: "Return the resolved theme tokens (theme defaults merged with overrides) for a site.",
+    inputSchema: {
+      type: "object",
+      required: ["idOrSlug"],
+      properties: { idOrSlug: { type: "string" } },
+    },
+    handler: (args) => {
+      const site = getSite(asString(args.idOrSlug, "idOrSlug"));
+      if (!site) throw new Error("Site not found");
+      const { theme, tokens } = resolveTokens(site.themeSlug, site.themeOverrides);
+      return {
+        themeSlug: theme.slug,
+        themeName: theme.name,
+        overrides: site.themeOverrides,
+        resolved: tokens,
+      };
+    },
+  },
+  {
+    name: "update_theme_tokens",
+    description: `Override a whitelist of theme tokens for one site. Allowed tokens: ${OVERRIDABLE_TOKENS.join(", ")}. Pass color values as hex (#rrggbb), radius as CSS length, logoUrl as URL.`,
+    inputSchema: {
+      type: "object",
+      required: ["idOrSlug", "tokens"],
+      properties: {
+        idOrSlug: { type: "string" },
+        tokens: {
+          type: "object",
+          description: "Map of token name → string value.",
+        },
+      },
+    },
+    handler: (args, ctx) => {
+      const overrides = sanitizeOverrides(args.tokens);
+      const site = updateThemeOverrides(
+        asString(args.idOrSlug, "idOrSlug"),
+        overrides,
+      );
+      if (!site) throw new Error("Site not found");
+      return {
+        id: site.id,
+        overrides: site.themeOverrides,
+        previewUrl: previewUrl(ctx.origin, site.slug),
+      };
+    },
+  },
+  {
+    name: "reset_theme_tokens",
+    description: "Clear all per-site token overrides; revert to the theme's defaults.",
+    inputSchema: {
+      type: "object",
+      required: ["idOrSlug"],
+      properties: { idOrSlug: { type: "string" } },
+    },
+    handler: (args, ctx) => {
+      const site = resetThemeOverrides(asString(args.idOrSlug, "idOrSlug"));
+      if (!site) throw new Error("Site not found");
+      return {
+        id: site.id,
+        themeSlug: site.themeSlug,
+        previewUrl: previewUrl(ctx.origin, site.slug),
       };
     },
   },

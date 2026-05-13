@@ -93,6 +93,14 @@ takes `idOrSlug`.
 agent should call these before writing markdown so it knows which
 `::blocks::` exist and what attrs they take.
 
+**Theming** — `list_themes`, `get_theme`, `set_theme`, `get_site_theme`,
+`update_theme_tokens`, `reset_theme_tokens`. Ten curated design templates
+(Editorial Serif, Modern Tech, Brutalist Pop, Luxury Noir, Wellness Soft,
+Startup Bold, Corporate Trust, Creative Playful, Dev Docs, Nature Organic).
+Agents pick a theme; per-site brand tweaks are limited to a whitelist
+(`primary`, `accent`, `background`, `foreground`, `radius`, `logoUrl`, …)
+so output stays designerly even when an LLM writes the markdown.
+
 **Block-level editing** (cheap incremental edits) — `list_blocks`,
 `add_block`, `update_block`, `remove_block`, `move_block`. Operate by
 index instead of round-tripping the entire markdown body.
