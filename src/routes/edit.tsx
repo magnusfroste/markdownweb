@@ -343,7 +343,7 @@ function EditorPage() {
     <div className="min-h-screen bg-background flex flex-col">
       {/* Top bar */}
       <div className="bg-foreground text-background border-b-4 border-foreground sticky top-0 z-50">
-        <div className="mx-auto max-w-[1800px] px-4 py-2 font-mono text-xs uppercase tracking-widest flex items-center justify-between gap-4 flex-wrap">
+        <div className="mx-auto max-w-[1800px] px-4 py-2 font-mono text-xs uppercase tracking-widest flex items-center justify-between gap-4 overflow-x-auto">
           <div className="flex items-center gap-3">
             <span className="inline-block w-2 h-2 bg-primary" />
             <span className="hidden sm:inline">editor</span>
@@ -352,7 +352,7 @@ function EditorPage() {
               · {savedLabel}
             </span>
           </div>
-          <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center gap-2 flex-nowrap whitespace-nowrap">
             <Link
               to="/"
               className="px-2 py-1 hover:bg-background hover:text-foreground transition-colors"
@@ -379,7 +379,7 @@ function EditorPage() {
                 if (tpl) handleLoadTemplate(tpl);
                 e.currentTarget.selectedIndex = 0;
               }}
-              className="bg-background text-foreground px-2 py-1 font-mono text-[10px] uppercase tracking-widest border-2 border-background"
+              className="bg-background text-foreground px-2 py-1 font-mono text-[10px] uppercase tracking-widest border-2 border-background max-w-[160px] truncate"
             >
               <option value="">template…</option>
               <optgroup label="Built-in">
@@ -397,7 +397,7 @@ function EditorPage() {
               aria-label="Layout family"
               value={layoutFamily}
               onChange={(e) => setLayoutFamily(e.target.value)}
-              className="bg-background text-foreground px-2 py-1 font-mono text-[10px] uppercase tracking-widest border-2 border-background"
+              className="bg-background text-foreground px-2 py-1 font-mono text-[10px] uppercase tracking-widest border-2 border-background max-w-[160px] truncate"
               title="Composition: picks block variants (split vs marquee hero, bento vs grid features, …)"
             >
               {layoutFamilies.map((f) => (
@@ -410,7 +410,7 @@ function EditorPage() {
               aria-label="Theme"
               value={themeSlug}
               onChange={(e) => setThemeSlug(e.target.value)}
-              className="bg-primary text-primary-foreground px-2 py-1 font-mono text-[10px] uppercase tracking-widest border-2 border-primary"
+              className="bg-primary text-primary-foreground px-2 py-1 font-mono text-[10px] uppercase tracking-widest border-2 border-primary max-w-[160px] truncate"
               title="Apply a curated color theme to the preview"
             >
               {mcpThemes.map((t) => (

@@ -144,6 +144,7 @@ const KNOWN_DIRECTIVES = new Set([
   "steps",
   "tabs",
   "divider",
+  "split",
 ]);
 
 /**
