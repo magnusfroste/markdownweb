@@ -88,7 +88,7 @@ export const skills: Skill[] = [
   {
     name: "create_site",
     description:
-      "Create a new markdown-powered site. Optionally set `themeSlug` (see list_themes). Returns id, slug, preview URL.",
+      "Create a new markdown-powered site. Optionally set `themeSlug` (see list_themes) and `layoutFamily` (see list_layout_families). Returns id, slug, preview URL.",
     inputSchema: {
       type: "object",
       required: ["title", "markdown"],
@@ -102,6 +102,10 @@ export const skills: Skill[] = [
           type: "string",
           description: "One of the slugs returned by list_themes.",
         },
+        layoutFamily: {
+          type: "string",
+          description: "One of: momentum, editorial, brutalist. Default: momentum.",
+        },
       },
     },
     handler: (args, ctx) => {
@@ -113,6 +117,8 @@ export const skills: Skill[] = [
       if (themeSlug && !getTheme(themeSlug)) {
         throw new Error(`Unknown theme: ${themeSlug}. Call list_themes.`);
       }
+      const layoutFamily =
+        typeof args.layoutFamily === "string" ? args.layoutFamily : undefined;
       const site = createSite({
         title,
         markdown,
@@ -120,12 +126,14 @@ export const skills: Skill[] = [
         tags: Array.isArray(args.tags) ? (args.tags as string[]) : undefined,
         owner: typeof args.owner === "string" ? args.owner : undefined,
         themeSlug,
+        layoutFamily,
       });
       return {
         id: site.id,
         slug: site.slug,
         title: site.title,
         themeSlug: site.themeSlug,
+        layoutFamily: site.layoutFamily,
         previewUrl: previewUrl(ctx.origin, site.slug),
         validation,
       };
