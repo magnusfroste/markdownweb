@@ -48,6 +48,7 @@ const fetchSite = createServerFn({ method: "GET" })
       fontsHref: theme.fontsHref,
       tokens,
       description,
+      layoutFamily: site.layoutFamily,
     };
   });
 
