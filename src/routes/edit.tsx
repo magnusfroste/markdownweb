@@ -602,7 +602,7 @@ function EditorPage() {
                 font-family: var(--font-mono);
               }
             `}</style>
-            <BlockRenderer blocks={doc.blocks} idPrefix={BLOCK_ID} />
+            <BlockRenderer blocks={doc.blocks} idPrefix={BLOCK_ID} layoutFamily={layoutFamily} />
           </div>
         </div>
       </div>
