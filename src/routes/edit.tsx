@@ -572,7 +572,17 @@ function EditorPage() {
             </div>
           )}
 
-          <BlockRenderer blocks={doc.blocks} idPrefix={BLOCK_ID} />
+          <div style={previewStyle} className="mw-themed">
+            <style>{`
+              .mw-themed h1, .mw-themed h2, .mw-themed h3, .mw-themed h4 {
+                font-family: var(--font-display);
+              }
+              .mw-themed code, .mw-themed pre {
+                font-family: var(--font-mono);
+              }
+            `}</style>
+            <BlockRenderer blocks={doc.blocks} idPrefix={BLOCK_ID} />
+          </div>
         </div>
       </div>
     </div>
