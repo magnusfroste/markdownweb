@@ -5,6 +5,10 @@
  */
 
 import { parseMarkdownWeb, type ParseDiagnostic } from "@/lib/markdown-web/parser";
+import {
+  DEFAULT_THEME_SLUG,
+  type ThemeOverrides,
+} from "./themes";
 
 export type SiteStatus = "draft" | "published";
 
@@ -16,6 +20,8 @@ export type Site = {
   status: SiteStatus;
   tags: string[];
   owner?: string;
+  themeSlug: string;
+  themeOverrides: ThemeOverrides;
   createdAt: string;
   updatedAt: string;
 };
