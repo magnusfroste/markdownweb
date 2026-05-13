@@ -16,6 +16,7 @@ import { Route as DocsRouteImport } from './routes/docs'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiMcpRouteImport } from './routes/api.mcp'
 import { Route as McpPreviewSlugRouteImport } from './routes/mcp.preview.$slug'
+import { Route as McpPreviewSlugMdRouteImport } from './routes/mcp.preview.$slug.md'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
@@ -52,6 +53,11 @@ const McpPreviewSlugRoute = McpPreviewSlugRouteImport.update({
   path: '/preview/$slug',
   getParentRoute: () => McpRoute,
 } as any)
+const McpPreviewSlugMdRoute = McpPreviewSlugMdRouteImport.update({
+  id: '/md',
+  path: '/md',
+  getParentRoute: () => McpPreviewSlugRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -60,7 +66,8 @@ export interface FileRoutesByFullPath {
   '/mcp': typeof McpRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/api/mcp': typeof ApiMcpRoute
-  '/mcp/preview/$slug': typeof McpPreviewSlugRoute
+  '/mcp/preview/$slug': typeof McpPreviewSlugRouteWithChildren
+  '/mcp/preview/$slug/md': typeof McpPreviewSlugMdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -69,7 +76,8 @@ export interface FileRoutesByTo {
   '/mcp': typeof McpRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/api/mcp': typeof ApiMcpRoute
-  '/mcp/preview/$slug': typeof McpPreviewSlugRoute
+  '/mcp/preview/$slug': typeof McpPreviewSlugRouteWithChildren
+  '/mcp/preview/$slug/md': typeof McpPreviewSlugMdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -79,7 +87,8 @@ export interface FileRoutesById {
   '/mcp': typeof McpRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/api/mcp': typeof ApiMcpRoute
-  '/mcp/preview/$slug': typeof McpPreviewSlugRoute
+  '/mcp/preview/$slug': typeof McpPreviewSlugRouteWithChildren
+  '/mcp/preview/$slug/md': typeof McpPreviewSlugMdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -91,6 +100,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/api/mcp'
     | '/mcp/preview/$slug'
+    | '/mcp/preview/$slug/md'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -100,6 +110,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/api/mcp'
     | '/mcp/preview/$slug'
+    | '/mcp/preview/$slug/md'
   id:
     | '__root__'
     | '/'
@@ -109,6 +120,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/api/mcp'
     | '/mcp/preview/$slug'
+    | '/mcp/preview/$slug/md'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -171,15 +183,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof McpPreviewSlugRouteImport
       parentRoute: typeof McpRoute
     }
+    '/mcp/preview/$slug/md': {
+      id: '/mcp/preview/$slug/md'
+      path: '/md'
+      fullPath: '/mcp/preview/$slug/md'
+      preLoaderRoute: typeof McpPreviewSlugMdRouteImport
+      parentRoute: typeof McpPreviewSlugRoute
+    }
   }
 }
 
+interface McpPreviewSlugRouteChildren {
+  McpPreviewSlugMdRoute: typeof McpPreviewSlugMdRoute
+}
+
+const McpPreviewSlugRouteChildren: McpPreviewSlugRouteChildren = {
+  McpPreviewSlugMdRoute: McpPreviewSlugMdRoute,
+}
+
+const McpPreviewSlugRouteWithChildren = McpPreviewSlugRoute._addFileChildren(
+  McpPreviewSlugRouteChildren,
+)
+
 interface McpRouteChildren {
-  McpPreviewSlugRoute: typeof McpPreviewSlugRoute
+  McpPreviewSlugRoute: typeof McpPreviewSlugRouteWithChildren
 }
 
 const McpRouteChildren: McpRouteChildren = {
-  McpPreviewSlugRoute: McpPreviewSlugRoute,
+  McpPreviewSlugRoute: McpPreviewSlugRouteWithChildren,
 }
 
 const McpRouteWithChildren = McpRoute._addFileChildren(McpRouteChildren)
@@ -195,3 +226,12 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
