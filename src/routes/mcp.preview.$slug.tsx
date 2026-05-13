@@ -77,8 +77,8 @@ export const Route = createFileRoute("/mcp/preview/$slug")({
         {
           rel: "alternate",
           type: "text/markdown",
-          href: `${url}.md`,
-          title: `${loaderData.title} (Markdown source)`,
+          href: `https://mdsites.lovable.app/mcp/source/${params.slug}`,
+          title: `Markdown source`,
         },
       ],
       scripts: [
