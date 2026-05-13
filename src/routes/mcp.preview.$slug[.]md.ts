@@ -18,7 +18,7 @@ const fetchMarkdown = createServerFn({ method: "GET" })
     return site ? { markdown: site.markdown, title: site.title } : null;
   });
 
-export const Route = createFileRoute("/mcp/preview/$slug/md")({
+export const Route = createFileRoute("/mcp/preview/$slug.md")({
   server: {
     handlers: {
       GET: async ({ params }) => {
