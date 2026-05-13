@@ -15,6 +15,17 @@ import { parseMarkdownWeb } from "@/lib/markdown-web/parser";
 import { BlockRenderer } from "@/components/markdown-web/BlockRenderer";
 import { resolveTokens, tokensToCssVars } from "@/lib/mcp/themes";
 
+function extractFirstParagraph(md: string): string {
+  const body = md.replace(/^---[\s\S]*?---/m, "").trim();
+  for (const line of body.split("\n")) {
+    const t = line.trim();
+    if (!t) continue;
+    if (t.startsWith("#") || t.startsWith("::") || t.startsWith("```")) continue;
+    return t.replace(/[*_`#>[\]()]/g, "").slice(0, 200);
+  }
+  return "";
+}
+
 const fetchSite = createServerFn({ method: "GET" })
   .inputValidator((input: { slug: string }) =>
     z.object({ slug: z.string().min(1).max(64) }).parse(input),
@@ -23,13 +34,20 @@ const fetchSite = createServerFn({ method: "GET" })
     const site = getSite(data.slug);
     if (!site) return null;
     const { theme, tokens } = resolveTokens(site.themeSlug, site.themeOverrides);
+    const parsed = parseMarkdownWeb(site.markdown);
+    const fm = (parsed.frontmatter ?? {}) as Record<string, unknown>;
+    const description =
+      (typeof fm.description === "string" && fm.description) ||
+      extractFirstParagraph(site.markdown);
     return {
       title: site.title,
       slug: site.slug,
       markdown: site.markdown,
       themeName: theme.name,
+      themeSlug: theme.slug,
       fontsHref: theme.fontsHref,
       tokens,
+      description,
     };
   });
 
@@ -39,16 +57,49 @@ export const Route = createFileRoute("/mcp/preview/$slug")({
     if (!site) throw notFound();
     return site;
   },
-  head: ({ loaderData }) => ({
-    meta: [
-      {
-        title: loaderData ? `${loaderData.title} — MCP preview` : "MCP preview",
-      },
-    ],
-    links: loaderData
-      ? [{ rel: "stylesheet", href: loaderData.fontsHref }]
-      : [],
-  }),
+  head: ({ params, loaderData }) => {
+    if (!loaderData) return { meta: [{ title: "MCP preview" }] };
+    const url = `https://mdsites.lovable.app/mcp/preview/${params.slug}`;
+    return {
+      meta: [
+        { title: `${loaderData.title} — MarkdownWeb` },
+        { name: "description", content: loaderData.description },
+        { property: "og:type", content: "article" },
+        { property: "og:title", content: loaderData.title },
+        { property: "og:description", content: loaderData.description },
+        { property: "og:url", content: url },
+        { name: "twitter:title", content: loaderData.title },
+        { name: "twitter:description", content: loaderData.description },
+      ],
+      links: [
+        { rel: "canonical", href: url },
+        { rel: "stylesheet", href: loaderData.fontsHref },
+        {
+          rel: "alternate",
+          type: "text/markdown",
+          href: `${url}.md`,
+          title: `${loaderData.title} (Markdown source)`,
+        },
+      ],
+      scripts: [
+        {
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebPage",
+            name: loaderData.title,
+            description: loaderData.description,
+            url,
+            isPartOf: {
+              "@type": "WebSite",
+              name: "MarkdownWeb",
+              url: "https://mdsites.lovable.app",
+            },
+          }),
+        },
+      ],
+    };
+  },
   notFoundComponent: () => (
     <div className="min-h-screen flex items-center justify-center bg-background p-8">
       <div className="border-4 border-foreground p-8 max-w-md text-center">
