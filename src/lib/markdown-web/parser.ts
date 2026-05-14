@@ -275,10 +275,18 @@ function splitBlocks(
         const inner: string[] = [];
         i++;
         let closed = false;
+        // ::page is the only nestable directive — track depth so inner
+        // ::hero / :: etc. don't close the page prematurely.
+        const nestable = name === "page";
+        let depth = 1;
         while (i < lines.length) {
-          if (lines[i].trim() === "::") {
-            closed = true;
-            break;
+          const t = lines[i].trim();
+          if (nestable && /^::[\w-]+/.test(t)) depth++;
+          if (t === "::") {
+            if (!nestable || --depth === 0) {
+              closed = true;
+              break;
+            }
           }
           inner.push(lines[i]);
           i++;
