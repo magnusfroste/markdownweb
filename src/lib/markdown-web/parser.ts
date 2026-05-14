@@ -71,9 +71,31 @@ export type MarkdownBlock = {
 
 export type Block = DirectiveBlock | MarkdownBlock;
 
+export type Page = {
+  /** Route slug, e.g. "/" or "/about". Always starts with "/". */
+  slug: string;
+  /** Page-specific <title> (overrides frontmatter title for this page). */
+  title?: string;
+  /** Page-specific meta description. */
+  description?: string;
+  /** Optional og:image URL for this page. */
+  image?: string;
+  /** Blocks rendered inside this page (between shared blocks). */
+  blocks: Block[];
+};
+
 export type ParsedDoc = {
   frontmatter: Record<string, unknown>;
+  /** All top-level blocks (legacy / single-page mode). */
   blocks: Block[];
+  /**
+   * Multi-page sites: present when at least one ::page directive exists.
+   * Blocks outside ::page become `sharedBefore` / `sharedAfter` and are
+   * rendered on every page (use for nav + footer).
+   */
+  pages?: Page[];
+  sharedBefore?: Block[];
+  sharedAfter?: Block[];
   diagnostics: ParseDiagnostic[];
 };
 
@@ -89,23 +111,16 @@ function parseAttrs(
   const out: Record<string, string | number | boolean> = {};
   if (!raw) return out;
 
-  // Detect obviously unbalanced quotes — common LLM/typo mistake.
+  // Detect unbalanced double-quotes (common typo). Skip the single-quote
+  // check entirely — apostrophes appear constantly inside double-quoted
+  // titles ("doesn't") and would produce false positives.
   const dq = (raw.match(/"/g) ?? []).length;
-  const sq = (raw.match(/'/g) ?? []).length;
   if (dq % 2 !== 0) {
     diagnostics.push({
       severity: "error",
       message: `Unbalanced double-quote in directive attributes: \`${raw}\``,
       line,
       hint: 'Each `key="value"` needs both opening and closing ".',
-    });
-  }
-  if (sq % 2 !== 0) {
-    diagnostics.push({
-      severity: "error",
-      message: `Unbalanced single-quote in directive attributes: \`${raw}\``,
-      line,
-      hint: "Each key='value' needs both opening and closing '.",
     });
   }
 
@@ -145,7 +160,17 @@ const KNOWN_DIRECTIVES = new Set([
   "tabs",
   "divider",
   "split",
+  "page",
 ]);
+
+function normalizeSlug(raw: unknown): string {
+  if (typeof raw !== "string" || !raw.trim()) return "/";
+  let s = raw.trim();
+  if (!s.startsWith("/")) s = "/" + s;
+  // Collapse trailing slash except for root.
+  if (s.length > 1 && s.endsWith("/")) s = s.slice(0, -1);
+  return s;
+}
 
 /**
  * Splits a markdown body into top-level blocks.
@@ -250,10 +275,18 @@ function splitBlocks(
         const inner: string[] = [];
         i++;
         let closed = false;
+        // ::page is the only nestable directive — track depth so inner
+        // ::hero / :: etc. don't close the page prematurely.
+        const nestable = name === "page";
+        let depth = 1;
         while (i < lines.length) {
-          if (lines[i].trim() === "::") {
-            closed = true;
-            break;
+          const t = lines[i].trim();
+          if (nestable && /^::[\w-]+/.test(t)) depth++;
+          if (t === "::") {
+            if (!nestable || --depth === 0) {
+              closed = true;
+              break;
+            }
           }
           inner.push(lines[i]);
           i++;
@@ -293,9 +326,64 @@ export function parseMarkdownWeb(source: string): ParsedDoc {
   // Body lines start at `bodyStartLine + 1` if frontmatter exists, otherwise 1.
   const offset = bodyStartLine === 0 ? 1 : bodyStartLine + 1;
   const blocks = splitBlocks(content, offset, diagnostics);
+
+  // Multi-page mode: if any ::page directives exist, group blocks into pages
+  // with shared chrome (nav/footer) before/after the first/last page.
+  const hasPages = blocks.some((b) => b.kind === "directive" && b.name === "page");
+  if (!hasPages) {
+    return { frontmatter: data, blocks, diagnostics };
+  }
+
+  const sharedBefore: Block[] = [];
+  const sharedAfter: Block[] = [];
+  const pages: Page[] = [];
+  let seenPage = false;
+  const seenSlugs = new Set<string>();
+
+  for (const b of blocks) {
+    if (b.kind === "directive" && b.name === "page") {
+      seenPage = true;
+      const slug = normalizeSlug(b.attrs.slug);
+      if (seenSlugs.has(slug)) {
+        diagnostics.push({
+          severity: "warning",
+          message: `Duplicate page slug \`${slug}\` — only the first one is reachable.`,
+          line: b.startLine,
+        });
+      }
+      seenSlugs.add(slug);
+      // Re-parse the page body so its inner directives become real blocks.
+      const inner = splitBlocks(b.body, b.bodyStartLine, diagnostics);
+      pages.push({
+        slug,
+        title: typeof b.attrs.title === "string" ? b.attrs.title : undefined,
+        description: typeof b.attrs.description === "string" ? b.attrs.description : undefined,
+        image: typeof b.attrs.image === "string" ? b.attrs.image : undefined,
+        blocks: inner,
+      });
+    } else if (!seenPage) {
+      sharedBefore.push(b);
+    } else {
+      sharedAfter.push(b);
+    }
+  }
+
+  // Ensure at least one page resolves to "/".
+  if (!pages.some((p) => p.slug === "/")) {
+    diagnostics.push({
+      severity: "warning",
+      message: "No page with `slug=\"/\"` — the home route will 404.",
+      line: 1,
+      hint: "Add `::page{slug=\"/\" title=\"Home\"}` for the home page.",
+    });
+  }
+
   return {
     frontmatter: data,
-    blocks,
+    blocks, // legacy/raw — kept so existing single-page consumers still work
+    pages,
+    sharedBefore,
+    sharedAfter,
     diagnostics,
   };
 }

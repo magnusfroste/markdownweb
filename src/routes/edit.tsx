@@ -196,6 +196,26 @@ function EditorPage() {
     }
   }, [source]);
 
+  // Multi-page mode: when ::page directives exist, the editor shows tabs and
+  // the preview renders one page at a time (sharedBefore + page + sharedAfter).
+  const [activePageSlug, setActivePageSlug] = useState<string>("/");
+  useEffect(() => {
+    if (doc.pages && doc.pages.length > 0) {
+      if (!doc.pages.some((p) => p.slug === activePageSlug)) {
+        setActivePageSlug(doc.pages[0].slug);
+      }
+    }
+  }, [doc.pages, activePageSlug]);
+  const effectiveBlocks = useMemo(() => {
+    if (!doc.pages || doc.pages.length === 0) return doc.blocks;
+    const page = doc.pages.find((p) => p.slug === activePageSlug) ?? doc.pages[0];
+    return [
+      ...(doc.sharedBefore ?? []),
+      ...page.blocks,
+      ...(doc.sharedAfter ?? []),
+    ];
+  }, [doc, activePageSlug]);
+
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // Jump the textarea cursor to a 1-indexed line, focus and scroll it into view.
@@ -219,7 +239,7 @@ function EditorPage() {
   useEffect(() => {
     const root = previewScrollRef.current;
     if (!root) return;
-    const els = doc.blocks
+    const els = effectiveBlocks
       .map((_, i) => document.getElementById(`${BLOCK_ID}${i}`))
       .filter((el): el is HTMLElement => el !== null);
     if (els.length === 0) return;
@@ -273,11 +293,11 @@ function EditorPage() {
 
     els.forEach((el) => observer.observe(el));
     return () => observer.disconnect();
-  }, [doc.blocks]);
+  }, [effectiveBlocks]);
 
   // Jump preview + editor to a specific block.
   const jumpToBlock = (index: number) => {
-    const block = doc.blocks[index];
+    const block = effectiveBlocks[index];
     if (!block) return;
     setActiveBlock(index);
     // Suppress observer briefly so it doesn't override our active selection
@@ -454,14 +474,14 @@ function EditorPage() {
               outline
             </span>
             <span className="text-muted-foreground normal-case tracking-normal">
-              {doc.blocks.length}
+              {effectiveBlocks.length}
             </span>
           </div>
-          {doc.blocks.length === 0 ? (
+          {effectiveBlocks.length === 0 ? (
             <div className="p-3 font-mono text-xs text-muted-foreground">No blocks yet.</div>
           ) : (
             <ol className="py-1">
-              {doc.blocks.map((b, i) => {
+              {effectiveBlocks.map((b, i) => {
                 const { name, hint } = blockLabel(b);
                 const active = i === activeBlock;
                 return (
@@ -540,7 +560,7 @@ function EditorPage() {
               </span>
             </span>
             <span className="text-muted-foreground normal-case tracking-normal">
-              {doc.blocks.length} block{doc.blocks.length === 1 ? "" : "s"}
+              {effectiveBlocks.length} block{effectiveBlocks.length === 1 ? "" : "s"}
               {doc.diagnostics.length > 0 && (
                 <>
                   {" · "}
@@ -552,6 +572,33 @@ function EditorPage() {
               )}
             </span>
           </div>
+
+          {doc.pages && doc.pages.length > 0 && (
+            <div className="bg-background border-b-2 border-foreground px-2 py-1 flex items-center gap-1 overflow-x-auto sticky top-[37px] z-10">
+              <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground px-2">
+                pages
+              </span>
+              {doc.pages.map((p) => {
+                const active = p.slug === activePageSlug;
+                return (
+                  <button
+                    key={p.slug}
+                    type="button"
+                    onClick={() => setActivePageSlug(p.slug)}
+                    className={[
+                      "px-2 py-1 font-mono text-[10px] uppercase tracking-widest border-2 whitespace-nowrap transition-colors",
+                      active
+                        ? "bg-foreground text-background border-foreground"
+                        : "bg-background text-foreground border-foreground/20 hover:border-foreground",
+                    ].join(" ")}
+                    title={p.title ?? p.slug}
+                  >
+                    {p.slug}
+                  </button>
+                );
+              })}
+            </div>
+          )}
 
           {doc.diagnostics.length > 0 && (
             <div className="border-b-4 border-foreground bg-destructive/10">
@@ -605,7 +652,7 @@ function EditorPage() {
                 font-family: var(--font-mono);
               }
             `}</style>
-            <BlockRenderer blocks={doc.blocks} idPrefix={BLOCK_ID} layoutFamily={layoutFamily} />
+            <BlockRenderer blocks={effectiveBlocks} idPrefix={BLOCK_ID} layoutFamily={layoutFamily} />
           </div>
         </div>
       </div>

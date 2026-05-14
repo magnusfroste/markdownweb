@@ -192,6 +192,19 @@ export const directives: DirectiveSpec[] = [
     ],
     example: `::split{variant="text-left"}\n# Title\nSupporting paragraph.\n[Learn more](/x){variant=primary}\n::`,
   },
+  {
+    name: "page",
+    description:
+      "Multi-page mode: wrap a route's blocks. The whole site lives in ONE .md file. Each ::page becomes its own URL with its own <head>. Blocks outside any ::page (typically ::nav and ::footer) are shared on every page.",
+    bodyFormat: "markdown",
+    attrs: [
+      { name: "slug", type: "string", description: 'Route path, e.g. "/" or "/about". Required.' },
+      { name: "title", type: "string", description: "Page-specific <title> tag." },
+      { name: "description", type: "string", description: "Meta description for this page." },
+      { name: "image", type: "string", description: "og:image URL for this page." },
+    ],
+    example: `::page{slug="/" title="Home — Acme"}\n::hero\n# Welcome\n::\n::\n\n::page{slug="/about" title="About — Acme"}\n::hero\n# About us\n::\n::`,
+  },
 ];
 
 export function getDirective(name: string): DirectiveSpec | undefined {
