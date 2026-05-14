@@ -16,15 +16,26 @@ Protocol** (MCP).
 ```bash
 bun install
 
-# Local secrets for `wrangler dev` — Lovable Cloud injects MCP_ADMIN_KEY
-# automatically when deployed, so this file is only needed locally.
-cat > .dev.vars <<'EOF'
-MCP_ADMIN_KEY=dev-local-admin-key
-EOF
+# Copy the env template and fill in real values
+cp .env.example .env
+# then edit .env and set MCP_ADMIN_KEY to a strong random string:
+#   openssl rand -hex 32
 
 bun dev
 # → http://localhost:5173
 ```
+
+## Deployment
+
+Same env vars, set in your host:
+
+- **Vercel**: Project Settings → Environment Variables
+- **Self-hosted (systemd)**: `Environment=MCP_ADMIN_KEY=...` in the unit file
+- **Docker**: `--env-file .env` or `-e MCP_ADMIN_KEY=...`
+- **Caddy / reverse-proxy wrapper**: export before launching the node/bun process
+
+Never commit `.env`. Never prefix server secrets with `VITE_` — anything
+`VITE_*` is bundled into the client.
 
 Open `/` for the landing page, `/docs` for the directive reference, `/edit`
 for the live markdown editor, `/mcp` for the admin panel.
