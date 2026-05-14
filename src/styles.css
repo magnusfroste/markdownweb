@@ -66,6 +66,13 @@
   * {
     border-color: var(--color-border);
   }
+  html {
+    scroll-behavior: smooth;
+    /* Better text rendering on macOS / iOS. */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
@@ -76,6 +83,33 @@
     font-family: var(--font-display);
     letter-spacing: -0.02em;
     line-height: 0.95;
+    /* Avoid orphan words on the last line of headings. */
+    text-wrap: balance;
+  }
+  p { text-wrap: pretty; }
+  /* Brand-coloured selection. */
+  ::selection {
+    background: color-mix(in oklab, var(--primary) 35%, transparent);
+    color: var(--foreground);
+  }
+  /* Visible, brand-coloured focus ring everywhere. */
+  :focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+  /* Slim, themed scrollbar. */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in oklab, var(--foreground) 25%, transparent) transparent;
+  }
+  /* Honour reduced motion. */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.001ms !important;
+      transition-duration: 0.001ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 }
 
