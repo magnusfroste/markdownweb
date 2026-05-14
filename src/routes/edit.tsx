@@ -652,7 +652,7 @@ function EditorPage() {
                 font-family: var(--font-mono);
               }
             `}</style>
-            <BlockRenderer blocks={effectiveBlocks} idPrefix={BLOCK_ID} layoutFamily={layoutFamily} />
+            <BlockRenderer blocks={effectiveBlocks} idPrefix={BLOCK_ID} layoutFamily={layoutFamily} themeSlug={themeSlug} />
           </div>
         </div>
       </div>
