@@ -198,7 +198,7 @@ export function RenderPreview({
         MCP preview · {site.slug} · theme: {site.themeName} · layout: {site.layoutFamily}
         {page ? <> · page: {page.slug}</> : null}
       </div>
-      <BlockRenderer blocks={blocks} layoutFamily={site.layoutFamily} />
+      <BlockRenderer blocks={blocks} layoutFamily={site.layoutFamily} themeSlug={site.themeSlug} />
     </div>
   );
 }
