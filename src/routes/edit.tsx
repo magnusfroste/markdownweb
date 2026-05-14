@@ -196,6 +196,26 @@ function EditorPage() {
     }
   }, [source]);
 
+  // Multi-page mode: when ::page directives exist, the editor shows tabs and
+  // the preview renders one page at a time (sharedBefore + page + sharedAfter).
+  const [activePageSlug, setActivePageSlug] = useState<string>("/");
+  useEffect(() => {
+    if (doc.pages && doc.pages.length > 0) {
+      if (!doc.pages.some((p) => p.slug === activePageSlug)) {
+        setActivePageSlug(doc.pages[0].slug);
+      }
+    }
+  }, [doc.pages, activePageSlug]);
+  const effectiveBlocks = useMemo(() => {
+    if (!doc.pages || doc.pages.length === 0) return doc.blocks;
+    const page = doc.pages.find((p) => p.slug === activePageSlug) ?? doc.pages[0];
+    return [
+      ...(doc.sharedBefore ?? []),
+      ...page.blocks,
+      ...(doc.sharedAfter ?? []),
+    ];
+  }, [doc, activePageSlug]);
+
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // Jump the textarea cursor to a 1-indexed line, focus and scroll it into view.
