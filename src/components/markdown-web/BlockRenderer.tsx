@@ -645,7 +645,7 @@ export function BlockRenderer({
   };
 
   return (
-    <div className={`mw-fam-${family.slug}`}>
+    <div className={`mw-fam-${family.slug}${themeSlug ? ` mw-theme-${themeSlug}` : ""}`}>
       {blocks.map((b, i) => {
         let node: React.ReactNode;
         if (b.kind === "markdown") {
