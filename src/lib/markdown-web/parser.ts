@@ -111,23 +111,16 @@ function parseAttrs(
   const out: Record<string, string | number | boolean> = {};
   if (!raw) return out;
 
-  // Detect obviously unbalanced quotes — common LLM/typo mistake.
+  // Detect unbalanced double-quotes (common typo). Skip the single-quote
+  // check entirely — apostrophes appear constantly inside double-quoted
+  // titles ("doesn't") and would produce false positives.
   const dq = (raw.match(/"/g) ?? []).length;
-  const sq = (raw.match(/'/g) ?? []).length;
   if (dq % 2 !== 0) {
     diagnostics.push({
       severity: "error",
       message: `Unbalanced double-quote in directive attributes: \`${raw}\``,
       line,
       hint: 'Each `key="value"` needs both opening and closing ".',
-    });
-  }
-  if (sq % 2 !== 0) {
-    diagnostics.push({
-      severity: "error",
-      message: `Unbalanced single-quote in directive attributes: \`${raw}\``,
-      line,
-      hint: "Each key='value' needs both opening and closing '.",
     });
   }
 
