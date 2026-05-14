@@ -573,6 +573,33 @@ function EditorPage() {
             </span>
           </div>
 
+          {doc.pages && doc.pages.length > 0 && (
+            <div className="bg-background border-b-2 border-foreground px-2 py-1 flex items-center gap-1 overflow-x-auto sticky top-[37px] z-10">
+              <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground px-2">
+                pages
+              </span>
+              {doc.pages.map((p) => {
+                const active = p.slug === activePageSlug;
+                return (
+                  <button
+                    key={p.slug}
+                    type="button"
+                    onClick={() => setActivePageSlug(p.slug)}
+                    className={[
+                      "px-2 py-1 font-mono text-[10px] uppercase tracking-widest border-2 whitespace-nowrap transition-colors",
+                      active
+                        ? "bg-foreground text-background border-foreground"
+                        : "bg-background text-foreground border-foreground/20 hover:border-foreground",
+                    ].join(" ")}
+                    title={p.title ?? p.slug}
+                  >
+                    {p.slug}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
           {doc.diagnostics.length > 0 && (
             <div className="border-b-4 border-foreground bg-destructive/10">
               <ul className="divide-y-2 divide-foreground/20">
