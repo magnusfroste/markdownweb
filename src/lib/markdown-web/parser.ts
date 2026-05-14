@@ -71,9 +71,31 @@ export type MarkdownBlock = {
 
 export type Block = DirectiveBlock | MarkdownBlock;
 
+export type Page = {
+  /** Route slug, e.g. "/" or "/about". Always starts with "/". */
+  slug: string;
+  /** Page-specific <title> (overrides frontmatter title for this page). */
+  title?: string;
+  /** Page-specific meta description. */
+  description?: string;
+  /** Optional og:image URL for this page. */
+  image?: string;
+  /** Blocks rendered inside this page (between shared blocks). */
+  blocks: Block[];
+};
+
 export type ParsedDoc = {
   frontmatter: Record<string, unknown>;
+  /** All top-level blocks (legacy / single-page mode). */
   blocks: Block[];
+  /**
+   * Multi-page sites: present when at least one ::page directive exists.
+   * Blocks outside ::page become `sharedBefore` / `sharedAfter` and are
+   * rendered on every page (use for nav + footer).
+   */
+  pages?: Page[];
+  sharedBefore?: Block[];
+  sharedAfter?: Block[];
   diagnostics: ParseDiagnostic[];
 };
 
