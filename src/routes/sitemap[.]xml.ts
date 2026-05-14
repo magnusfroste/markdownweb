@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
 import { templates } from "@/lib/mcp/templates";
+import { listSites } from "@/lib/mcp/store";
+import { parseMarkdownWeb } from "@/lib/markdown-web/parser";
 
 const BASE_URL = "https://mdsites.lovable.app";
 
@@ -38,6 +40,31 @@ export const Route = createFileRoute("/sitemap.xml")({
             priority: "0.5",
             lastmod: today,
           });
+        }
+
+        // Published MCP sites — enumerate every ::page slug for multi-page docs.
+        const { items: published } = listSites({ status: "published", limit: 500 });
+        for (const site of published) {
+          const lastmod = site.updatedAt.slice(0, 10);
+          const doc = parseMarkdownWeb(site.markdown);
+          if (doc.pages && doc.pages.length > 0) {
+            for (const p of doc.pages) {
+              const sub = p.slug === "/" ? "" : p.slug;
+              entries.push({
+                path: `/mcp/preview/${site.slug}${sub}`,
+                changefreq: "weekly",
+                priority: "0.6",
+                lastmod,
+              });
+            }
+          } else {
+            entries.push({
+              path: `/mcp/preview/${site.slug}`,
+              changefreq: "weekly",
+              priority: "0.6",
+              lastmod,
+            });
+          }
         }
 
         const urls = entries.map((e) =>
