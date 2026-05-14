@@ -239,7 +239,7 @@ function EditorPage() {
   useEffect(() => {
     const root = previewScrollRef.current;
     if (!root) return;
-    const els = doc.blocks
+    const els = effectiveBlocks
       .map((_, i) => document.getElementById(`${BLOCK_ID}${i}`))
       .filter((el): el is HTMLElement => el !== null);
     if (els.length === 0) return;
@@ -293,11 +293,11 @@ function EditorPage() {
 
     els.forEach((el) => observer.observe(el));
     return () => observer.disconnect();
-  }, [doc.blocks]);
+  }, [effectiveBlocks]);
 
   // Jump preview + editor to a specific block.
   const jumpToBlock = (index: number) => {
-    const block = doc.blocks[index];
+    const block = effectiveBlocks[index];
     if (!block) return;
     setActiveBlock(index);
     // Suppress observer briefly so it doesn't override our active selection
@@ -474,14 +474,14 @@ function EditorPage() {
               outline
             </span>
             <span className="text-muted-foreground normal-case tracking-normal">
-              {doc.blocks.length}
+              {effectiveBlocks.length}
             </span>
           </div>
-          {doc.blocks.length === 0 ? (
+          {effectiveBlocks.length === 0 ? (
             <div className="p-3 font-mono text-xs text-muted-foreground">No blocks yet.</div>
           ) : (
             <ol className="py-1">
-              {doc.blocks.map((b, i) => {
+              {effectiveBlocks.map((b, i) => {
                 const { name, hint } = blockLabel(b);
                 const active = i === activeBlock;
                 return (
@@ -560,7 +560,7 @@ function EditorPage() {
               </span>
             </span>
             <span className="text-muted-foreground normal-case tracking-normal">
-              {doc.blocks.length} block{doc.blocks.length === 1 ? "" : "s"}
+              {effectiveBlocks.length} block{effectiveBlocks.length === 1 ? "" : "s"}
               {doc.diagnostics.length > 0 && (
                 <>
                   {" · "}
@@ -625,7 +625,7 @@ function EditorPage() {
                 font-family: var(--font-mono);
               }
             `}</style>
-            <BlockRenderer blocks={doc.blocks} idPrefix={BLOCK_ID} layoutFamily={layoutFamily} />
+            <BlockRenderer blocks={effectiveBlocks} idPrefix={BLOCK_ID} layoutFamily={layoutFamily} />
           </div>
         </div>
       </div>
