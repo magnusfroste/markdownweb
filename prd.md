@@ -15,7 +15,25 @@ Lovable Cloud / Supabase.
 - [x] Preview-routes `/mcp/preview/:slug/*`
 - [x] Admin-key via `MCP_ADMIN_KEY` (env)
 - [x] `.env.example` + README deploy-instruktioner
+- [x] Per-theme signature CSS (`mw-theme-{slug}`) — varje tema har en
+      visuell detalj (drop-cap, gold hairline, neon glow, organic blob…)
+      utan att Hermes behöver lära sig något nytt; signaturen står i
+      `list_themes`-beskrivningen så agenten förstår valet.
 - [ ] Manuell validering: Hermes skapar en site end-to-end
+
+## Designsystem — backlog (efter POC-validering)
+
+Idéer som höjer baseline från 8 → 9 men kräver mer från agenten eller
+nya block. Lyfts in när vi vet att Hermes klarar grunderna.
+
+- **Per-theme type scale** — `--h1-size`/`--h2-size` per tema istället
+  för hårdkodat i blocken (editorial 96px vs dev-docs 40px).
+- **Motion-lager** — `framer-motion` + tema-medveten rörelse
+  (brutalist = ingen, momentum = mjuk, editorial = långsam).
+- **Image-direktiv** — `::image{src=… treatment=duotone|grain|none}`
+  + grain-overlay assets.
+- **Theme-preview-skill** — `preview_theme` returnerar PNG/HTML innan
+  Hermes commitar `set_theme`.
 
 ---
 

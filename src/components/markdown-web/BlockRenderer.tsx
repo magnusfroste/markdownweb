@@ -619,11 +619,14 @@ export function BlockRenderer({
   blocks,
   idPrefix,
   layoutFamily,
+  themeSlug,
 }: {
   blocks: Block[];
   idPrefix?: string;
   /** Slug of the layout family that decides each block's default variant. */
   layoutFamily?: string;
+  /** Slug of the active theme — drives signature chrome via `.mw-theme-{slug}`. */
+  themeSlug?: string;
 }) {
   const family = getLayoutFamily(layoutFamily);
 
@@ -642,7 +645,7 @@ export function BlockRenderer({
   };
 
   return (
-    <div className={`mw-fam-${family.slug}`}>
+    <div className={`mw-fam-${family.slug}${themeSlug ? ` mw-theme-${themeSlug}` : ""}`}>
       {blocks.map((b, i) => {
         let node: React.ReactNode;
         if (b.kind === "markdown") {

@@ -66,7 +66,7 @@ export const themes: Theme[] = [
   {
     slug: "editorial-serif",
     name: "Editorial Serif",
-    description: "Magazine-style serif headlines on warm off-white. Brand storytelling.",
+    description: "Magazine-style serif headlines on warm off-white. Signature: drop-cap on first paragraph + gold hairline between sections. Brand storytelling.",
     fontsHref:
       "https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Work+Sans:wght@400;500;600;700&display=swap",
     tokens: {
@@ -92,7 +92,7 @@ export const themes: Theme[] = [
   {
     slug: "modern-tech",
     name: "Modern Tech",
-    description: "Crisp grotesk on midnight indigo. SaaS, dev tools, AI startups.",
+    description: "Crisp grotesk on midnight indigo. Signature: soft conic glow under the hero. SaaS, dev tools, AI startups.",
     fontsHref:
       "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:wght@400;500;700&display=swap",
     tokens: {
@@ -118,7 +118,7 @@ export const themes: Theme[] = [
   {
     slug: "brutalist-pop",
     name: "Brutalist Pop",
-    description: "High-contrast black/white with a single neon accent. Editorial brutalism.",
+    description: "High-contrast black/white with a single neon accent. Signature: 4px offset shadow on hero badge. Editorial brutalism.",
     fontsHref:
       "https://fonts.googleapis.com/css2?family=Archivo+Black&family=Hind:wght@400;500;700&display=swap",
     tokens: {
@@ -144,7 +144,7 @@ export const themes: Theme[] = [
   {
     slug: "luxury-noir",
     name: "Luxury Noir",
-    description: "Black with gold accents and elegant serifs. Premium / fashion / hospitality.",
+    description: "Black with gold accents and elegant serifs. Signature: gold hairline divider between sections + gold-underlined links. Premium / fashion / hospitality.",
     fontsHref:
       "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Karla:wght@400;500;700&display=swap",
     tokens: {
@@ -170,7 +170,7 @@ export const themes: Theme[] = [
   {
     slug: "wellness-soft",
     name: "Wellness Soft",
-    description: "Sage and cream, soft serifs. Health, beauty, lifestyle, retreats.",
+    description: "Sage and cream, soft serifs. Signature: organic blob behind the hero. Health, beauty, lifestyle, retreats.",
     fontsHref:
       "https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400&family=Nunito+Sans:wght@400;500;600;700&display=swap",
     tokens: {
@@ -196,7 +196,7 @@ export const themes: Theme[] = [
   {
     slug: "startup-bold",
     name: "Startup Bold",
-    description: "Electric coral on near-black. Bold, energetic, attention-grabbing.",
+    description: "Electric coral on near-black. Signature: neon glow under primary buttons. Bold, energetic, attention-grabbing.",
     fontsHref:
       "https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700&display=swap",
     tokens: {
@@ -222,7 +222,7 @@ export const themes: Theme[] = [
   {
     slug: "corporate-trust",
     name: "Corporate Trust",
-    description: "Navy and white, classic serif. Finance, legal, enterprise, B2B.",
+    description: "Navy and white, classic serif. Signature: classic top-rule above section titles. Finance, legal, enterprise, B2B.",
     fontsHref:
       "https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap",
     tokens: {
@@ -248,7 +248,7 @@ export const themes: Theme[] = [
   {
     slug: "creative-playful",
     name: "Creative Playful",
-    description: "Sunset gradients with display serifs. Portfolios, creative agencies, events.",
+    description: "Sunset gradients with display serifs. Signature: subtle hero gradient + slightly tilted bordered cards. Portfolios, creative agencies, events.",
     fontsHref:
       "https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Cabin:wght@400;500;600;700&display=swap",
     tokens: {
@@ -274,7 +274,7 @@ export const themes: Theme[] = [
   {
     slug: "dev-docs",
     name: "Dev Docs",
-    description: "Slate, steel, monospace headers. Developer tools, API docs, technical content.",
+    description: "Slate, steel, monospace headers. Signature: monospace chip eyebrows. Developer tools, API docs, technical content.",
     fontsHref:
       "https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap",
     tokens: {
@@ -300,7 +300,7 @@ export const themes: Theme[] = [
   {
     slug: "nature-organic",
     name: "Nature Organic",
-    description: "Forest greens with mossy accents. Outdoors, sustainability, food, organic brands.",
+    description: "Forest greens with mossy accents. Signature: asymmetric soft-corner cards. Outdoors, sustainability, food, organic brands.",
     fontsHref:
       "https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap",
     tokens: {

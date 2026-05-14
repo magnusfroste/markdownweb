@@ -202,12 +202,105 @@
   text-decoration-color: var(--primary);
 }
 
-/* ─── Editorial-only: drop-cap on the first paragraph of prose blocks ─── */
-.mw-fam-editorial > div > p:first-of-type::first-letter {
+/* ─── Per-theme signature moves ───
+   One distinct visual detail per theme so two sites with the same template
+   but different `themeSlug` look meaningfully different. Pure CSS — agents
+   don't need to know these exist; choosing the theme is enough. */
+
+/* Editorial Serif — drop-cap on first prose paragraph + gold hairline. */
+.mw-theme-editorial-serif > div > p:first-of-type::first-letter {
   font-family: var(--font-display);
-  font-size: 3.4em;
+  font-size: 3.6em;
   line-height: 0.85;
   float: left;
-  padding: 0.05em 0.12em 0 0;
-  color: var(--primary);
+  padding: 0.05em 0.14em 0 0;
+  color: var(--accent);
 }
+.mw-theme-editorial-serif section + section {
+  border-top: 1px solid color-mix(in oklab, var(--accent) 60%, transparent);
+}
+
+/* Luxury Noir — gold hairline divider above every section + gold underline on inline links. */
+.mw-theme-luxury-noir section {
+  position: relative;
+}
+.mw-theme-luxury-noir section + section::before {
+  content: "";
+  display: block;
+  width: 64px;
+  height: 1px;
+  background: var(--accent);
+  margin: 0 auto;
+  transform: translateY(2rem);
+}
+.mw-theme-luxury-noir p a {
+  text-decoration-color: var(--accent) !important;
+  text-decoration-thickness: 1px !important;
+}
+
+/* Brutalist Pop — already brutalist baseline; add hard offset to first hero badge. */
+.mw-theme-brutalist-pop section:first-of-type [class*="bg-foreground"][class*="text-background"] {
+  box-shadow: 4px 4px 0 0 var(--primary);
+}
+
+/* Wellness Soft — organic blob behind first section, softly-rounded section breaks. */
+.mw-theme-wellness-soft section:first-of-type {
+  position: relative;
+  overflow: hidden;
+}
+.mw-theme-wellness-soft section:first-of-type::after {
+  content: "";
+  position: absolute;
+  inset: auto -8% -30% auto;
+  width: 60%;
+  aspect-ratio: 1;
+  background: radial-gradient(circle at 30% 30%, color-mix(in oklab, var(--accent) 55%, transparent), transparent 65%);
+  border-radius: 60% 40% 55% 45% / 50% 60% 40% 50%;
+  pointer-events: none;
+  z-index: 0;
+}
+.mw-theme-wellness-soft section > * { position: relative; z-index: 1; }
+
+/* Modern Tech — subtle conic glow under the hero. */
+.mw-theme-modern-tech section:first-of-type {
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% 0%, color-mix(in oklab, var(--primary) 18%, transparent), transparent 70%),
+    radial-gradient(ellipse 60% 40% at 80% 20%, color-mix(in oklab, var(--accent) 15%, transparent), transparent 70%);
+}
+
+/* Startup Bold — neon glow under primary buttons. */
+.mw-theme-startup-bold a[class*="bg-primary"] {
+  box-shadow: 0 0 0 1px color-mix(in oklab, var(--primary) 50%, transparent),
+              0 14px 40px -10px color-mix(in oklab, var(--primary) 70%, transparent);
+}
+
+/* Corporate Trust — classic top-rule above section titles. */
+.mw-theme-corporate-trust section h2:first-child {
+  border-top: 2px solid var(--primary);
+  padding-top: 1.25rem;
+  display: inline-block;
+}
+
+/* Dev Docs — monospace chip-like eyebrows + subtle code-frame on cards. */
+.mw-theme-dev-docs section [class*="uppercase"][class*="tracking"] {
+  font-family: var(--font-mono);
+  background: color-mix(in oklab, var(--primary) 8%, transparent);
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+}
+
+/* Creative Playful — tilted shadow + gradient on hero. */
+.mw-theme-creative-playful section:first-of-type {
+  background-image: linear-gradient(135deg,
+    color-mix(in oklab, var(--primary) 10%, transparent),
+    color-mix(in oklab, var(--accent) 12%, transparent));
+}
+.mw-theme-creative-playful [class*="border-brutal"] {
+  transform: rotate(-0.4deg);
+}
+
+/* Nature Organic — asymmetric soft corners on cards. */
+.mw-theme-nature-organic [class*="rounded"] {
+  border-radius: 28px 14px 28px 14px !important;
+}
+
