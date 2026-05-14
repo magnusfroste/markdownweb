@@ -642,7 +642,7 @@ export function BlockRenderer({
   };
 
   return (
-    <>
+    <div className={`mw-fam-${family.slug}`}>
       {blocks.map((b, i) => {
         let node: React.ReactNode;
         if (b.kind === "markdown") {
@@ -677,6 +677,6 @@ export function BlockRenderer({
         if (idPrefix) return wrap(i, node);
         return <div key={i}>{node}</div>;
       })}
-    </>
+    </div>
   );
 }
