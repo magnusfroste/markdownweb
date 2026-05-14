@@ -15,7 +15,7 @@ import { getSite } from "@/lib/mcp/store";
 import { parseMarkdownWeb } from "@/lib/markdown-web/parser";
 import { resolvePage } from "@/lib/markdown-web/resolve-page";
 import { BlockRenderer } from "@/components/markdown-web/BlockRenderer";
-import { resolveTokens, tokensToCssVars } from "@/lib/mcp/themes";
+import { resolveTokens, tokensToCssVars, type ThemeTokens } from "@/lib/mcp/themes";
 
 function extractFirstParagraph(md: string): string {
   const body = md.replace(/^---[\s\S]*?---/m, "").trim();
@@ -141,7 +141,7 @@ export function RenderPreview({
     markdown: string;
     themeName: string;
     layoutFamily: string;
-    tokens: Record<string, string>;
+    tokens: ThemeTokens;
   };
   path: string;
 }) {
