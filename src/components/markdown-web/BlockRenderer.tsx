@@ -619,11 +619,14 @@ export function BlockRenderer({
   blocks,
   idPrefix,
   layoutFamily,
+  themeSlug,
 }: {
   blocks: Block[];
   idPrefix?: string;
   /** Slug of the layout family that decides each block's default variant. */
   layoutFamily?: string;
+  /** Slug of the active theme — drives signature chrome via `.mw-theme-{slug}`. */
+  themeSlug?: string;
 }) {
   const family = getLayoutFamily(layoutFamily);
 
