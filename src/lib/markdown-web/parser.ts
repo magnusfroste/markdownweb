@@ -167,7 +167,17 @@ const KNOWN_DIRECTIVES = new Set([
   "tabs",
   "divider",
   "split",
+  "page",
 ]);
+
+function normalizeSlug(raw: unknown): string {
+  if (typeof raw !== "string" || !raw.trim()) return "/";
+  let s = raw.trim();
+  if (!s.startsWith("/")) s = "/" + s;
+  // Collapse trailing slash except for root.
+  if (s.length > 1 && s.endsWith("/")) s = s.slice(0, -1);
+  return s;
+}
 
 /**
  * Splits a markdown body into top-level blocks.
