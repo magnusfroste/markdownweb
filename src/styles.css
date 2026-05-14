@@ -66,6 +66,13 @@
   * {
     border-color: var(--color-border);
   }
+  html {
+    scroll-behavior: smooth;
+    /* Better text rendering on macOS / iOS. */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
@@ -76,6 +83,33 @@
     font-family: var(--font-display);
     letter-spacing: -0.02em;
     line-height: 0.95;
+    /* Avoid orphan words on the last line of headings. */
+    text-wrap: balance;
+  }
+  p { text-wrap: pretty; }
+  /* Brand-coloured selection. */
+  ::selection {
+    background: color-mix(in oklab, var(--primary) 35%, transparent);
+    color: var(--foreground);
+  }
+  /* Visible, brand-coloured focus ring everywhere. */
+  :focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+  /* Slim, themed scrollbar. */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in oklab, var(--foreground) 25%, transparent) transparent;
+  }
+  /* Honour reduced motion. */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.001ms !important;
+      transition-duration: 0.001ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 }
 
@@ -135,4 +169,45 @@
   border-width: 0 !important;
   width: 0.5rem;
   height: 0.5rem;
+}
+
+/* ─── Subtle scroll-reveal for sections (modern browsers only) ─── */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .mw-fam-momentum section,
+    .mw-fam-editorial section,
+    .mw-fam-brutalist section {
+      animation: mw-rise-in linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 40%;
+    }
+    @keyframes mw-rise-in {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+  }
+}
+
+/* ─── Better inline links inside prose (markdown body) ─── */
+.mw-fam-momentum p a,
+.mw-fam-editorial p a {
+  text-decoration-line: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+  text-decoration-color: color-mix(in oklab, var(--primary) 60%, transparent);
+  transition: text-decoration-color 150ms ease;
+}
+.mw-fam-momentum p a:hover,
+.mw-fam-editorial p a:hover {
+  text-decoration-color: var(--primary);
+}
+
+/* ─── Editorial-only: drop-cap on the first paragraph of prose blocks ─── */
+.mw-fam-editorial > div > p:first-of-type::first-letter {
+  font-family: var(--font-display);
+  font-size: 3.4em;
+  line-height: 0.85;
+  float: left;
+  padding: 0.05em 0.12em 0 0;
+  color: var(--primary);
 }
