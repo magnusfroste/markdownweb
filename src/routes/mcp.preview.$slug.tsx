@@ -140,6 +140,7 @@ export function RenderPreview({
     slug: string;
     markdown: string;
     themeName: string;
+    themeSlug: string;
     layoutFamily: string;
     tokens: ThemeTokens;
   };
