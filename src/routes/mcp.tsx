@@ -414,7 +414,7 @@ function MintKeySection({ onMinted }: { onMinted: () => void }) {
   const [result, setResult] = useState<MintResult | null>(null);
   const [copied, setCopied] = useState(false);
 
-  async function submit(e: React.FormEvent) {
+  async function submit(e: FormEvent) {
     e.preventDefault();
     setError(null);
     setLoading(true);
