@@ -53,7 +53,15 @@ export const Route = createRootRoute({
       },
       { name: "theme-color", content: "#0a0a0a" },
     ],
-    links: [{ rel: "stylesheet", href: appCss }],
+    links: [
+      { rel: "stylesheet", href: appCss },
+      { rel: "preconnect", href: "https://fonts.googleapis.com" },
+      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
+      {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Archivo+Black&display=swap",
+      },
+    ],
     scripts: [
       {
         type: "application/ld+json",
