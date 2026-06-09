@@ -396,3 +396,158 @@ function McpSettingsPage() {
     </div>
   );
 }
+
+type MintResult = {
+  id: string;
+  label: string;
+  token: string;
+  tail: string;
+  siteScopes: string[];
+};
+
+function MintKeySection({ onMinted }: { onMinted: () => void }) {
+  const [adminKey, setAdminKey] = useState("");
+  const [label, setLabel] = useState("");
+  const [scopes, setScopes] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [result, setResult] = useState<MintResult | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
+    try {
+      const res = await mintKey({
+        data: {
+          adminKey,
+          label,
+          siteScopes: scopes
+            .split(",")
+            .map((s) => s.trim())
+            .filter(Boolean),
+        },
+      });
+      setResult(res as MintResult);
+      setAdminKey("");
+      setLabel("");
+      setScopes("");
+      onMinted();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to mint key");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function copyToken() {
+    if (!result) return;
+    await navigator.clipboard.writeText(result.token);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  }
+
+  return (
+    <section className="border-4 border-foreground p-6 space-y-4">
+      <div>
+        <h2 className="text-xl font-black uppercase">Mint API key</h2>
+        <p className="text-sm text-muted-foreground mt-1">
+          Requires the global <code className="font-mono">MCP_ADMIN_KEY</code>.
+          The token is shown ONCE — copy it now.
+        </p>
+      </div>
+
+      <form onSubmit={submit} className="space-y-3">
+        <div className="grid sm:grid-cols-2 gap-3">
+          <label className="block space-y-1">
+            <span className="text-xs uppercase tracking-widest font-bold">
+              Admin key
+            </span>
+            <input
+              type="password"
+              value={adminKey}
+              onChange={(e) => setAdminKey(e.target.value)}
+              placeholder="MCP_ADMIN_KEY"
+              required
+              autoComplete="off"
+              className="w-full border-2 border-foreground bg-background p-2 font-mono text-sm"
+            />
+          </label>
+          <label className="block space-y-1">
+            <span className="text-xs uppercase tracking-widest font-bold">
+              Label
+            </span>
+            <input
+              type="text"
+              value={label}
+              onChange={(e) => setLabel(e.target.value)}
+              placeholder="hermes-prod"
+              required
+              className="w-full border-2 border-foreground bg-background p-2 font-mono text-sm"
+            />
+          </label>
+        </div>
+        <label className="block space-y-1">
+          <span className="text-xs uppercase tracking-widest font-bold">
+            Site scopes (optional, comma-separated site IDs)
+          </span>
+          <input
+            type="text"
+            value={scopes}
+            onChange={(e) => setScopes(e.target.value)}
+            placeholder="leave empty for full access"
+            className="w-full border-2 border-foreground bg-background p-2 font-mono text-sm"
+          />
+        </label>
+        <div className="flex items-center gap-3">
+          <button
+            type="submit"
+            disabled={loading}
+            className="border-2 border-foreground px-4 py-2 font-bold uppercase text-sm hover:bg-foreground hover:text-background transition-colors disabled:opacity-40"
+          >
+            {loading ? "Minting…" : "Mint key"}
+          </button>
+          {error && (
+            <span className="text-destructive font-bold text-sm">{error}</span>
+          )}
+        </div>
+      </form>
+
+      {result && (
+        <div className="border-2 border-foreground bg-muted p-4 space-y-3">
+          <div className="flex items-center justify-between gap-2">
+            <div className="text-xs uppercase tracking-widest font-bold">
+              Token for "{result.label}" — copy now, won't be shown again
+            </div>
+            <button
+              type="button"
+              onClick={() => setResult(null)}
+              className="text-xs underline underline-offset-2"
+            >
+              Dismiss
+            </button>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-2 items-stretch">
+            <code className="flex-1 bg-background p-3 font-mono text-sm break-all border-2 border-foreground">
+              {result.token}
+            </code>
+            <button
+              type="button"
+              onClick={copyToken}
+              className="border-2 border-foreground px-4 py-2 font-bold uppercase text-sm hover:bg-foreground hover:text-background transition-colors"
+            >
+              {copied ? "Copied!" : "Copy"}
+            </button>
+          </div>
+          <div className="text-xs font-mono text-muted-foreground">
+            id: {result.id} · tail: …{result.tail} ·{" "}
+            {result.siteScopes.length === 0
+              ? "all sites"
+              : `scopes: ${result.siteScopes.join(", ")}`}
+          </div>
+        </div>
+      )}
+    </section>
+  );
+}
