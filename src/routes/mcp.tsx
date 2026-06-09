@@ -311,6 +311,9 @@ function McpSettingsPage() {
           )}
         </section>
 
+        {/* Mint key */}
+        <MintKeySection onMinted={refresh} />
+
         {/* API Keys */}
         <section className="border-4 border-foreground p-6 space-y-4">
           <h2 className="text-xl font-black uppercase">Scoped keys ({status.keys.length})</h2>
