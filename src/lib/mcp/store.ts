@@ -416,6 +416,9 @@ async function decodeSignedKey(token: string): Promise<ApiKey | undefined> {
     ) {
       return undefined;
     }
+    const stored = keys.get(payload.id);
+    if (stored?.revokedAt) return undefined;
+
     return {
       id: payload.id,
       tail: token.slice(-4),
