@@ -348,19 +348,114 @@ async function sha256Hex(s: string): Promise<string> {
     .join("");
 }
 
+function base64UrlEncodeBytes(bytes: Uint8Array): string {
+  let binary = "";
+  for (const byte of bytes) binary += String.fromCharCode(byte);
+  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+}
+
+function base64UrlDecodeToString(value: string): string {
+  const base64 = value.replace(/-/g, "+").replace(/_/g, "/");
+  const padded = base64.padEnd(Math.ceil(base64.length / 4) * 4, "=");
+  const binary = atob(padded);
+  const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
+  return new TextDecoder().decode(bytes);
+}
+
+async function hmacBase64Url(value: string, secret: string): Promise<string> {
+  const key = await crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"],
+  );
+  const signature = await crypto.subtle.sign(
+    "HMAC",
+    key,
+    new TextEncoder().encode(value),
+  );
+  return base64UrlEncodeBytes(new Uint8Array(signature));
+}
+
+function safeEqual(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i += 1) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return diff === 0;
+}
+
+type SignedKeyPayload = {
+  v: 1;
+  id: string;
+  label: string;
+  siteScopes: string[];
+  createdAt: string;
+};
+
+async function decodeSignedKey(token: string): Promise<ApiKey | undefined> {
+  if (!token.startsWith("mwk_")) return undefined;
+  const adminKey = process.env.MCP_ADMIN_KEY;
+  if (!adminKey) return undefined;
+
+  const [payloadPart, signature] = token.slice(4).split(".");
+  if (!payloadPart || !signature) return undefined;
+
+  const expected = await hmacBase64Url(payloadPart, adminKey);
+  if (!safeEqual(signature, expected)) return undefined;
+
+  try {
+    const payload = JSON.parse(base64UrlDecodeToString(payloadPart)) as SignedKeyPayload;
+    if (
+      payload.v !== 1 ||
+      typeof payload.id !== "string" ||
+      typeof payload.label !== "string" ||
+      typeof payload.createdAt !== "string" ||
+      !Array.isArray(payload.siteScopes) ||
+      payload.siteScopes.some((scope) => typeof scope !== "string")
+    ) {
+      return undefined;
+    }
+    return {
+      id: payload.id,
+      tail: token.slice(-4),
+      hash: `signed:${signature}`,
+      label: payload.label,
+      siteScopes: payload.siteScopes,
+      createdAt: payload.createdAt,
+    };
+  } catch {
+    return undefined;
+  }
+}
+
 export async function createKey(input: {
   label: string;
   siteScopes?: string[];
 }): Promise<{ key: ApiKey; token: string }> {
-  const token = `mcp_${rid("k").slice(2)}${Math.random().toString(36).slice(2, 14)}`;
+  const adminKey = process.env.MCP_ADMIN_KEY;
+  if (!adminKey) throw new Error("Server missing MCP_ADMIN_KEY");
+  const keyId = rid("key");
+  const createdAt = new Date().toISOString();
+  const payload: SignedKeyPayload = {
+    v: 1,
+    id: keyId,
+    label: input.label,
+    siteScopes: input.siteScopes ?? [],
+    createdAt,
+  };
+  const payloadPart = base64UrlEncodeBytes(
+    new TextEncoder().encode(JSON.stringify(payload)),
+  );
+  const token = `mwk_${payloadPart}.${await hmacBase64Url(payloadPart, adminKey)}`;
   const hash = await sha256Hex(token);
   const key: ApiKey = {
-    id: rid("key"),
+    id: keyId,
     tail: token.slice(-4),
     hash,
     label: input.label,
     siteScopes: input.siteScopes ?? [],
-    createdAt: new Date().toISOString(),
+    createdAt,
   };
   keys.set(key.id, key);
   return { key, token };
@@ -380,6 +475,9 @@ export function revokeKey(keyId: string): boolean {
 }
 
 export async function findKeyByToken(token: string): Promise<ApiKey | undefined> {
+  const signedKey = await decodeSignedKey(token);
+  if (signedKey) return signedKey;
+
   const hash = await sha256Hex(token);
   for (const k of keys.values()) {
     if (k.hash === hash && !k.revokedAt) return k;
