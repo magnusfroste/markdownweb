@@ -18,6 +18,7 @@ import {
   listActivity,
   listSites,
   listKeys,
+  createKey,
   type ActivityEntry,
   type Site,
   type ApiKey,
@@ -32,6 +33,31 @@ const getMcpStatus = createServerFn({ method: "GET" }).handler(async () => {
     keys: listKeys(),
   };
 });
+
+const mintKey = createServerFn({ method: "POST" })
+  .inputValidator(
+    (data: { adminKey: string; label: string; siteScopes: string[] }) => data,
+  )
+  .handler(async ({ data }) => {
+    const expected = process.env.MCP_ADMIN_KEY;
+    if (!expected) throw new Error("Server missing MCP_ADMIN_KEY");
+    if (!data.adminKey || data.adminKey !== expected) {
+      throw new Error("Invalid admin key");
+    }
+    const label = data.label.trim();
+    if (!label) throw new Error("Label is required");
+    const { key, token } = await createKey({
+      label,
+      siteScopes: data.siteScopes.map((s) => s.trim()).filter(Boolean),
+    });
+    return {
+      id: key.id,
+      label: key.label,
+      token,
+      tail: key.tail,
+      siteScopes: key.siteScopes,
+    };
+  });
 
 type Status = {
   keyConfigured: boolean;
