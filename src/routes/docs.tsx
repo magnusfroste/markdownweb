@@ -7,23 +7,36 @@ import { BlockRenderer } from "@/components/markdown-web/BlockRenderer";
 const doc = parseMarkdownWeb(docsSource);
 
 export const Route = createFileRoute("/docs")({
-  head: () => ({
-    meta: [
-      { title: "Docs — MarkdownWeb block reference" },
-      {
-        name: "description",
-        content:
-          "Live block previews on the left, copyable markdown source on the right. Every ::block directive with examples.",
-      },
-      { property: "og:title", content: "Docs — MarkdownWeb block reference" },
-      { property: "og:description", content: "Live previews + copyable markdown for every ::block directive." },
-      { property: "og:url", content: "https://mdsites.lovable.app/docs" },
-      { property: "og:type", content: "article" },
-      { name: "twitter:title", content: "Docs — MarkdownWeb block reference" },
-      { name: "twitter:description", content: "Live previews + copyable markdown for every ::block directive." },
-    ],
-    links: [{ rel: "canonical", href: "https://mdsites.lovable.app/docs" }],
-  }),
+  head: () => {
+    const ogImage =
+      "https://mdsites.lovable.app/api/og.svg?" +
+      new URLSearchParams({
+        title: "Block reference",
+        subtitle: "Every ::directive with live previews and copyable source.",
+        badge: "mdsites.lovable.app · docs",
+      }).toString();
+    return {
+      meta: [
+        { title: "Docs — MarkdownWeb block reference" },
+        {
+          name: "description",
+          content:
+            "Live block previews on the left, copyable markdown source on the right. Every ::block directive with examples.",
+        },
+        { property: "og:title", content: "Docs — MarkdownWeb block reference" },
+        { property: "og:description", content: "Live previews + copyable markdown for every ::block directive." },
+        { property: "og:url", content: "https://mdsites.lovable.app/docs" },
+        { property: "og:type", content: "article" },
+        { property: "og:image", content: ogImage },
+        { property: "og:image:width", content: "1200" },
+        { property: "og:image:height", content: "630" },
+        { name: "twitter:title", content: "Docs — MarkdownWeb block reference" },
+        { name: "twitter:description", content: "Live previews + copyable markdown for every ::block directive." },
+        { name: "twitter:image", content: ogImage },
+      ],
+      links: [{ rel: "canonical", href: "https://mdsites.lovable.app/docs" }],
+    };
+  },
   component: DocsPage,
 });
 
