@@ -52,6 +52,7 @@ const fetchSite = createServerFn({ method: "GET" })
       tokens,
       description,
       layoutFamily: site.layoutFamily,
+      pageMetas: listPages(site.slug),
     };
   });
 
