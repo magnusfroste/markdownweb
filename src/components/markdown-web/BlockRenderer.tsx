@@ -616,30 +616,145 @@ function PricingBlock({ block }: { block: DirectiveBlock }) {
   );
 }
 
+/* ─────────── POST-INDEX ─────────── */
+
+function formatDate(iso?: string): string {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return iso;
+  return d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
+}
+
+function PostIndexBlock({
+  block,
+  posts,
+  siteSlug,
+}: {
+  block: DirectiveBlock;
+  posts: PageMeta[];
+  siteSlug?: string;
+}) {
+  const title = (block.attrs.title as string) ?? "Latest posts";
+  const limit = typeof block.attrs.limit === "number" ? block.attrs.limit : undefined;
+  const tag = typeof block.attrs.tag === "string" ? block.attrs.tag : undefined;
+  const filtered = posts
+    .filter((p) => (tag ? (p.tags ?? []).includes(tag) : true))
+    .slice(0, limit ?? posts.length);
+
+  return (
+    <section className="bg-background border-t border-foreground/5">
+      <div className="mx-auto max-w-5xl px-6 py-16">
+        <h2 className="text-3xl md:text-4xl font-display tracking-tight mb-2">{title}</h2>
+        {tag && (
+          <p className="text-sm text-muted-foreground mb-8">
+            Filtered by <code className="px-1.5 py-0.5 rounded bg-muted">{tag}</code>
+          </p>
+        )}
+        {filtered.length === 0 ? (
+          <p className="text-muted-foreground mt-6">No posts yet.</p>
+        ) : (
+          <ul className="mt-8 divide-y divide-foreground/10">
+            {filtered.map((p) => {
+              const href = p.slug;
+              const inner = (
+                <>
+                  <div className="flex items-baseline justify-between gap-4">
+                    <h3 className="text-lg md:text-xl font-display tracking-tight group-hover:text-primary transition-colors">
+                      {p.title ?? p.slug}
+                    </h3>
+                    {p.date && (
+                      <time className="text-xs uppercase tracking-widest text-muted-foreground shrink-0">
+                        {formatDate(p.date)}
+                      </time>
+                    )}
+                  </div>
+                  {p.excerpt && (
+                    <p className="mt-2 text-muted-foreground leading-relaxed text-sm md:text-base">
+                      {p.excerpt}
+                    </p>
+                  )}
+                  <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                    {p.author && <span>{p.author}</span>}
+                    {p.author && p.tags && p.tags.length > 0 && <span>·</span>}
+                    {p.tags?.map((t) => (
+                      <span
+                        key={t}
+                        className="px-2 py-0.5 rounded-full bg-foreground/5 text-foreground/70"
+                      >
+                        #{t}
+                      </span>
+                    ))}
+                  </div>
+                </>
+              );
+              return (
+                <li key={p.slug} className="group py-6">
+                  {siteSlug ? (
+                    <Link
+                      to="/mcp/preview/$slug/$"
+                      params={{ slug: siteSlug, _splat: href.replace(/^\//, "") }}
+                      className="block"
+                    >
+                      {inner}
+                    </Link>
+                  ) : (
+                    <a href={href} className="block">
+                      {inner}
+                    </a>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </div>
+    </section>
+  );
+}
+
 export function BlockRenderer({
   blocks,
   idPrefix,
   layoutFamily,
   themeSlug,
+  pages,
+  siteSlug,
 }: {
   blocks: Block[];
   idPrefix?: string;
-  /** Slug of the layout family that decides each block's default variant. */
   layoutFamily?: string;
-  /** Slug of the active theme — drives signature chrome via `.mw-theme-{slug}`. */
   themeSlug?: string;
+  /** Optional page context — enables ::post-index to list posts. */
+  pages?: Page[];
+  /** Site slug — makes ::post-index link into /mcp/preview/:slug/... */
+  siteSlug?: string;
 }) {
   const family = getLayoutFamily(layoutFamily);
+
+  const posts: PageMeta[] = (pages ?? [])
+    .map((p) => {
+      // pages coming from parser are ParsedPage — reconstruct meta from a synthetic
+      // directive block using their known fields.
+      const attrs: Record<string, string | number | boolean> = { slug: p.slug };
+      if (p.title) attrs.title = p.title;
+      if (p.description) attrs.description = p.description;
+      if (p.image) attrs.image = p.image;
+      return readPageMeta({
+        kind: "directive",
+        name: "page",
+        attrs,
+        body: "",
+        startLine: 0,
+        bodyStartLine: 0,
+      });
+    });
+  // enrich posts using extra attrs stored on the source blocks (via `pages` prop
+  // callers pass raw page metas when available — see PostIndex helper below).
 
   const wrap = (i: number, node: React.ReactNode) => {
     if (!idPrefix) return node;
     return (
-      <div
-        key={i}
-        id={`${idPrefix}${i}`}
-        data-mw-block-index={i}
-        className="scroll-mt-16"
-      >
+      <div key={i} id={`${idPrefix}${i}`} data-mw-block-index={i} className="scroll-mt-16">
         {node}
       </div>
     );
@@ -670,6 +785,17 @@ export function BlockRenderer({
             case "tabs": node = <TabsBlock block={b} />; break;
             case "divider": node = <DividerBlock block={b} />; break;
             case "split": node = <SplitBlock block={b} />; break;
+            case "post-index":
+              node = (
+                <PostIndexBlock
+                  block={b}
+                  posts={posts
+                    .filter((p) => p.type === "post")
+                    .sort((a, b) => (b.date ?? "").localeCompare(a.date ?? ""))}
+                  siteSlug={siteSlug}
+                />
+              );
+              break;
             default:
               node = (
                 <div className="border-brutal bg-destructive/10 p-4 m-6 font-mono text-sm">
@@ -683,4 +809,5 @@ export function BlockRenderer({
       })}
     </div>
   );
+}
 }
