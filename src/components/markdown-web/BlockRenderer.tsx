@@ -1,5 +1,5 @@
 import type * as React from "react";
-import { type Block, type DirectiveBlock, parseListItems } from "@/lib/markdown-web/parser";
+import { type Block, type DirectiveBlock, type Page, parseListItems } from "@/lib/markdown-web/parser";
 import { renderMd, extractActionLinks, type ParsedLink } from "@/lib/markdown-web/inline";
 import { Link } from "@tanstack/react-router";
 import {
@@ -19,6 +19,7 @@ import {
   resolveVariant,
   type LayoutFamily,
 } from "@/lib/mcp/layouts";
+import { readPageMeta, type PageMeta } from "@/lib/mcp/pages";
 
 function ActionLink({ link, tone = "brutal" }: { link: ParsedLink; tone?: "brutal" | "soft" | "ghost" }) {
   const isExternal = link.href.startsWith("http");
