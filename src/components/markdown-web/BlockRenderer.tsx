@@ -717,39 +717,21 @@ export function BlockRenderer({
   idPrefix,
   layoutFamily,
   themeSlug,
-  pages,
+  pageMetas,
   siteSlug,
 }: {
   blocks: Block[];
   idPrefix?: string;
   layoutFamily?: string;
   themeSlug?: string;
-  /** Optional page context — enables ::post-index to list posts. */
-  pages?: Page[];
+  /** Metadata for every ::page in the site. Enables ::post-index. */
+  pageMetas?: PageMeta[];
   /** Site slug — makes ::post-index link into /mcp/preview/:slug/... */
   siteSlug?: string;
 }) {
   const family = getLayoutFamily(layoutFamily);
 
-  const posts: PageMeta[] = (pages ?? [])
-    .map((p) => {
-      // pages coming from parser are ParsedPage — reconstruct meta from a synthetic
-      // directive block using their known fields.
-      const attrs: Record<string, string | number | boolean> = { slug: p.slug };
-      if (p.title) attrs.title = p.title;
-      if (p.description) attrs.description = p.description;
-      if (p.image) attrs.image = p.image;
-      return readPageMeta({
-        kind: "directive",
-        name: "page",
-        attrs,
-        body: "",
-        startLine: 0,
-        bodyStartLine: 0,
-      });
-    });
-  // enrich posts using extra attrs stored on the source blocks (via `pages` prop
-  // callers pass raw page metas when available — see PostIndex helper below).
+  const posts: PageMeta[] = pageMetas ?? [];
 
   const wrap = (i: number, node: React.ReactNode) => {
     if (!idPrefix) return node;
