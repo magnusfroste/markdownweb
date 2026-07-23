@@ -19,7 +19,7 @@ import {
   resolveVariant,
   type LayoutFamily,
 } from "@/lib/mcp/layouts";
-import { readPageMeta, type PageMeta } from "@/lib/mcp/pages";
+import type { PageMeta } from "@/lib/mcp/pages";
 
 function ActionLink({ link, tone = "brutal" }: { link: ParsedLink; tone?: "brutal" | "soft" | "ghost" }) {
   const isExternal = link.href.startsWith("http");
