@@ -95,11 +95,72 @@ function persist(siteId: string, frontmatter: Record<string, unknown>, blocks: B
 }
 
 export const skills: Skill[] = [
+  // ───────── onboarding ─────────
+  {
+    name: "get_started",
+    description:
+      "[onboarding] READ FIRST. Returns a short workflow guide, tool categories, and the recommended call order for building, styling and iterating on a site. No arguments.",
+    inputSchema: { type: "object", properties: {} },
+    handler: () => ({
+      tagline:
+        "MarkdownWeb MCP — build LLM-friendly websites from a single .md file.",
+      categories: {
+        onboarding: ["get_started"],
+        lifecycle: [
+          "create_site", "create_site_from_template", "get_site", "update_site",
+          "list_sites", "duplicate_site", "rename_slug", "set_metadata",
+          "publish_site", "unpublish_site", "delete_site",
+        ],
+        discovery: [
+          "list_templates", "get_template",
+          "list_themes", "get_theme", "list_layout_families",
+          "list_directives", "get_directive_schema",
+        ],
+        design: [
+          "set_theme", "get_site_theme", "update_theme_tokens",
+          "reset_theme_tokens", "set_layout_family",
+        ],
+        blocks: ["list_blocks", "add_block", "update_block", "remove_block", "move_block"],
+        pages: [
+          "list_pages", "list_posts", "add_page", "remove_page", "rename_page",
+          "set_page_meta", "set_page_body", "search_pages", "get_feed_url",
+        ],
+        validation: ["validate_markdown", "diff_markdown"],
+        revisions: ["list_revisions", "restore_revision"],
+        assets: ["upload_asset", "list_assets", "delete_asset"],
+        keys: ["create_key", "list_keys", "revoke_key"],
+        admin: ["get_activity"],
+      },
+      recommendedFlow: [
+        "1. Discover: list_templates, list_themes, list_layout_families, list_directives.",
+        "2. Create: create_site_from_template (fastest) OR create_site with your own markdown.",
+        "3. Style: set_theme + optional update_theme_tokens (brand color, radius, logo). set_layout_family for a different composition.",
+        "4. Iterate: list_blocks → add_block / update_block / move_block / remove_block. Prefer block-level edits over update_site (which replaces the whole document).",
+        "5. Blog: add_page{type:\"post\", date, tags, excerpt}. Insert ::post-index directive on a /blog page. Share get_feed_url for RSS.",
+        "6. Ship: publish_site. Preview URL is returned by every mutating call.",
+      ],
+      conventions: {
+        indices: "All block/page indices are 0-based.",
+        idOrSlug: "Most site tools accept either the site id or its slug.",
+        updateSemantics:
+          "update_site REPLACES the whole markdown. update_block / set_page_body PATCH just that block/page.",
+        directiveSyntax:
+          '::name{key="value" num=3}\\n<body>\\n::  — see get_directive_schema for each directive.',
+        multiPage:
+          "A site can hold multiple ::page{slug=...} blocks. Blocks outside any ::page (typically ::nav and ::footer) are shared across every page.",
+      },
+      links: {
+        directives: "call list_directives",
+        themes: "call list_themes",
+        templates: "call list_templates",
+      },
+    }),
+  },
   // ───────── site lifecycle ─────────
   {
     name: "create_site",
     description:
-      "Create a new markdown-powered site. Optionally set `themeSlug` (see list_themes) and `layoutFamily` (see list_layout_families). Returns id, slug, preview URL.",
+      "[lifecycle] Create a new markdown-powered site. Optionally set `themeSlug` (see list_themes) and `layoutFamily` (see list_layout_families). Returns id, slug, preview URL. Tip: for a fast start, call `create_site_from_template` instead.",
     inputSchema: {
       type: "object",
       required: ["title", "markdown"],
@@ -152,7 +213,7 @@ export const skills: Skill[] = [
   },
   {
     name: "get_site",
-    description: "Fetch a site by id or slug. Returns full markdown + metadata.",
+    description: "[lifecycle] Fetch a site by id or slug. Returns full markdown + metadata.",
     inputSchema: {
       type: "object",
       required: ["idOrSlug"],
@@ -166,7 +227,7 @@ export const skills: Skill[] = [
   },
   {
     name: "update_site",
-    description: "Update title and/or full markdown. Snapshots a revision.",
+    description: "[lifecycle] Update title and/or full markdown. Snapshots a revision. Note: `markdown` REPLACES the whole document — use block-level tools (update_block/add_block) for surgical edits.",
     inputSchema: {
       type: "object",
       required: ["idOrSlug"],
@@ -194,7 +255,7 @@ export const skills: Skill[] = [
   },
   {
     name: "delete_site",
-    description: "Permanently delete a site, its revisions, and its assets.",
+    description: "[lifecycle] Permanently delete a site, its revisions, and its assets.",
     inputSchema: {
       type: "object",
       required: ["idOrSlug"],
@@ -208,7 +269,7 @@ export const skills: Skill[] = [
   },
   {
     name: "duplicate_site",
-    description: "Clone a site (markdown + tags). Returns the new site.",
+    description: "[lifecycle] Clone a site (markdown + tags). Returns the new site.",
     inputSchema: {
       type: "object",
       required: ["idOrSlug"],
@@ -228,7 +289,7 @@ export const skills: Skill[] = [
   },
   {
     name: "rename_slug",
-    description: "Change a site's URL slug. Auto-deduplicates collisions.",
+    description: "[lifecycle] Change a site's URL slug. Auto-deduplicates collisions.",
     inputSchema: {
       type: "object",
       required: ["idOrSlug", "newSlug"],
@@ -245,7 +306,7 @@ export const skills: Skill[] = [
   },
   {
     name: "set_metadata",
-    description: "Set tags, owner and/or status (draft|published) on a site.",
+    description: "[lifecycle] Set tags, owner and/or status (draft|published) on a site.",
     inputSchema: {
       type: "object",
       required: ["idOrSlug"],
@@ -271,7 +332,7 @@ export const skills: Skill[] = [
   },
   {
     name: "publish_site",
-    description: "Mark a site as published.",
+    description: "[lifecycle] Mark a site as published.",
     inputSchema: {
       type: "object",
       required: ["idOrSlug"],
@@ -285,7 +346,7 @@ export const skills: Skill[] = [
   },
   {
     name: "unpublish_site",
-    description: "Mark a site as draft.",
+    description: "[lifecycle] Mark a site as draft.",
     inputSchema: {
       type: "object",
       required: ["idOrSlug"],
@@ -299,7 +360,7 @@ export const skills: Skill[] = [
   },
   {
     name: "list_sites",
-    description: "List sites with optional search/status/tag filters and pagination.",
+    description: "[lifecycle] List sites with optional search/status/tag filters and pagination.",
     inputSchema: {
       type: "object",
       properties: {
@@ -341,7 +402,7 @@ export const skills: Skill[] = [
   {
     name: "list_templates",
     description:
-      "List pre-built site templates with `{{variables}}`. Each template has a recommended set of themes. Use `create_site_from_template` to instantiate.",
+      "[templates] List pre-built site templates with `{{variables}}`. Each template has a recommended set of themes. Use `create_site_from_template` to instantiate.",
     inputSchema: { type: "object", properties: {} },
     handler: () =>
       templates.map((t) => ({
@@ -354,7 +415,7 @@ export const skills: Skill[] = [
   },
   {
     name: "get_template",
-    description: "Return the full template (raw markdown body with `{{variables}}` intact + variable specs).",
+    description: "[templates] Return the full template (raw markdown body with `{{variables}}` intact + variable specs).",
     inputSchema: {
       type: "object",
       required: ["slug"],
@@ -369,7 +430,7 @@ export const skills: Skill[] = [
   {
     name: "create_site_from_template",
     description:
-      "Create a new site by rendering a template with `variables`. If `themeSlug` omitted, the template's first recommended theme is used. `layoutFamily` defaults to `momentum`.",
+      "[templates] Create a new site by rendering a template with `variables`. If `themeSlug` omitted, the template's first recommended theme is used. `layoutFamily` defaults to `momentum`.",
     inputSchema: {
       type: "object",
       required: ["templateSlug", "title"],
@@ -435,7 +496,7 @@ export const skills: Skill[] = [
   {
     name: "list_layout_families",
     description:
-      "List the layout families. A family decides which visual variant each block (hero/features/cta) renders as. Combine with a color theme for fundamentally different sites from the same markdown.",
+      "[layout] List the layout families. A family decides which visual variant each block (hero/features/cta) renders as. Combine with a color theme for fundamentally different sites from the same markdown.",
     inputSchema: { type: "object", properties: {} },
     handler: () =>
       layoutFamilies.map((f) => ({
@@ -449,7 +510,7 @@ export const skills: Skill[] = [
   {
     name: "set_layout_family",
     description:
-      "Switch a site's layout family. Same markdown, different composition (split vs marquee hero, bento vs grid features, banner vs bold CTA, …).",
+      "[layout] Switch a site's layout family. Same markdown, different composition (split vs marquee hero, bento vs grid features, banner vs bold CTA, …).",
     inputSchema: {
       type: "object",
       required: ["idOrSlug", "layoutFamily"],
@@ -481,7 +542,7 @@ export const skills: Skill[] = [
   {
     name: "list_themes",
     description:
-      "List all curated design templates. Each theme is a vetted token set (palette + typography + radius). Use `set_theme` to apply one.",
+      "[theme] List all curated design templates. Each theme is a vetted token set (palette + typography + radius). Use `set_theme` to apply one.",
     inputSchema: { type: "object", properties: {} },
     handler: () =>
       themes.map((t) => ({
@@ -500,7 +561,7 @@ export const skills: Skill[] = [
   },
   {
     name: "get_theme",
-    description: "Return the full token spec for one theme.",
+    description: "[theme] Return the full token spec for one theme.",
     inputSchema: {
       type: "object",
       required: ["slug"],
@@ -515,7 +576,7 @@ export const skills: Skill[] = [
   {
     name: "set_theme",
     description:
-      "Apply a theme to a site (resets any token overrides). Use `update_theme_tokens` afterwards to brand it.",
+      "[theme] Apply a theme to a site (resets any token overrides). Use `update_theme_tokens` afterwards to brand it.",
     inputSchema: {
       type: "object",
       required: ["idOrSlug", "themeSlug"],
@@ -540,7 +601,7 @@ export const skills: Skill[] = [
   },
   {
     name: "get_site_theme",
-    description: "Return the resolved theme tokens (theme defaults merged with overrides) for a site.",
+    description: "[theme] Return the resolved theme tokens (theme defaults merged with overrides) for a site.",
     inputSchema: {
       type: "object",
       required: ["idOrSlug"],
@@ -560,7 +621,7 @@ export const skills: Skill[] = [
   },
   {
     name: "update_theme_tokens",
-    description: `Override a whitelist of theme tokens for one site. Allowed tokens: ${OVERRIDABLE_TOKENS.join(", ")}. Pass color values as hex (#rrggbb), radius as CSS length, logoUrl as URL.`,
+    description: `Override a whitelist of theme tokens for one site. Allowed tokens: ${OVERRIDABLE_TOKENS.join("[theme] , ")}. Pass color values as hex (#rrggbb), radius as CSS length, logoUrl as URL.`,
     inputSchema: {
       type: "object",
       required: ["idOrSlug", "tokens"],
@@ -588,7 +649,7 @@ export const skills: Skill[] = [
   },
   {
     name: "reset_theme_tokens",
-    description: "Clear all per-site token overrides; revert to the theme's defaults.",
+    description: "[theme] Clear all per-site token overrides; revert to the theme's defaults.",
     inputSchema: {
       type: "object",
       required: ["idOrSlug"],
@@ -608,7 +669,7 @@ export const skills: Skill[] = [
   // ───────── directives ─────────
   {
     name: "list_directives",
-    description: "List every ::directive:: block type the renderer supports.",
+    description: "[blocks:discovery] List every ::directive:: block type the renderer supports.",
     inputSchema: { type: "object", properties: {} },
     handler: () =>
       directives.map((d) => ({
@@ -619,7 +680,7 @@ export const skills: Skill[] = [
   },
   {
     name: "get_directive_schema",
-    description: "Return the full schema for one directive (attrs, body format, example).",
+    description: "[blocks:discovery] Return the full schema for one directive (attrs, body format, example).",
     inputSchema: {
       type: "object",
       required: ["name"],
@@ -635,7 +696,7 @@ export const skills: Skill[] = [
   // ───────── block-level editing ─────────
   {
     name: "list_blocks",
-    description: "Return the parsed blocks of a site so an agent can edit by index.",
+    description: "[blocks] Return the parsed blocks of a site so an agent can edit by index.",
     inputSchema: {
       type: "object",
       required: ["idOrSlug"],
@@ -659,7 +720,7 @@ export const skills: Skill[] = [
   {
     name: "add_block",
     description:
-      "Insert a directive or markdown block at `index` (default: end). For directives, pass `name`+`attrs`+`body`. For markdown, pass `markdown`.",
+      "[blocks] Insert a directive or markdown block at `index` (default: end). For directives, pass `name`+`attrs`+`body`. For markdown, pass `markdown`. `index` is 0-based; omit to append at end.",
     inputSchema: {
       type: "object",
       required: ["idOrSlug"],
@@ -704,7 +765,7 @@ export const skills: Skill[] = [
   },
   {
     name: "update_block",
-    description: "Replace fields on the block at `index`.",
+    description: "[blocks] Replace fields on the block at `index`. `index` is 0-based. `attrs` is merged (shallow) into existing attrs; pass empty value to clear.",
     inputSchema: {
       type: "object",
       required: ["idOrSlug", "index"],
@@ -739,7 +800,7 @@ export const skills: Skill[] = [
   },
   {
     name: "remove_block",
-    description: "Remove the block at `index`.",
+    description: "[blocks] Remove the block at `index`. `index` is 0-based.",
     inputSchema: {
       type: "object",
       required: ["idOrSlug", "index"],
@@ -757,7 +818,7 @@ export const skills: Skill[] = [
   },
   {
     name: "move_block",
-    description: "Move block at `from` to position `to`.",
+    description: "[blocks] Move block at `from` to position `to`. Both indices are 0-based.",
     inputSchema: {
       type: "object",
       required: ["idOrSlug", "from", "to"],
@@ -783,7 +844,7 @@ export const skills: Skill[] = [
   // ───────── validation ─────────
   {
     name: "validate_markdown",
-    description: "Parse markdown and return diagnostics + block count. No persistence.",
+    description: "[validation] Parse markdown and return diagnostics + block count. No persistence.",
     inputSchema: {
       type: "object",
       required: ["markdown"],
@@ -793,7 +854,7 @@ export const skills: Skill[] = [
   },
   {
     name: "diff_markdown",
-    description: "Cheap line diff between two markdown strings — for review before apply.",
+    description: "[validation] Cheap line diff between two markdown strings — for review before apply.",
     inputSchema: {
       type: "object",
       required: ["a", "b"],
@@ -816,7 +877,7 @@ export const skills: Skill[] = [
   // ───────── revisions ─────────
   {
     name: "list_revisions",
-    description: "List recent revisions for a site (newest first).",
+    description: "[revisions] List recent revisions for a site (newest first).",
     inputSchema: {
       type: "object",
       required: ["idOrSlug"],
@@ -832,7 +893,7 @@ export const skills: Skill[] = [
   },
   {
     name: "restore_revision",
-    description: "Restore a site to a previous revision (snapshots current state first).",
+    description: "[revisions] Restore a site to a previous revision (snapshots current state first).",
     inputSchema: {
       type: "object",
       required: ["idOrSlug", "revisionId"],
@@ -852,7 +913,7 @@ export const skills: Skill[] = [
   {
     name: "upload_asset",
     description:
-      "Attach a binary asset to a site as a data URL. Returns an asset URL the agent can embed in markdown.",
+      "[assets] Attach a binary asset to a site as a data URL. Returns an asset URL the agent can embed in markdown.",
     inputSchema: {
       type: "object",
       required: ["idOrSlug", "name", "mimeType", "dataUrl"],
@@ -881,7 +942,7 @@ export const skills: Skill[] = [
   },
   {
     name: "list_assets",
-    description: "List assets attached to a site.",
+    description: "[assets] List assets attached to a site.",
     inputSchema: {
       type: "object",
       required: ["idOrSlug"],
@@ -898,7 +959,7 @@ export const skills: Skill[] = [
   },
   {
     name: "delete_asset",
-    description: "Delete an asset by id.",
+    description: "[assets] Delete an asset by id.",
     inputSchema: {
       type: "object",
       required: ["assetId"],
@@ -910,7 +971,7 @@ export const skills: Skill[] = [
   // ───────── observability ─────────
   {
     name: "get_activity",
-    description: "Return recent MCP activity entries (newest first).",
+    description: "[admin] Return recent MCP activity entries (newest first).",
     inputSchema: {
       type: "object",
       properties: { limit: { type: "number", description: "Default 50, max 200." } },
@@ -922,7 +983,7 @@ export const skills: Skill[] = [
   {
     name: "create_key",
     description:
-      "Mint a new API key. Optionally scope it to specific siteIds. Returns the raw token ONCE.",
+      "[keys] Mint a new API key. Optionally scope it to specific siteIds. Returns the raw token ONCE.",
     adminOnly: true,
     inputSchema: {
       type: "object",
@@ -955,7 +1016,7 @@ export const skills: Skill[] = [
   },
   {
     name: "list_keys",
-    description: "List all minted API keys (no token shown).",
+    description: "[keys] List all minted API keys (no token shown).",
     adminOnly: true,
     inputSchema: { type: "object", properties: {} },
     handler: () =>
@@ -970,7 +1031,7 @@ export const skills: Skill[] = [
   },
   {
     name: "revoke_key",
-    description: "Revoke an API key by id.",
+    description: "[keys] Revoke an API key by id.",
     adminOnly: true,
     inputSchema: {
       type: "object",
@@ -984,7 +1045,7 @@ export const skills: Skill[] = [
   {
     name: "list_pages",
     description:
-      "List every ::page in a site with full metadata (slug, title, type, date, author, tags, excerpt). Single-page sites return one synthetic entry for `/`.",
+      "[pages] List every ::page in a site with full metadata (slug, title, type, date, author, tags, excerpt). Single-page sites return one synthetic entry for `/`.",
     inputSchema: {
       type: "object",
       required: ["idOrSlug"],
@@ -995,7 +1056,7 @@ export const skills: Skill[] = [
   {
     name: "list_posts",
     description:
-      'Convenience filter: only pages with `type="post"`, sorted by `date` desc. Same shape as list_pages.',
+      '[pages] Convenience filter: only pages with `type="post"`, sorted by `date` desc. Same shape as list_pages.',
     inputSchema: {
       type: "object",
       required: ["idOrSlug"],
@@ -1006,7 +1067,7 @@ export const skills: Skill[] = [
   {
     name: "add_page",
     description:
-      'Add a new ::page to a site. If the site is still single-page, it is auto-migrated (existing content becomes the "/" home page). Pass `type="post"` + `date` (YYYY-MM-DD) to create a blog post. Body is markdown that can include further directives.',
+      '[pages] Add a new ::page to a site. Auto-migrates a single-page site into multi-page format (existing content becomes `/`, nav/footer stay shared). Pass `type="post"` + `date` (YYYY-MM-DD) to create a blog post. Body is markdown that can include further directives.',
     inputSchema: {
       type: "object",
       required: ["idOrSlug", "slug"],
@@ -1050,7 +1111,7 @@ export const skills: Skill[] = [
   },
   {
     name: "remove_page",
-    description: "Delete a ::page by its slug.",
+    description: "[pages] Delete a ::page by its slug.",
     inputSchema: {
       type: "object",
       required: ["idOrSlug", "slug"],
@@ -1067,7 +1128,7 @@ export const skills: Skill[] = [
   },
   {
     name: "rename_page",
-    description: "Change a page's route slug. Fails if the target slug already exists.",
+    description: "[pages] Change a page's route slug. Fails if the target slug already exists.",
     inputSchema: {
       type: "object",
       required: ["idOrSlug", "fromSlug", "toSlug"],
@@ -1092,7 +1153,7 @@ export const skills: Skill[] = [
   {
     name: "set_page_meta",
     description:
-      "Patch metadata on an existing page (title, description, image, type, date, author, tags, excerpt). Slug is immutable via this skill — use rename_page.",
+      "[pages] Patch metadata on an existing page (title, description, image, type, date, author, tags, excerpt). Slug is immutable via this skill — use rename_page.",
     inputSchema: {
       type: "object",
       required: ["idOrSlug", "slug"],
@@ -1130,7 +1191,7 @@ export const skills: Skill[] = [
   },
   {
     name: "set_page_body",
-    description: "Replace the markdown body of a single ::page (leaves attrs untouched).",
+    description: "[pages] Replace the markdown body of a single ::page (leaves attrs untouched).",
     inputSchema: {
       type: "object",
       required: ["idOrSlug", "slug", "body"],
@@ -1155,7 +1216,7 @@ export const skills: Skill[] = [
   {
     name: "search_pages",
     description:
-      "Full-text search across a site's pages (title, excerpt, body). Returns matches with a short snippet.",
+      "[pages] Full-text search across a site's pages (title, excerpt, body). Returns matches with a short snippet.",
     inputSchema: {
       type: "object",
       required: ["idOrSlug", "query"],
@@ -1173,7 +1234,7 @@ export const skills: Skill[] = [
   {
     name: "get_feed_url",
     description:
-      "Return the RSS 2.0 feed URL for a site's posts. Point RSS readers or aggregators here.",
+      "[pages] Return the RSS 2.0 feed URL for a site's posts. Point RSS readers or aggregators here.",
     inputSchema: {
       type: "object",
       required: ["idOrSlug"],
