@@ -1006,7 +1006,7 @@ export const skills: Skill[] = [
   {
     name: "add_page",
     description:
-      'Add a new ::page to a site. If the site is still single-page, it is auto-migrated (existing content becomes the "[pages] / Auto-migrates a single-page site into multi-page format (nav/footer stay shared)." home page). Pass `type="post"` + `date` (YYYY-MM-DD) to create a blog post. Body is markdown that can include further directives.',
+      '[pages] Add a new ::page to a site. Auto-migrates a single-page site into multi-page format (existing content becomes `/`, nav/footer stay shared). Pass `type="post"` + `date` (YYYY-MM-DD) to create a blog post. Body is markdown that can include further directives.',
     inputSchema: {
       type: "object",
       required: ["idOrSlug", "slug"],
