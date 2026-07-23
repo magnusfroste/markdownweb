@@ -10,19 +10,32 @@ import { BlockRenderer } from "@/components/markdown-web/BlockRenderer";
 const initialDoc = parseMarkdownWeb(demoSource);
 
 export const Route = createFileRoute("/")({
-  head: () => ({
-    meta: [
-      { title: "MarkdownWeb — Write your site in markdown" },
-      { name: "description", content: "Sites whose source is a .md document. LLM-friendly, git-friendly, human-friendly." },
-      { property: "og:title", content: "MarkdownWeb — Write your site in markdown" },
-      { property: "og:description", content: "Sites whose source is a .md document. LLM-friendly, git-friendly, human-friendly." },
-      { property: "og:url", content: "https://mdsites.lovable.app/" },
-      { property: "og:type", content: "website" },
-      { name: "twitter:title", content: "MarkdownWeb — Write your site in markdown" },
-      { name: "twitter:description", content: "Sites whose source is a .md document. LLM-friendly, git-friendly, human-friendly." },
-    ],
-    links: [{ rel: "canonical", href: "https://mdsites.lovable.app/" }],
-  }),
+  head: () => {
+    const ogImage =
+      "https://mdsites.lovable.app/api/og.svg?" +
+      new URLSearchParams({
+        title: "Write your site in Markdown",
+        subtitle: "LLM-friendly, git-friendly, human-friendly.",
+        badge: "mdsites.lovable.app",
+      }).toString();
+    return {
+      meta: [
+        { title: "MarkdownWeb — Write your site in markdown" },
+        { name: "description", content: "Sites whose source is a .md document. LLM-friendly, git-friendly, human-friendly." },
+        { property: "og:title", content: "MarkdownWeb — Write your site in markdown" },
+        { property: "og:description", content: "Sites whose source is a .md document. LLM-friendly, git-friendly, human-friendly." },
+        { property: "og:url", content: "https://mdsites.lovable.app/" },
+        { property: "og:type", content: "website" },
+        { property: "og:image", content: ogImage },
+        { property: "og:image:width", content: "1200" },
+        { property: "og:image:height", content: "630" },
+        { name: "twitter:title", content: "MarkdownWeb — Write your site in markdown" },
+        { name: "twitter:description", content: "Sites whose source is a .md document. LLM-friendly, git-friendly, human-friendly." },
+        { name: "twitter:image", content: ogImage },
+      ],
+      links: [{ rel: "canonical", href: "https://mdsites.lovable.app/" }],
+    };
+  },
   component: Index,
 });
 
