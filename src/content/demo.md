@@ -20,7 +20,7 @@ theme: brutalist
 
 ::logos{title="Speaks the language of"}
 - Claude
-- GPT
+- Codex
 - Gemini
 - Hermes
 - OpenClaw
@@ -36,7 +36,7 @@ theme: brutalist
   body: Change a price, fix a headline, swap a testimonial. Open the .md, edit the line, save. No "please regenerate the hero" prompt.
 - icon: 📖
   title: LLMs read
-  body: The source IS the content. No JS-rendered soup. GPT crawls, Claude cites, Perplexity quotes — verbatim, from `/site.md`.
+  body: The source IS the content. No JS-rendered soup. Codex crawls, Claude cites, Perplexity quotes — verbatim, from `/site.md`.
 ::
 
 ::split{image="https://images.unsplash.com/photo-1526379095098-d400fd0bf935?w=1200&q=80" imageAlt="Terminal on a dark screen" imageHref="https://unsplash.com/photos/turned-on-gray-laptop-computer-Wpnoqo2plFA" imageCredit="photo · unsplash ↗" eyebrow="the workflow"}
