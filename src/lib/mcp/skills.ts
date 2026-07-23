@@ -995,7 +995,7 @@ export const skills: Skill[] = [
   {
     name: "list_posts",
     description:
-      'Convenience filter: only pages with `type="[pages] post"`, sorted by `date` desc. Same shape as list_pages.',
+      '[pages] Convenience filter: only pages with `type="post"`, sorted by `date` desc. Same shape as list_pages.',
     inputSchema: {
       type: "object",
       required: ["idOrSlug"],
