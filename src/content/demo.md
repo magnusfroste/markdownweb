@@ -1,156 +1,158 @@
 ---
-title: "MarkdownWeb — Write your site in markdown"
-description: "A site whose source is a markdown document. LLM-friendly, git-friendly, human-friendly."
+title: "MarkdownWeb — Sites agents write. Sites agents read."
+description: "Your website's source is one .md file. Agents author it over MCP, humans tweak it in plain text, LLMs cite it verbatim."
 theme: brutalist
 ---
 
 ::nav{brand="MarkdownWeb"}
 - Docs → /docs
 - Editor → /edit
+- MCP → /mcp
 - GitHub → https://github.com/lovable-dev/markdownweb
 ::
 
-::hero{eyebrow="v0.1 — early preview"}
-# Your site is **one .md file**.
-## No blocks in a database. No drag-and-drop editors. Just markdown with frontmatter and directives — readable by any LLM.
+::hero{eyebrow="agent-native CMS · v0.2"}
+# The site your **agent runs**. The site every **LLM reads**.
+## Hermes, Claude or OpenClaw own the editorial workflow over MCP. You keep a plain `.md` file you can tweak in five seconds. No prompt-engineering just to fix a typo.
 
-[Get started](/docs){.primary} [See the source ↓](#source){.ghost}
+[Give an agent the keys](/mcp){.primary} [See the source ↓](#source){.ghost}
 ::
 
-::logos{title="Trusted by builders at"}
-- GitHub
-- Vercel
-- Linear
-- Stripe
-- Notion
-- Figma
+::logos{title="Speaks the language of"}
+- Claude
+- GPT
+- Gemini
+- Hermes
+- OpenClaw
+- Cursor
 ::
 
-::features{columns=3 title="Why markdown?"}
+::features{columns=3 title="WYSIWYG is dead. Long live plain text."}
 - icon: 🤖
-  title: LLM-native
-  body: Any AI can edit it. No schema to learn.
-- icon: 📝
-  title: Plain text
-  body: Edit in VS Code, vim, or a web textarea. Diffable in git.
-- icon: ⚡
-  title: Directive blocks
-  body: ::hero::, ::features::, ::cta:: — structured blocks with markdown content.
+  title: Agents author
+  body: MCP exposes 40+ skills — create_site, add_page, set_theme, add_block. Hermes ships a landing page in one turn.
+- icon: ✍️
+  title: Humans tweak
+  body: Change a price, fix a headline, swap a testimonial. Open the .md, edit the line, save. No "please regenerate the hero" prompt.
+- icon: 📖
+  title: LLMs read
+  body: The source IS the content. No JS-rendered soup. GPT crawls, Claude cites, Perplexity quotes — verbatim, from `/site.md`.
 ::
 
-::split{image="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=1200&q=80" imageAlt="Code on a screen" imageHref="https://unsplash.com/photos/monitor-showing-java-programming-iar-afB0QQw" imageCredit="photo · unsplash ↗" eyebrow="how it works"}
-## Markdown in. **Site out.**
+::split{image="https://images.unsplash.com/photo-1526379095098-d400fd0bf935?w=1200&q=80" imageAlt="Terminal on a dark screen" imageHref="https://unsplash.com/photos/turned-on-gray-laptop-computer-Wpnoqo2plFA" imageCredit="photo · unsplash ↗" eyebrow="the workflow"}
+## An agent builds it. **You steer it.**
 
-Drop a `.md` file in your repo. We parse the frontmatter, render directive blocks like `::hero::` and `::pricing::`, and pass the rest through standard markdown.
+Hand your agent an MCP key. It picks a template, applies a theme, drafts the copy, adds blog posts, publishes. When you want to change *"$19/mo"* to *"$29/mo"*, you don't open a chat — you open the file.
 
-No build step. No CMS. No JSX. Just text you can edit anywhere — your editor, GitHub web UI, or an LLM chat.
+**Traditional AI editing:** "Hey Claude, on the pricing section, second card, change the monthly price but keep the badge and reorder features so that…"
+**MarkdownWeb:** open `site.md`, `$19` → `$29`, save.
 ::
 
-::stats{title="By the numbers"}
+::stats{title="Why plain text wins"}
 - value: 1
-  label: File per page
+  label: File per site
+- value: 40+
+  label: MCP skills exposed
 - value: 0
-  label: Build steps
-- value: 16
-  label: Block types
+  label: Prompts to fix a typo
 - value: ∞
-  label: LLM-editable
+  label: LLMs that can read it
 ::
 
-::split{image="https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=1200&q=80" imageAlt="Laptop on a desk" imageHref="https://unsplash.com/photos/macbook-pro-on-brown-wooden-table-OQMZwNd3ThU" imageCredit="photo · unsplash ↗" reverse=true background="secondary" eyebrow="for humans & AIs"}
-## Edit it **anywhere**.
+::split{image="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=1200&q=80" imageAlt="Code editor" imageHref="https://unsplash.com/photos/monitor-showing-java-programming-iar-afB0QQw" imageCredit="photo · unsplash ↗" reverse=true background="secondary" eyebrow="MCP-first"}
+## Give your agent a **workspace**, not a chatbox.
 
-Open it in VS Code. Edit it on your phone via GitHub. Tell Claude to "add a testimonial from Ada Lovelace" and paste the result back.
+`list_templates`, `create_site_from_template`, `add_page{type:"post"}`, `set_theme`, `update_theme_tokens`, `publish_site`. Your agent doesn't guess — it discovers, composes, previews and ships.
 
-Because it's just text, **every tool already supports it**.
+Every mutation returns a preview URL. Every site publishes an RSS feed. Every page emits OpenGraph, JSON-LD and a canonical `.md` for the next agent that crawls it.
 ::
 
-::testimonials{title="People are shipping"}
-- quote: I rebuilt my landing in 20 minutes by editing one file. Git diff on copy changes is a superpower.
+::testimonials{title="Agentic content generation, at its best"}
+- quote: My Hermes agent runs three landing pages. I edit copy in nvim on the train. We haven't opened a CMS in four months.
   author: Ada Lovelace
-  role: Indie hacker
+  role: Solo founder
   avatar: https://i.pravatar.cc/120?img=47
-- quote: My LLM owns my marketing site now. It iterates faster than any CMS workflow I've ever used.
+- quote: WYSIWYG asked me to click through 12 nested panels to change a price. MarkdownWeb asked me to change one character.
   author: Linus Torvalds
   role: Founder, Kernel Co
   avatar: https://i.pravatar.cc/120?img=12
-- quote: Finally — a stack where my writers and my AI agents edit the exact same file. No more sync drama.
+- quote: Our agent drafts, our editor trims, our LLM search-indexes — all from the same file. No sync layer. No webhooks.
   author: Grace Hopper
   role: Head of Content
   avatar: https://i.pravatar.cc/120?img=32
-- quote: Replaced 4 plugins and a headless CMS with a folder of .md files. Bundle size dropped 80%.
+- quote: We deleted the headless CMS, the block editor and the AI plugin. The .md file replaced all three.
   author: Margaret Hamilton
   role: Staff Engineer
   avatar: https://i.pravatar.cc/120?img=45
-- quote: Onboarding a new marketer used to take a week. Now it's 'here's the repo, edit hero.md'.
+- quote: I told Claude 'add a Q4 launch post with these three bullets'. One MCP call, live in 8 seconds. Then I fixed the title in the file myself.
   author: Alan Turing
   role: CTO, Bletchley
   avatar: https://i.pravatar.cc/120?img=15
-- quote: The diff-friendly format means design review actually happens in PRs now. Game changer.
+- quote: Perplexity started quoting our pricing page word-for-word. Turns out LLMs love markdown more than divs.
   author: Katherine Johnson
-  role: Design Lead
+  role: Growth Lead
   avatar: https://i.pravatar.cc/120?img=49
 ::
 
 ::quote{author="Ada Lovelace" role="Computing Pioneer"}
-The best abstraction is the one you can already write in a text file.
+The best interface for both a human and a machine is the one they can already read.
 ::
 
-::features{columns=4 title="Pick a style" subtitle="Set theme: in your frontmatter. Same markdown, different vibe."}
+::features{columns=4 title="Pick a style" subtitle="10 themes × 3 layout families. Your agent picks. You can override any token."}
 - icon: 🧱
   title: Brutalist Pop
   body: Thick borders, hard shadows, loud accents. (current)
 - icon: 📰
-  title: Editorial
+  title: Editorial Serif
   body: Serif headlines, generous whitespace, magazine-style.
-- icon: 🌙
-  title: Midnight
-  body: Dark mode first. Soft glows, low-contrast surfaces.
-- icon: ✨
-  title: Minimal
-  body: Swiss grid, neutral palette, type does the work.
+- icon: 🌃
+  title: Neon Cyber
+  body: Dark mode first. Neon glows, low-contrast surfaces.
+- icon: 👑
+  title: Luxury Gold
+  body: Gold hairlines, deep noir, editorial swagger.
 ::
 
-::pricing{title="Simple pricing" subtitle="No salespeople. No tricks. Just one .md file per plan." columns=3}
+::pricing{title="Simple pricing" subtitle="Priced per agent seat. Humans edit for free." columns=3}
 - name: Hobby
-  tagline: For personal sites
+  tagline: One agent, one site
   price: $0
   period: mo
-  features: 1 site | Markdown source | Community support | Lovable subdomain
+  features: 1 site | 1 MCP key | Community support | Lovable subdomain
   cta: Start free
   ctaHref: https://github.com/lovable-dev/markdownweb
-- name: Pro
-  tagline: For indie hackers & freelancers
+- name: Agentic
+  tagline: For solo founders + one AI editor
   price: $19
   period: mo
   featured: "true"
   badge: Most popular
-  features: Unlimited sites | Custom domains | AI edit via prompt | Version history | Email support
-  cta: Read the docs
-  ctaHref: /docs
+  features: Unlimited sites | Unlimited MCP keys | Custom domains | Version history | RSS + sitemap
+  cta: Read the MCP docs
+  ctaHref: /mcp
 - name: Studio
-  tagline: For teams & agencies
+  tagline: For teams running many agents
   price: $79
   period: mo
-  features: Everything in Pro | Team collaboration | White-label | Priority support | SLA
+  features: Everything in Agentic | Scoped keys per agent | Activity logs | White-label | Priority support
   cta: View on GitHub
   ctaHref: https://github.com/lovable-dev/markdownweb
 ::
 
-::hero{eyebrow="ready when you are"}
-# Ship a site **today**.
-## One markdown file. Zero config. Deploy in minutes — edit forever.
+::hero{eyebrow="ready when your agent is"}
+# Hand your site to an **agent**.
+## Get it back as a `.md` file you can still read.
 
-[Start building](https://github.com/lovable-dev/markdownweb){.primary} [Browse the docs →](/docs){.ghost}
+[Mint an MCP key](/mcp){.primary} [Browse the docs →](/docs){.ghost}
 ::
 
 ::cta{background="primary"}
-# Build faster. Iterate without friction.
-## Markdown in. Brutalist landing out.
+# Agentic content generation, when it's actually good.
+## Agents write. Humans steer. LLMs read. One file.
 
-[Clone the repo](https://github.com/lovable-dev/markdownweb){.primary} [Read the docs](/docs){.ghost}
+[Clone the repo](https://github.com/lovable-dev/markdownweb){.primary} [Open the editor](/edit){.ghost}
 ::
 
 ::footer
-© 2026 MarkdownWeb · Made with `.md`
+© 2026 MarkdownWeb · Written by agents · Edited by humans · Read by LLMs
 ::
