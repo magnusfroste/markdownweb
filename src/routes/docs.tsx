@@ -13,11 +13,16 @@ export const Route = createFileRoute("/docs")({
       {
         name: "description",
         content:
-          "Live block previews on the left, copyable markdown source on the right.",
+          "Live block previews on the left, copyable markdown source on the right. Every ::block directive with examples.",
       },
       { property: "og:title", content: "Docs — MarkdownWeb block reference" },
-      { property: "og:description", content: "Every block type with examples." },
+      { property: "og:description", content: "Live previews + copyable markdown for every ::block directive." },
+      { property: "og:url", content: "https://mdsites.lovable.app/docs" },
+      { property: "og:type", content: "article" },
+      { name: "twitter:title", content: "Docs — MarkdownWeb block reference" },
+      { name: "twitter:description", content: "Live previews + copyable markdown for every ::block directive." },
     ],
+    links: [{ rel: "canonical", href: "https://mdsites.lovable.app/docs" }],
   }),
   component: DocsPage,
 });

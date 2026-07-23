@@ -73,7 +73,19 @@ const skillSummaries = skills.map((s) => ({
 }));
 
 export const Route = createFileRoute("/mcp")({
-  head: () => ({ meta: [{ title: "MCP — MarkdownWeb" }] }),
+  head: () => ({
+    meta: [
+      { title: "MCP dashboard — MarkdownWeb" },
+      { name: "description", content: "Admin view for MCP-managed sites: endpoint, API keys, activity log, and every site AI agents have created." },
+      { property: "og:title", content: "MCP dashboard — MarkdownWeb" },
+      { property: "og:description", content: "Admin view for MCP-managed sites, API keys and activity." },
+      { property: "og:url", content: "https://mdsites.lovable.app/mcp" },
+      { name: "twitter:title", content: "MCP dashboard — MarkdownWeb" },
+      { name: "twitter:description", content: "Admin view for MCP-managed sites, API keys and activity." },
+      { name: "robots", content: "noindex" },
+    ],
+    links: [{ rel: "canonical", href: "https://mdsites.lovable.app/mcp" }],
+  }),
   loader: () => getMcpStatus(),
   component: McpSettingsPage,
 });

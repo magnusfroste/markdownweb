@@ -24,12 +24,13 @@ export const Route = createFileRoute("/sitemap.xml")({
   server: {
     handlers: {
       GET: async () => {
-        const today = new Date().toISOString().slice(0, 10);
+        // Note: no `lastmod` on static routes — we have no per-page
+        // authoritative timestamp; a build-time date would be misleading.
         const entries: SitemapEntry[] = [
-          { path: "/", changefreq: "weekly", priority: "1.0", lastmod: today },
-          { path: "/edit", changefreq: "weekly", priority: "0.8", lastmod: today },
-          { path: "/docs", changefreq: "weekly", priority: "0.7", lastmod: today },
-          { path: "/mcp", changefreq: "weekly", priority: "0.6", lastmod: today },
+          { path: "/", changefreq: "weekly", priority: "1.0" },
+          { path: "/edit", changefreq: "weekly", priority: "0.8" },
+          { path: "/docs", changefreq: "weekly", priority: "0.7" },
+          { path: "/mcp", changefreq: "weekly", priority: "0.6" },
         ];
 
         // One indexable URL per template (long-tail SEO)
@@ -38,7 +39,6 @@ export const Route = createFileRoute("/sitemap.xml")({
             path: `/edit?template=${t.slug}`,
             changefreq: "monthly",
             priority: "0.5",
-            lastmod: today,
           });
         }
 
