@@ -85,17 +85,26 @@ function ensureMultiPage(markdown: string): { blocks: Block[]; frontmatter: Reco
   const hasPages = doc.blocks.some((b) => b.kind === "directive" && b.name === "page");
   if (hasPages) return { blocks: doc.blocks, frontmatter: doc.frontmatter };
 
-  // Migrate: split into shared chrome (nav/footer stay at top-level) and a home ::page.
-  const shared: Block[] = [];
-  const inner: Block[] = [];
+  // Migrate: keep leading ::nav as sharedBefore, trailing ::footer as sharedAfter,
+  // and wrap everything else into a home ::page.
+  const before: Block[] = [];
+  const middle: Block[] = [];
+  const after: Block[] = [];
+  let seenMiddle = false;
   for (const b of doc.blocks) {
-    if (b.kind === "directive" && (b.name === "nav" || b.name === "footer")) {
-      shared.push(b);
-    } else {
-      inner.push(b);
+    const name = b.kind === "directive" ? b.name : null;
+    if (name === "nav" && !seenMiddle) {
+      before.push(b);
+      continue;
     }
+    if (name === "footer") {
+      after.push(b);
+      continue;
+    }
+    seenMiddle = true;
+    middle.push(b);
   }
-  const homeBody = inner.map((b) => serializeBlock(b)).join("\n\n");
+  const homeBody = middle.map((b) => serializeBlock(b)).join("\n\n");
   const home: DirectiveBlock = {
     kind: "directive",
     name: "page",
@@ -105,7 +114,7 @@ function ensureMultiPage(markdown: string): { blocks: Block[]; frontmatter: Reco
     bodyStartLine: 0,
   };
   return {
-    blocks: [...shared, home],
+    blocks: [...before, home, ...after],
     frontmatter: doc.frontmatter,
   };
 }
