@@ -62,6 +62,17 @@ export const Route = createFileRoute("/mcp/preview/$slug/$")({
     const title = page?.title ?? `${loaderData.title} · ${path}`;
     const description = page?.description ?? loaderData.description;
     const url = `https://mdsites.lovable.app/mcp/preview/${params.slug}${path === "/" ? "" : path}`;
+    const t = loaderData.tokens;
+    const ogParams = new URLSearchParams({
+      title,
+      subtitle: description,
+      badge: `${loaderData.themeName} · ${loaderData.layoutFamily}`,
+      bg: t.background,
+      fg: t.foreground,
+      accent: t.primary,
+      muted: t.mutedForeground,
+    });
+    const ogImage = `https://mdsites.lovable.app/api/og.svg?${ogParams.toString()}`;
     return {
       meta: [
         { title: `${title} — MarkdownWeb` },
@@ -69,6 +80,10 @@ export const Route = createFileRoute("/mcp/preview/$slug/$")({
         { property: "og:title", content: title },
         { property: "og:description", content: description },
         { property: "og:url", content: url },
+        { property: "og:image", content: ogImage },
+        { property: "og:image:width", content: "1200" },
+        { property: "og:image:height", content: "630" },
+        { name: "twitter:image", content: ogImage },
       ],
       links: [
         { rel: "canonical", href: url },
