@@ -979,6 +979,212 @@ export const skills: Skill[] = [
     },
     handler: (args) => ({ ok: revokeKey(asString(args.keyId, "keyId")) }),
   },
+
+  // ───────── blog / multi-page ─────────
+  {
+    name: "list_pages",
+    description:
+      "List every ::page in a site with full metadata (slug, title, type, date, author, tags, excerpt). Single-page sites return one synthetic entry for `/`.",
+    inputSchema: {
+      type: "object",
+      required: ["idOrSlug"],
+      properties: { idOrSlug: { type: "string" } },
+    },
+    handler: (args) => listPages(asString(args.idOrSlug, "idOrSlug")),
+  },
+  {
+    name: "list_posts",
+    description:
+      'Convenience filter: only pages with `type="post"`, sorted by `date` desc. Same shape as list_pages.',
+    inputSchema: {
+      type: "object",
+      required: ["idOrSlug"],
+      properties: { idOrSlug: { type: "string" } },
+    },
+    handler: (args) => listPosts(asString(args.idOrSlug, "idOrSlug")),
+  },
+  {
+    name: "add_page",
+    description:
+      'Add a new ::page to a site. If the site is still single-page, it is auto-migrated (existing content becomes the "/" home page). Pass `type="post"` + `date` (YYYY-MM-DD) to create a blog post. Body is markdown that can include further directives.',
+    inputSchema: {
+      type: "object",
+      required: ["idOrSlug", "slug"],
+      properties: {
+        idOrSlug: { type: "string" },
+        slug: { type: "string", description: 'Route path, e.g. "/blog/hello".' },
+        title: { type: "string" },
+        description: { type: "string" },
+        image: { type: "string" },
+        type: { type: "string", enum: ["page", "post"] },
+        date: { type: "string", description: "ISO date, e.g. 2026-07-23." },
+        author: { type: "string" },
+        tags: { type: "array", items: { type: "string" } },
+        excerpt: { type: "string" },
+        body: { type: "string", description: "Markdown body of the page." },
+      },
+    },
+    handler: (args, ctx) => {
+      const idOrSlug = asString(args.idOrSlug, "idOrSlug");
+      const meta: PageMeta = {
+        slug: asString(args.slug, "slug"),
+        title: typeof args.title === "string" ? args.title : undefined,
+        description: typeof args.description === "string" ? args.description : undefined,
+        image: typeof args.image === "string" ? args.image : undefined,
+        type: args.type === "post" ? "post" : "page",
+        date: typeof args.date === "string" ? args.date : undefined,
+        author: typeof args.author === "string" ? args.author : undefined,
+        tags: Array.isArray(args.tags) ? asStringArray(args.tags, "tags") : undefined,
+        excerpt: typeof args.excerpt === "string" ? args.excerpt : undefined,
+      };
+      const body = typeof args.body === "string" ? args.body : "";
+      const res = addPage(idOrSlug, meta, body);
+      if (!res) throw new Error("Site not found");
+      const site = getSite(idOrSlug)!;
+      const path = res.page.slug === "/" ? "" : res.page.slug;
+      return {
+        page: res.page,
+        pageUrl: `${ctx.origin}/mcp/preview/${site.slug}${path}`,
+      };
+    },
+  },
+  {
+    name: "remove_page",
+    description: "Delete a ::page by its slug.",
+    inputSchema: {
+      type: "object",
+      required: ["idOrSlug", "slug"],
+      properties: { idOrSlug: { type: "string" }, slug: { type: "string" } },
+    },
+    handler: (args) => {
+      const ok = removePage(
+        asString(args.idOrSlug, "idOrSlug"),
+        asString(args.slug, "slug"),
+      );
+      if (!ok) throw new Error("Page not found");
+      return { ok: true };
+    },
+  },
+  {
+    name: "rename_page",
+    description: "Change a page's route slug. Fails if the target slug already exists.",
+    inputSchema: {
+      type: "object",
+      required: ["idOrSlug", "fromSlug", "toSlug"],
+      properties: {
+        idOrSlug: { type: "string" },
+        fromSlug: { type: "string" },
+        toSlug: { type: "string" },
+      },
+    },
+    handler: (args, ctx) => {
+      const page = renamePage(
+        asString(args.idOrSlug, "idOrSlug"),
+        asString(args.fromSlug, "fromSlug"),
+        asString(args.toSlug, "toSlug"),
+      );
+      if (!page) throw new Error("Page not found");
+      const site = getSite(asString(args.idOrSlug, "idOrSlug"))!;
+      const path = page.slug === "/" ? "" : page.slug;
+      return { page, pageUrl: `${ctx.origin}/mcp/preview/${site.slug}${path}` };
+    },
+  },
+  {
+    name: "set_page_meta",
+    description:
+      "Patch metadata on an existing page (title, description, image, type, date, author, tags, excerpt). Slug is immutable via this skill — use rename_page.",
+    inputSchema: {
+      type: "object",
+      required: ["idOrSlug", "slug"],
+      properties: {
+        idOrSlug: { type: "string" },
+        slug: { type: "string" },
+        title: { type: "string" },
+        description: { type: "string" },
+        image: { type: "string" },
+        type: { type: "string", enum: ["page", "post"] },
+        date: { type: "string" },
+        author: { type: "string" },
+        tags: { type: "array", items: { type: "string" } },
+        excerpt: { type: "string" },
+      },
+    },
+    handler: (args) => {
+      const patch: Partial<PageMeta> = {};
+      if (typeof args.title === "string") patch.title = args.title;
+      if (typeof args.description === "string") patch.description = args.description;
+      if (typeof args.image === "string") patch.image = args.image;
+      if (args.type === "page" || args.type === "post") patch.type = args.type;
+      if (typeof args.date === "string") patch.date = args.date;
+      if (typeof args.author === "string") patch.author = args.author;
+      if (Array.isArray(args.tags)) patch.tags = asStringArray(args.tags, "tags");
+      if (typeof args.excerpt === "string") patch.excerpt = args.excerpt;
+      const page = setPageMeta(
+        asString(args.idOrSlug, "idOrSlug"),
+        asString(args.slug, "slug"),
+        patch,
+      );
+      if (!page) throw new Error("Page not found");
+      return { page };
+    },
+  },
+  {
+    name: "set_page_body",
+    description: "Replace the markdown body of a single ::page (leaves attrs untouched).",
+    inputSchema: {
+      type: "object",
+      required: ["idOrSlug", "slug", "body"],
+      properties: {
+        idOrSlug: { type: "string" },
+        slug: { type: "string" },
+        body: { type: "string" },
+      },
+    },
+    handler: (args, ctx) => {
+      const page = setPageBody(
+        asString(args.idOrSlug, "idOrSlug"),
+        asString(args.slug, "slug"),
+        asString(args.body, "body"),
+      );
+      if (!page) throw new Error("Page not found");
+      const site = getSite(asString(args.idOrSlug, "idOrSlug"))!;
+      const path = page.slug === "/" ? "" : page.slug;
+      return { page, pageUrl: `${ctx.origin}/mcp/preview/${site.slug}${path}` };
+    },
+  },
+  {
+    name: "search_pages",
+    description:
+      "Full-text search across a site's pages (title, excerpt, body). Returns matches with a short snippet.",
+    inputSchema: {
+      type: "object",
+      required: ["idOrSlug", "query"],
+      properties: {
+        idOrSlug: { type: "string" },
+        query: { type: "string" },
+      },
+    },
+    handler: (args) =>
+      searchPages(
+        asString(args.idOrSlug, "idOrSlug"),
+        asString(args.query, "query"),
+      ),
+  },
+  {
+    name: "get_feed_url",
+    description:
+      "Return the RSS 2.0 feed URL for a site's posts. Point RSS readers or aggregators here.",
+    inputSchema: {
+      type: "object",
+      required: ["idOrSlug"],
+      properties: { idOrSlug: { type: "string" } },
+    },
+    handler: (args, ctx) => {
+      const site = getSite(asString(args.idOrSlug, "idOrSlug"));
+      if (!site) throw new Error("Site not found");
+      return { url: `${ctx.origin}/mcp/preview/${site.slug}/rss.xml` };
+    },
+  },
 ];
 
 export function getSkill(name: string): Skill | undefined {
