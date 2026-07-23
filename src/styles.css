@@ -304,3 +304,110 @@
   border-radius: 28px 14px 28px 14px !important;
 }
 
+/* Restaurant Bistro — hand-drawn wavy divider + small-caps burgundy eyebrows. */
+.mw-theme-restaurant-bistro section + section {
+  position: relative;
+}
+.mw-theme-restaurant-bistro section + section::before {
+  content: "";
+  display: block;
+  height: 12px;
+  margin: 0 auto 2rem;
+  width: 120px;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 12'><path d='M0 6 Q 15 0 30 6 T 60 6 T 90 6 T 120 6' fill='none' stroke='%23b8863b' stroke-width='1.5'/></svg>");
+  background-repeat: no-repeat;
+  background-position: center;
+}
+.mw-theme-restaurant-bistro [class*="uppercase"] {
+  font-variant: small-caps;
+  color: var(--primary);
+  letter-spacing: 0.18em;
+}
+
+/* Real Estate Lux — gold hairline frame inside hero image + wide-tracked labels. */
+.mw-theme-real-estate-lux section:first-of-type img {
+  outline: 1px solid var(--accent);
+  outline-offset: -12px;
+}
+.mw-theme-real-estate-lux [class*="uppercase"] {
+  letter-spacing: 0.32em;
+  font-weight: 400;
+  color: var(--accent);
+}
+
+/* Fitness Energy — diagonal lime slash on hero + italic condensed eyebrows. */
+.mw-theme-fitness-energy section:first-of-type {
+  position: relative;
+  overflow: hidden;
+}
+.mw-theme-fitness-energy section:first-of-type::after {
+  content: "";
+  position: absolute;
+  top: -20%;
+  right: -10%;
+  width: 140%;
+  height: 6px;
+  background: var(--primary);
+  transform: rotate(-8deg);
+  pointer-events: none;
+}
+.mw-theme-fitness-energy h1,
+.mw-theme-fitness-energy h2 {
+  text-transform: uppercase;
+}
+.mw-theme-fitness-energy [class*="uppercase"] {
+  font-style: italic;
+  color: var(--primary);
+  letter-spacing: 0.08em;
+}
+
+/* Agency Swiss — big numeric section markers + baseline hairlines. */
+.mw-theme-agency-swiss section {
+  counter-increment: mw-swiss-section;
+  position: relative;
+  border-top: 1px solid var(--border);
+}
+.mw-theme-agency-swiss > div { counter-reset: mw-swiss-section; }
+.mw-theme-agency-swiss section::before {
+  content: counter(mw-swiss-section, decimal-leading-zero);
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.2em;
+  color: var(--muted-foreground);
+}
+.mw-theme-agency-swiss h1 { font-size: clamp(3rem, 9vw, 7.5rem); line-height: 0.95; }
+
+/* Fashion Runway — massive thin display + tiny tracked labels. */
+.mw-theme-fashion-runway h1 {
+  font-weight: 300;
+  font-size: clamp(3.5rem, 11vw, 9rem);
+  line-height: 0.9;
+}
+.mw-theme-fashion-runway h2 { font-weight: 300; }
+.mw-theme-fashion-runway [class*="uppercase"] {
+  font-size: 0.7rem;
+  letter-spacing: 0.4em;
+  font-weight: 400;
+}
+
+/* Legal Heritage — ornamental divider between sections + gold underline on section titles. */
+.mw-theme-legal-heritage section + section::before {
+  content: "❦";
+  display: block;
+  text-align: center;
+  color: var(--accent);
+  font-size: 1.25rem;
+  margin: 0 0 2.5rem;
+  opacity: 0.7;
+}
+.mw-theme-legal-heritage section h2:first-child {
+  text-decoration: underline;
+  text-decoration-color: var(--accent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 8px;
+}
+
+
