@@ -95,6 +95,67 @@ function persist(siteId: string, frontmatter: Record<string, unknown>, blocks: B
 }
 
 export const skills: Skill[] = [
+  // ───────── onboarding ─────────
+  {
+    name: "get_started",
+    description:
+      "[onboarding] READ FIRST. Returns a short workflow guide, tool categories, and the recommended call order for building, styling and iterating on a site. No arguments.",
+    inputSchema: { type: "object", properties: {} },
+    handler: () => ({
+      tagline:
+        "MarkdownWeb MCP — build LLM-friendly websites from a single .md file.",
+      categories: {
+        onboarding: ["get_started"],
+        lifecycle: [
+          "create_site", "create_site_from_template", "get_site", "update_site",
+          "list_sites", "duplicate_site", "rename_slug", "set_metadata",
+          "publish_site", "unpublish_site", "delete_site",
+        ],
+        discovery: [
+          "list_templates", "get_template",
+          "list_themes", "get_theme", "list_layout_families",
+          "list_directives", "get_directive_schema",
+        ],
+        design: [
+          "set_theme", "get_site_theme", "update_theme_tokens",
+          "reset_theme_tokens", "set_layout_family",
+        ],
+        blocks: ["list_blocks", "add_block", "update_block", "remove_block", "move_block"],
+        pages: [
+          "list_pages", "list_posts", "add_page", "remove_page", "rename_page",
+          "set_page_meta", "set_page_body", "search_pages", "get_feed_url",
+        ],
+        validation: ["validate_markdown", "diff_markdown"],
+        revisions: ["list_revisions", "restore_revision"],
+        assets: ["upload_asset", "list_assets", "delete_asset"],
+        keys: ["create_key", "list_keys", "revoke_key"],
+        admin: ["get_activity"],
+      },
+      recommendedFlow: [
+        "1. Discover: list_templates, list_themes, list_layout_families, list_directives.",
+        "2. Create: create_site_from_template (fastest) OR create_site with your own markdown.",
+        "3. Style: set_theme + optional update_theme_tokens (brand color, radius, logo). set_layout_family for a different composition.",
+        "4. Iterate: list_blocks → add_block / update_block / move_block / remove_block. Prefer block-level edits over update_site (which replaces the whole document).",
+        "5. Blog: add_page{type:\"post\", date, tags, excerpt}. Insert ::post-index directive on a /blog page. Share get_feed_url for RSS.",
+        "6. Ship: publish_site. Preview URL is returned by every mutating call.",
+      ],
+      conventions: {
+        indices: "All block/page indices are 0-based.",
+        idOrSlug: "Most site tools accept either the site id or its slug.",
+        updateSemantics:
+          "update_site REPLACES the whole markdown. update_block / set_page_body PATCH just that block/page.",
+        directiveSyntax:
+          '::name{key="value" num=3}\\n<body>\\n::  — see get_directive_schema for each directive.',
+        multiPage:
+          "A site can hold multiple ::page{slug=...} blocks. Blocks outside any ::page (typically ::nav and ::footer) are shared across every page.",
+      },
+      links: {
+        directives: "call list_directives",
+        themes: "call list_themes",
+        templates: "call list_templates",
+      },
+    }),
+  },
   // ───────── site lifecycle ─────────
   {
     name: "create_site",
