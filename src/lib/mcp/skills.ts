@@ -117,7 +117,7 @@ export const skills: Skill[] = [
           "list_directives", "get_directive_schema",
         ],
         design: [
-          "set_theme", "get_site_theme", "update_theme_tokens",
+          "suggest_theme", "set_theme", "get_site_theme", "update_theme_tokens",
           "reset_theme_tokens", "set_layout_family",
         ],
         blocks: ["list_blocks", "add_block", "update_block", "remove_block", "move_block"],
@@ -571,6 +571,80 @@ export const skills: Skill[] = [
       const t = getTheme(asString(args.slug, "slug"));
       if (!t) throw new Error(`Unknown theme: ${args.slug}`);
       return t;
+    },
+  },
+  {
+    name: "suggest_theme",
+    description:
+      "[theme] Recommend a theme + layout family + starter template for a given industry or vibe (e.g. 'restaurant', 'law firm', 'saas', 'fitness', 'agency', 'blog', 'portfolio', 'real estate', 'fashion', 'nonprofit', 'event', 'docs'). Returns a ranked list; the first entry is the best fit. Call `create_site_from_template` with the returned values to bootstrap.",
+    inputSchema: {
+      type: "object",
+      required: ["industry"],
+      properties: {
+        industry: {
+          type: "string",
+          description: "Free-form industry, niche, or vibe keyword.",
+        },
+      },
+    },
+    handler: (args) => {
+      const q = asString(args.industry, "industry").toLowerCase().trim();
+
+      // (matchers, themeSlug, layoutFamily, templateSlug?, reason)
+      const rules: Array<{
+        keys: string[];
+        themeSlug: string;
+        layoutFamily: string;
+        templateSlug?: string;
+        reason: string;
+      }> = [
+        { keys: ["restaurant", "bistro", "cafe", "café", "food", "menu", "chef"], themeSlug: "restaurant-bistro", layoutFamily: "editorial", templateSlug: "restaurant", reason: "Warm burgundy + hand-drawn dividers signal hospitality." },
+        { keys: ["law", "legal", "attorney", "wealth", "advisory", "university", "heritage"], themeSlug: "legal-heritage", layoutFamily: "editorial", reason: "Parchment + transitional serif conveys authority and trust." },
+        { keys: ["real estate", "property", "realty", "lux", "luxury", "villa"], themeSlug: "real-estate-lux", layoutFamily: "editorial", reason: "Gold hairlines on hero imagery for high-ticket listings." },
+        { keys: ["fitness", "gym", "sport", "athlete", "coach", "training"], themeSlug: "fitness-energy", layoutFamily: "brutalist", reason: "Diagonal lime slashes and italic caps for high-energy CTAs." },
+        { keys: ["agency", "studio", "consult", "swiss"], themeSlug: "agency-swiss", layoutFamily: "editorial", templateSlug: "agency", reason: "Numbered sections + oversized headings — classic agency signal." },
+        { keys: ["fashion", "runway", "couture", "boutique", "editorial"], themeSlug: "fashion-runway", layoutFamily: "editorial", reason: "Ultra-thin display type + micro labels feel like a lookbook." },
+        { keys: ["saas", "startup", "app", "tech", "product", "ai"], themeSlug: "startup-bold", layoutFamily: "momentum", templateSlug: "saas-landing", reason: "Bold hero + momentum layout reads as a modern AI startup." },
+        { keys: ["dev", "docs", "documentation", "api", "developer", "open source"], themeSlug: "dev-docs", layoutFamily: "momentum", templateSlug: "docs-home", reason: "Mono accents + calm palette optimized for reading code." },
+        { keys: ["blog", "writer", "journal", "publication", "magazine"], themeSlug: "editorial-serif", layoutFamily: "editorial", templateSlug: "personal-blog", reason: "Serif + editorial rhythm made for long-form reading." },
+        { keys: ["portfolio", "designer", "artist", "photographer"], themeSlug: "creative-playful", layoutFamily: "editorial", templateSlug: "portfolio", reason: "Playful palette + editorial grid to showcase work." },
+        { keys: ["nonprofit", "charity", "ngo", "foundation", "community"], themeSlug: "nature-organic", layoutFamily: "editorial", templateSlug: "nonprofit", reason: "Organic earth tones build warmth and trust." },
+        { keys: ["wellness", "spa", "yoga", "beauty", "clinic", "health"], themeSlug: "wellness-soft", layoutFamily: "editorial", reason: "Soft pastels and generous whitespace feel calming." },
+        { keys: ["luxury", "noir", "premium", "watch", "jewelry"], themeSlug: "luxury-noir", layoutFamily: "editorial", reason: "Deep noir palette signals premium positioning." },
+        { keys: ["corporate", "enterprise", "b2b", "finance", "bank"], themeSlug: "corporate-trust", layoutFamily: "momentum", reason: "Trustworthy blues + clean momentum layout for B2B." },
+        { keys: ["event", "conference", "meetup", "festival"], themeSlug: "brutalist-pop", layoutFamily: "brutalist", templateSlug: "event", reason: "Loud brutalist chrome cuts through event noise." },
+        { keys: ["launch", "product launch", "coming soon", "waitlist"], themeSlug: "startup-bold", layoutFamily: "momentum", templateSlug: "coming-soon", reason: "High-contrast momentum layout to drive signups." },
+      ];
+
+      const scored = rules
+        .map((r) => {
+          const score = r.keys.reduce((s, k) => (q.includes(k) ? s + k.length : s), 0);
+          return { r, score };
+        })
+        .filter((x) => x.score > 0)
+        .sort((a, b) => b.score - a.score);
+
+      const picks = (scored.length > 0
+        ? scored.slice(0, 3).map((x) => x.r)
+        : [
+            rules.find((r) => r.themeSlug === "startup-bold")!,
+            rules.find((r) => r.themeSlug === "editorial-serif")!,
+            rules.find((r) => r.themeSlug === "modern-tech" as never) ?? rules[0],
+          ]);
+
+      return {
+        industry: q,
+        matched: scored.length > 0,
+        suggestions: picks.map((r) => ({
+          themeSlug: r.themeSlug,
+          layoutFamily: r.layoutFamily,
+          templateSlug: r.templateSlug,
+          reason: r.reason,
+        })),
+        nextStep: picks[0].templateSlug
+          ? `create_site_from_template { templateSlug: "${picks[0].templateSlug}", themeSlug: "${picks[0].themeSlug}", layoutFamily: "${picks[0].layoutFamily}", vars: {...} }`
+          : `create_site { themeSlug: "${picks[0].themeSlug}", layoutFamily: "${picks[0].layoutFamily}", title, markdown }`,
+      };
     },
   },
   {
