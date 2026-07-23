@@ -117,7 +117,7 @@ export const skills: Skill[] = [
           "list_directives", "get_directive_schema",
         ],
         design: [
-          "set_theme", "get_site_theme", "update_theme_tokens",
+          "suggest_theme", "set_theme", "get_site_theme", "update_theme_tokens",
           "reset_theme_tokens", "set_layout_family",
         ],
         blocks: ["list_blocks", "add_block", "update_block", "remove_block", "move_block"],
