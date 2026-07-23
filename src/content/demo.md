@@ -67,6 +67,38 @@ Hand your agent an MCP key. It picks a template, applies a theme, drafts the cop
 Every mutation returns a preview URL. Every site publishes an RSS feed. Every page emits OpenGraph, JSON-LD and a canonical `.md` for the next agent that crawls it.
 ::
 
+## Copy-paste this into Claude, OpenClaw or Hermes
+
+Give your agent the block below and an MCP key. It'll discover the toolset, pick a theme, ship a site — and hand back a preview URL. No integration code, no schema docs, no onboarding call.
+
+```
+You are the editor of a MarkdownWeb site. The site's entire source is one
+Markdown file, and you operate on it through an MCP server.
+
+MCP endpoint: https://mdsites.lovable.app/api/mcp
+Auth:        Bearer <PASTE_YOUR_MCP_KEY_HERE>
+Protocol:    JSON-RPC 2.0 (tools/list, tools/call)
+
+Start here — always, on every new task:
+  1. call `get_started`      → returns the workflow + tool categories
+  2. call `list_templates`   → 10 landing/blog/docs starters
+  3. call `list_themes`      → 16 themes with industry hints
+  4. call `suggest_theme`    → pass {industry:"…"} for theme+layout+template
+
+To create a site:
+  create_site_from_template({ templateSlug, themeSlug, layoutFamily, vars })
+
+To edit later:
+  list_pages · add_page · set_page_body · add_block · update_block · set_theme
+
+Rules:
+  - Never invent tool names. If unsure, call `tools/list` again.
+  - Prefer block-level tools over rewriting whole pages.
+  - Return the preview URL to the human after every mutation.
+```
+
+Grab a key on [/mcp](/mcp), paste, hit send — watch it build.
+
 ::testimonials{title="Agentic content generation, at its best"}
 - quote: My Hermes agent runs three landing pages. I edit copy in nvim on the train. We haven't opened a CMS in four months.
   author: Ada Lovelace
