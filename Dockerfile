@@ -1,15 +1,15 @@
-FROM oven/bun:1-alpine AS builder
+FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-COPY package.json bun.lockb ./
-RUN bun install --frozen-lockfile
+COPY package.json package-lock.json ./
+RUN npm ci --legacy-peer-deps
 
 COPY . .
 
 ENV NITRO_PRESET=node-server
 
-RUN bun run build
+RUN npm run build
 
 FROM node:20-alpine AS runner
 
