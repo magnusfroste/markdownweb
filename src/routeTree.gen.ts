@@ -18,6 +18,7 @@ import { Route as ApiOgDotsvgRouteImport } from './routes/api.og[.]svg'
 import { Route as ApiMcpRouteImport } from './routes/api.mcp'
 import { Route as McpSourceSlugRouteImport } from './routes/mcp.source.$slug'
 import { Route as McpPreviewSlugRouteImport } from './routes/mcp.preview.$slug'
+import { Route as McpPreviewSlugRssDotxmlRouteImport } from './routes/mcp.preview.$slug.rss[.]xml'
 import { Route as McpPreviewSlugSplatRouteImport } from './routes/mcp.preview.$slug.$'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
@@ -65,6 +66,11 @@ const McpPreviewSlugRoute = McpPreviewSlugRouteImport.update({
   path: '/preview/$slug',
   getParentRoute: () => McpRoute,
 } as any)
+const McpPreviewSlugRssDotxmlRoute = McpPreviewSlugRssDotxmlRouteImport.update({
+  id: '/rss.xml',
+  path: '/rss.xml',
+  getParentRoute: () => McpPreviewSlugRoute,
+} as any)
 const McpPreviewSlugSplatRoute = McpPreviewSlugSplatRouteImport.update({
   id: '/$',
   path: '/$',
@@ -82,6 +88,7 @@ export interface FileRoutesByFullPath {
   '/mcp/preview/$slug': typeof McpPreviewSlugRouteWithChildren
   '/mcp/source/$slug': typeof McpSourceSlugRoute
   '/mcp/preview/$slug/$': typeof McpPreviewSlugSplatRoute
+  '/mcp/preview/$slug/rss.xml': typeof McpPreviewSlugRssDotxmlRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -94,6 +101,7 @@ export interface FileRoutesByTo {
   '/mcp/preview/$slug': typeof McpPreviewSlugRouteWithChildren
   '/mcp/source/$slug': typeof McpSourceSlugRoute
   '/mcp/preview/$slug/$': typeof McpPreviewSlugSplatRoute
+  '/mcp/preview/$slug/rss.xml': typeof McpPreviewSlugRssDotxmlRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -107,6 +115,7 @@ export interface FileRoutesById {
   '/mcp/preview/$slug': typeof McpPreviewSlugRouteWithChildren
   '/mcp/source/$slug': typeof McpSourceSlugRoute
   '/mcp/preview/$slug/$': typeof McpPreviewSlugSplatRoute
+  '/mcp/preview/$slug/rss.xml': typeof McpPreviewSlugRssDotxmlRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -121,6 +130,7 @@ export interface FileRouteTypes {
     | '/mcp/preview/$slug'
     | '/mcp/source/$slug'
     | '/mcp/preview/$slug/$'
+    | '/mcp/preview/$slug/rss.xml'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -133,6 +143,7 @@ export interface FileRouteTypes {
     | '/mcp/preview/$slug'
     | '/mcp/source/$slug'
     | '/mcp/preview/$slug/$'
+    | '/mcp/preview/$slug/rss.xml'
   id:
     | '__root__'
     | '/'
@@ -145,6 +156,7 @@ export interface FileRouteTypes {
     | '/mcp/preview/$slug'
     | '/mcp/source/$slug'
     | '/mcp/preview/$slug/$'
+    | '/mcp/preview/$slug/rss.xml'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -222,6 +234,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof McpPreviewSlugRouteImport
       parentRoute: typeof McpRoute
     }
+    '/mcp/preview/$slug/rss.xml': {
+      id: '/mcp/preview/$slug/rss.xml'
+      path: '/rss.xml'
+      fullPath: '/mcp/preview/$slug/rss.xml'
+      preLoaderRoute: typeof McpPreviewSlugRssDotxmlRouteImport
+      parentRoute: typeof McpPreviewSlugRoute
+    }
     '/mcp/preview/$slug/$': {
       id: '/mcp/preview/$slug/$'
       path: '/$'
@@ -234,10 +253,12 @@ declare module '@tanstack/react-router' {
 
 interface McpPreviewSlugRouteChildren {
   McpPreviewSlugSplatRoute: typeof McpPreviewSlugSplatRoute
+  McpPreviewSlugRssDotxmlRoute: typeof McpPreviewSlugRssDotxmlRoute
 }
 
 const McpPreviewSlugRouteChildren: McpPreviewSlugRouteChildren = {
   McpPreviewSlugSplatRoute: McpPreviewSlugSplatRoute,
+  McpPreviewSlugRssDotxmlRoute: McpPreviewSlugRssDotxmlRoute,
 }
 
 const McpPreviewSlugRouteWithChildren = McpPreviewSlugRoute._addFileChildren(

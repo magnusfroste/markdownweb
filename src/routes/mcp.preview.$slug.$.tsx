@@ -8,6 +8,7 @@ import { z } from "zod";
 import { getSite } from "@/lib/mcp/store";
 import { parseMarkdownWeb } from "@/lib/markdown-web/parser";
 import { resolveTokens } from "@/lib/mcp/themes";
+import { listPages } from "@/lib/mcp/pages";
 import { RenderPreview } from "./mcp.preview.$slug";
 
 function extractFirstParagraph(md: string): string {
@@ -44,6 +45,7 @@ const fetchSiteForSubpage = createServerFn({ method: "GET" })
       tokens,
       description,
       layoutFamily: site.layoutFamily,
+      pageMetas: listPages(site.slug),
     };
   });
 

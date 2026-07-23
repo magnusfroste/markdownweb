@@ -16,6 +16,7 @@ import { parseMarkdownWeb } from "@/lib/markdown-web/parser";
 import { resolvePage } from "@/lib/markdown-web/resolve-page";
 import { BlockRenderer } from "@/components/markdown-web/BlockRenderer";
 import { resolveTokens, tokensToCssVars, type ThemeTokens } from "@/lib/mcp/themes";
+import { listPages, type PageMeta } from "@/lib/mcp/pages";
 
 function extractFirstParagraph(md: string): string {
   const body = md.replace(/^---[\s\S]*?---/m, "").trim();
@@ -51,6 +52,7 @@ const fetchSite = createServerFn({ method: "GET" })
       tokens,
       description,
       layoutFamily: site.layoutFamily,
+      pageMetas: listPages(site.slug),
     };
   });
 
@@ -158,6 +160,7 @@ export function RenderPreview({
     themeSlug: string;
     layoutFamily: string;
     tokens: ThemeTokens;
+    pageMetas?: PageMeta[];
   };
   path: string;
 }) {
@@ -213,7 +216,13 @@ export function RenderPreview({
         MCP preview · {site.slug} · theme: {site.themeName} · layout: {site.layoutFamily}
         {page ? <> · page: {page.slug}</> : null}
       </div>
-      <BlockRenderer blocks={blocks} layoutFamily={site.layoutFamily} themeSlug={site.themeSlug} />
+      <BlockRenderer
+        blocks={blocks}
+        layoutFamily={site.layoutFamily}
+        themeSlug={site.themeSlug}
+        pageMetas={site.pageMetas}
+        siteSlug={site.slug}
+      />
     </div>
   );
 }

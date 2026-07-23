@@ -195,15 +195,32 @@ export const directives: DirectiveSpec[] = [
   {
     name: "page",
     description:
-      "Multi-page mode: wrap a route's blocks. The whole site lives in ONE .md file. Each ::page becomes its own URL with its own <head>. Blocks outside any ::page (typically ::nav and ::footer) are shared on every page.",
+      "Multi-page mode: wrap a route's blocks. The whole site lives in ONE .md file. Each ::page becomes its own URL with its own <head>. Blocks outside any ::page (typically ::nav and ::footer) are shared on every page. Set `type=\"post\"` + `date` to make a page appear in ::post-index and the RSS feed.",
     bodyFormat: "markdown",
     attrs: [
-      { name: "slug", type: "string", description: 'Route path, e.g. "/" or "/about". Required.' },
-      { name: "title", type: "string", description: "Page-specific <title> tag." },
-      { name: "description", type: "string", description: "Meta description for this page." },
+      { name: "slug", type: "string", required: true, description: 'Route path, e.g. "/" or "/blog/hello".' },
+      { name: "title", type: "string", description: "Page-specific <title>." },
+      { name: "description", type: "string", description: "Meta description." },
       { name: "image", type: "string", description: "og:image URL for this page." },
+      { name: "type", type: "enum", enum: ["page", "post"], description: "Default `page`. Use `post` to opt into blog listings + RSS." },
+      { name: "date", type: "string", description: "ISO date (YYYY-MM-DD) — required for posts to sort correctly." },
+      { name: "author", type: "string", description: "Author name (posts)." },
+      { name: "tags", type: "string", description: "Comma-separated tags, e.g. `tags=\"launch,product\"`." },
+      { name: "excerpt", type: "string", description: "Short summary shown in ::post-index cards and RSS feed." },
     ],
-    example: `::page{slug="/" title="Home — Acme"}\n::hero\n# Welcome\n::\n::\n\n::page{slug="/about" title="About — Acme"}\n::hero\n# About us\n::\n::`,
+    example: `::page{slug="/blog/hello" type="post" date="2026-07-23" author="Ada" tags="launch,product" excerpt="First post."}\n# Hello world\nWelcome to the blog.\n::`,
+  },
+  {
+    name: "post-index",
+    description:
+      "Auto-generated list of every ::page{type=\"post\"} in the site, newest first. Great for a /blog landing page. Renders as cards with title, date, excerpt and tags.",
+    bodyFormat: "markdown",
+    attrs: [
+      { name: "title", type: "string", description: "Section title, e.g. \"Latest posts\"." },
+      { name: "limit", type: "number", description: "Max posts to show. Default: all." },
+      { name: "tag", type: "string", description: "Only include posts that carry this tag." },
+    ],
+    example: `::post-index{title="Latest posts" limit=6}\n::`,
   },
 ];
 

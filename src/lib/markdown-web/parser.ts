@@ -161,6 +161,7 @@ const KNOWN_DIRECTIVES = new Set([
   "divider",
   "split",
   "page",
+  "post-index",
 ]);
 
 function normalizeSlug(raw: unknown): string {
