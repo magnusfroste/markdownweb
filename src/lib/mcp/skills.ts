@@ -40,6 +40,17 @@ import {
 } from "./themes";
 import { layoutFamilies, getLayoutFamily } from "./layouts";
 import { templates, getTemplate, renderTemplate } from "./templates";
+import {
+  listPages,
+  addPage,
+  removePage,
+  renamePage,
+  setPageMeta,
+  setPageBody,
+  searchPages,
+  listPosts,
+  type PageMeta,
+} from "./pages";
 import { parseMarkdownWeb, type Block } from "@/lib/markdown-web/parser";
 
 export type SkillCtx = { origin: string; isAdmin: boolean };
