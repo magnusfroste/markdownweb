@@ -14,7 +14,7 @@ function esc(s: string): string {
     .replace(/"/g, "&quot;");
 }
 
-export const Route = createFileRoute("/mcp/preview/$slug/rss")({
+export const Route = createFileRoute("/mcp/preview/$slug/rss.xml")({
   server: {
     handlers: {
       GET: async ({ params, request }) => {
