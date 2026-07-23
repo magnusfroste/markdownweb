@@ -11,26 +11,30 @@ const initialDoc = parseMarkdownWeb(demoSource);
 
 export const Route = createFileRoute("/")({
   head: () => {
+    const title = "MarkdownWeb — Sites agents write, humans tweak, LLMs read";
+    const description =
+      "Your website's source is one .md file. Agents author it over MCP, humans tweak it in plain text, LLMs cite it verbatim.";
     const ogImage =
       "https://mdsites.lovable.app/api/og.svg?" +
       new URLSearchParams({
-        title: "Write your site in Markdown",
-        subtitle: "LLM-friendly, git-friendly, human-friendly.",
+        title: "Agents write. Humans tweak. LLMs read.",
+        subtitle: "One .md file. MCP-native CMS.",
         badge: "mdsites.lovable.app",
       }).toString();
     return {
       meta: [
-        { title: "MarkdownWeb — Write your site in markdown" },
-        { name: "description", content: "Sites whose source is a .md document. LLM-friendly, git-friendly, human-friendly." },
-        { property: "og:title", content: "MarkdownWeb — Write your site in markdown" },
-        { property: "og:description", content: "Sites whose source is a .md document. LLM-friendly, git-friendly, human-friendly." },
+        { title },
+        { name: "description", content: description },
+        { property: "og:title", content: title },
+        { property: "og:description", content: description },
         { property: "og:url", content: "https://mdsites.lovable.app/" },
         { property: "og:type", content: "website" },
         { property: "og:image", content: ogImage },
         { property: "og:image:width", content: "1200" },
         { property: "og:image:height", content: "630" },
-        { name: "twitter:title", content: "MarkdownWeb — Write your site in markdown" },
-        { name: "twitter:description", content: "Sites whose source is a .md document. LLM-friendly, git-friendly, human-friendly." },
+        { name: "twitter:card", content: "summary_large_image" },
+        { name: "twitter:title", content: title },
+        { name: "twitter:description", content: description },
         { name: "twitter:image", content: ogImage },
       ],
       links: [{ rel: "canonical", href: "https://mdsites.lovable.app/" }],
