@@ -16,6 +16,7 @@ import { parseMarkdownWeb } from "@/lib/markdown-web/parser";
 import { resolvePage } from "@/lib/markdown-web/resolve-page";
 import { BlockRenderer } from "@/components/markdown-web/BlockRenderer";
 import { resolveTokens, tokensToCssVars, type ThemeTokens } from "@/lib/mcp/themes";
+import { listPages, type PageMeta } from "@/lib/mcp/pages";
 
 function extractFirstParagraph(md: string): string {
   const body = md.replace(/^---[\s\S]*?---/m, "").trim();
