@@ -219,19 +219,14 @@ function EditorPage() {
     };
   }, [source, hydrated, isMcpSite]);
 
-  // Parse on every change. The parser is fault-tolerant and returns
-  // diagnostics inline rather than throwing — we still keep a try/catch
-  // as a last-resort safety net.
-  const lastGoodDoc = useRef(parseMarkdownWeb(source));
-  const doc = useMemo(() => {
+  // Parse on every change
+  const doc = (() => {
     try {
-      const parsed = parseMarkdownWeb(source);
-      lastGoodDoc.current = parsed;
-      return parsed;
+      return parseMarkdownWeb(source);
     } catch {
-      return lastGoodDoc.current;
+      return { blocks: [], diagnostics: [], pages: undefined, sharedBefore: undefined, sharedAfter: undefined };
     }
-  }, [source]);
+  })();
 
   // Multi-page mode: when ::page directives exist, the editor shows tabs and
   // the preview renders one page at a time (sharedBefore + page + sharedAfter).
