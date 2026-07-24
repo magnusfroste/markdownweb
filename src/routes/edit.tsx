@@ -120,7 +120,6 @@ function EditorPage() {
   const [savedAt, setSavedAt] = useState<number | null>(null);
   const [copied, setCopied] = useState(false);
   const [activeBlock, setActiveBlock] = useState(0);
-  const [renderKey, setRenderKey] = useState(0);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const previewScrollRef = useRef<HTMLDivElement>(null);
   const suppressObserverUntil = useRef(0);
@@ -223,10 +222,6 @@ function EditorPage() {
   // Parse on every change. The parser is fault-tolerant and returns
   // diagnostics inline rather than throwing — we still keep a try/catch
   // as a last-resort safety net.
-  useEffect(() => {
-    setRenderKey((k) => k + 1);
-  }, [source]);
-
   const lastGoodDoc = useRef(parseMarkdownWeb(source));
   const doc = useMemo(() => {
     try {
@@ -249,7 +244,7 @@ function EditorPage() {
     }
   }, [doc.pages, activePageSlug]);
   const effectiveBlocks = useMemo(() => {
-    if (!doc.pages || doc.pages.length === 0) return doc.blocks;
+    if (!doc.pages || doc.pages.length === 0) return [...doc.blocks];
     const page = doc.pages.find((p) => p.slug === activePageSlug) ?? doc.pages[0];
     return [
       ...(doc.sharedBefore ?? []),
@@ -694,7 +689,7 @@ function EditorPage() {
                 font-family: var(--font-mono);
               }
             `}</style>
-            <BlockRenderer key={renderKey} blocks={effectiveBlocks} idPrefix={BLOCK_ID} layoutFamily={layoutFamily} themeSlug={themeSlug} />
+            <BlockRenderer key={source} blocks={effectiveBlocks} idPrefix={BLOCK_ID} layoutFamily={layoutFamily} themeSlug={themeSlug} />
           </div>
         </div>
       </div>
