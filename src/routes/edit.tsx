@@ -1,5 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
+import { createServerFn } from "@tanstack/react-start";
+import { z } from "zod";
 import demoSource from "@/content/demo.md?raw";
 import docsSource from "@/content/docs.md?raw";
 import { parseMarkdownWeb } from "@/lib/markdown-web/parser";
@@ -12,12 +14,35 @@ import {
   DEFAULT_THEME_SLUG,
 } from "@/lib/mcp/themes";
 import { layoutFamilies, DEFAULT_LAYOUT_FAMILY } from "@/lib/mcp/layouts";
+import { getSite, updateSite } from "@/lib/mcp/store";
 
+const HOME_SLUG = "home";
 const STORAGE_KEY = "markdownweb:editor:source";
 const THEME_KEY = "markdownweb:editor:theme";
 const LAYOUT_KEY = "markdownweb:editor:layout";
 
+const fetchHomeSite = createServerFn({ method: "GET" }).handler(async () => {
+  const site = getSite(HOME_SLUG);
+  if (!site) return null;
+  return { markdown: site.markdown, themeSlug: site.themeSlug, layoutFamily: site.layoutFamily };
+});
+
+const saveHomeSite = createServerFn({ method: "POST" })
+  .inputValidator((input: { markdown: string }) =>
+    z.object({ markdown: z.string().min(1) }).parse(input),
+  )
+  .handler(async ({ data }) => {
+    const site = getSite(HOME_SLUG);
+    if (!site) return { success: false, error: "No home site" };
+    updateSite(HOME_SLUG, { markdown: data.markdown }, "editor_update");
+    return { success: true };
+  });
+
 export const Route = createFileRoute("/edit")({
+  loader: async () => {
+    const homeSite = await fetchHomeSite();
+    return { homeSite };
+  },
   head: () => ({
     meta: [
       { title: "Editor — MarkdownWeb" },
@@ -85,11 +110,12 @@ function blockLabel(block: ReturnType<typeof parseMarkdownWeb>["blocks"][number]
 }
 
 function EditorPage() {
+  const { homeSite } = Route.useLoaderData();
   // Hydrate from localStorage on the client only — SSR must render the demo
   // source to avoid hydration mismatch.
-  const [source, setSource] = useState<string>(demoSource);
-  const [themeSlug, setThemeSlug] = useState<string>(DEFAULT_THEME_SLUG);
-  const [layoutFamily, setLayoutFamily] = useState<string>(DEFAULT_LAYOUT_FAMILY);
+  const [source, setSource] = useState<string>(homeSite?.markdown ?? demoSource);
+  const [themeSlug, setThemeSlug] = useState<string>(homeSite?.themeSlug ?? DEFAULT_THEME_SLUG);
+  const [layoutFamily, setLayoutFamily] = useState<string>(homeSite?.layoutFamily ?? DEFAULT_LAYOUT_FAMILY);
   const [hydrated, setHydrated] = useState(false);
   const [savedAt, setSavedAt] = useState<number | null>(null);
   const [copied, setCopied] = useState(false);
@@ -97,6 +123,7 @@ function EditorPage() {
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const previewScrollRef = useRef<HTMLDivElement>(null);
   const suppressObserverUntil = useRef(0);
+  const isMcpSite = homeSite !== null;
 
   // Resolved theme tokens → inline CSS vars on the preview wrapper.
   const themeData = useMemo(() => {
@@ -117,6 +144,12 @@ function EditorPage() {
   // Load saved source on mount.
   useEffect(() => {
     try {
+      // If we have an MCP home site, use it (already set in useState)
+      if (isMcpSite) {
+        setHydrated(true);
+        return;
+      }
+      
       // ?template=mcp:saas-landing or ?template=demo overrides saved draft
       const params = new URLSearchParams(window.location.search);
       const wanted = params.get("template");
@@ -154,24 +187,28 @@ function EditorPage() {
     document.head.appendChild(link);
   }, [themeSlug, themeData.fontsHref]);
 
-  // Persist theme + layout family.
+  // Persist theme + layout family (only for non-MCP sites)
   useEffect(() => {
-    if (!hydrated) return;
+    if (!hydrated || isMcpSite) return;
     try {
       localStorage.setItem(THEME_KEY, themeSlug);
       localStorage.setItem(LAYOUT_KEY, layoutFamily);
     } catch {
       // ignore
     }
-  }, [themeSlug, layoutFamily, hydrated]);
+  }, [themeSlug, layoutFamily, hydrated, isMcpSite]);
 
-  // Debounced autosave.
+  // Debounced autosave — saves to MCP store if editing home site, otherwise localStorage
   useEffect(() => {
     if (!hydrated) return;
     if (saveTimer.current) clearTimeout(saveTimer.current);
-    saveTimer.current = setTimeout(() => {
+    saveTimer.current = setTimeout(async () => {
       try {
-        localStorage.setItem(STORAGE_KEY, source);
+        if (isMcpSite) {
+          await saveHomeSite({ data: { markdown: source } });
+        } else {
+          localStorage.setItem(STORAGE_KEY, source);
+        }
         setSavedAt(Date.now());
       } catch {
         // ignore
@@ -180,7 +217,7 @@ function EditorPage() {
     return () => {
       if (saveTimer.current) clearTimeout(saveTimer.current);
     };
-  }, [source, hydrated]);
+  }, [source, hydrated, isMcpSite]);
 
   // Parse on every change. The parser is fault-tolerant and returns
   // diagnostics inline rather than throwing — we still keep a try/catch
@@ -349,7 +386,7 @@ function EditorPage() {
     } catch {
       // ignore
     }
-    setSource(demoSource);
+    setSource(isMcpSite ? (homeSite?.markdown ?? demoSource) : demoSource);
     setSavedAt(null);
   };
 
@@ -367,7 +404,7 @@ function EditorPage() {
           <div className="flex items-center gap-3">
             <span className="inline-block w-2 h-2 bg-primary" />
             <span className="hidden sm:inline">editor</span>
-            <span className="text-secondary">site.md</span>
+            <span className="text-secondary">{isMcpSite ? "mcp:home" : "site.md"}</span>
             <span className="text-background/60 normal-case tracking-normal hidden md:inline">
               · {savedLabel}
             </span>
@@ -530,7 +567,7 @@ function EditorPage() {
           <div className="sticky top-0 bg-foreground border-b-4 border-primary px-4 py-2 flex items-center justify-between font-mono text-xs uppercase tracking-widest z-10">
             <span className="flex items-center gap-2">
               <span className="inline-block w-2 h-2 bg-primary" />
-              source — site.md
+              source — {isMcpSite ? "mcp:home" : "site.md"}
             </span>
             <span className="text-background/60 normal-case tracking-normal">
               {source.length.toLocaleString()} chars
