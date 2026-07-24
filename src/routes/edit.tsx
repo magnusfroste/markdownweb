@@ -243,7 +243,7 @@ function EditorPage() {
       }
     }
   }, [doc.pages, activePageSlug]);
-  const effectiveBlocks = useMemo(() => {
+  const effectiveBlocks = (() => {
     if (!doc.pages || doc.pages.length === 0) return [...doc.blocks];
     const page = doc.pages.find((p) => p.slug === activePageSlug) ?? doc.pages[0];
     return [
@@ -251,7 +251,7 @@ function EditorPage() {
       ...page.blocks,
       ...(doc.sharedAfter ?? []),
     ];
-  }, [doc, activePageSlug]);
+  })();
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
