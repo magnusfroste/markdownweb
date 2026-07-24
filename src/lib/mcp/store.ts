@@ -1,7 +1,7 @@
 /**
- * In-memory store for MCP-managed sites, assets, revisions, activity log,
- * and per-key auth records. Module-level state — survives across requests
- * within the same Worker instance, but not across cold starts.
+ * Persistent store for MCP-managed sites, assets, revisions, activity log,
+ * and per-key auth records. Uses in-memory Maps for fast reads, with
+ * write-through to JSON files in DATA_DIR (default: /data).
  */
 
 import { parseMarkdownWeb, type ParseDiagnostic } from "@/lib/markdown-web/parser";
@@ -81,6 +81,118 @@ const keys = new Map<string, ApiKey>();
 const activity: ActivityEntry[] = [];
 const MAX_ACTIVITY = 200;
 const MAX_REVISIONS_PER_SITE = 25;
+
+// Persistence (server-only)
+const DATA_DIR = process.env.DATA_DIR || "/data";
+const SITES_FILE = `${DATA_DIR}/sites.json`;
+const REVISIONS_FILE = `${DATA_DIR}/revisions.json`;
+const ASSETS_FILE = `${DATA_DIR}/assets.json`;
+const KEYS_FILE = `${DATA_DIR}/keys.json`;
+const ACTIVITY_FILE = `${DATA_DIR}/activity.json`;
+
+let fsModule: typeof import("fs") | null = null;
+let pathModule: typeof import("path") | null = null;
+
+async function initPersistence(): Promise<void> {
+  if (typeof window !== "undefined") return; // Client-side, skip
+  try {
+    fsModule = await import("fs");
+    pathModule = await import("path");
+    
+    if (!fsModule.existsSync(DATA_DIR)) {
+      fsModule.mkdirSync(DATA_DIR, { recursive: true });
+    }
+    
+    loadFromDisk();
+  } catch (err) {
+    console.error("Failed to init persistence:", err);
+  }
+}
+
+function loadFromDisk(): void {
+  if (!fsModule) return;
+  try {
+    if (fsModule.existsSync(SITES_FILE)) {
+      const data = JSON.parse(fsModule.readFileSync(SITES_FILE, "utf-8"));
+      sites.clear();
+      for (const site of data) sites.set(site.id, site);
+    }
+    
+    if (fsModule.existsSync(REVISIONS_FILE)) {
+      const data = JSON.parse(fsModule.readFileSync(REVISIONS_FILE, "utf-8"));
+      revisions.clear();
+      for (const [key, value] of data) revisions.set(key, value);
+    }
+    
+    if (fsModule.existsSync(ASSETS_FILE)) {
+      const data = JSON.parse(fsModule.readFileSync(ASSETS_FILE, "utf-8"));
+      assets.clear();
+      for (const asset of data) assets.set(asset.id, asset);
+    }
+    
+    if (fsModule.existsSync(KEYS_FILE)) {
+      const data = JSON.parse(fsModule.readFileSync(KEYS_FILE, "utf-8"));
+      keys.clear();
+      for (const key of data) keys.set(key.id, key);
+    }
+    
+    if (fsModule.existsSync(ACTIVITY_FILE)) {
+      const data = JSON.parse(fsModule.readFileSync(ACTIVITY_FILE, "utf-8"));
+      activity.length = 0;
+      activity.push(...data);
+    }
+  } catch (err) {
+    console.error("Failed to load from disk:", err);
+  }
+}
+
+function saveSites(): void {
+  if (!fsModule) return;
+  try {
+    fsModule.writeFileSync(SITES_FILE, JSON.stringify(Array.from(sites.values()), null, 2));
+  } catch (err) {
+    console.error("Failed to save sites:", err);
+  }
+}
+
+function saveRevisions(): void {
+  if (!fsModule) return;
+  try {
+    fsModule.writeFileSync(REVISIONS_FILE, JSON.stringify(Array.from(revisions.entries()), null, 2));
+  } catch (err) {
+    console.error("Failed to save revisions:", err);
+  }
+}
+
+function saveAssets(): void {
+  if (!fsModule) return;
+  try {
+    fsModule.writeFileSync(ASSETS_FILE, JSON.stringify(Array.from(assets.values()), null, 2));
+  } catch (err) {
+    console.error("Failed to save assets:", err);
+  }
+}
+
+function saveKeys(): void {
+  if (!fsModule) return;
+  try {
+    fsModule.writeFileSync(KEYS_FILE, JSON.stringify(Array.from(keys.values()), null, 2));
+  } catch (err) {
+    console.error("Failed to save keys:", err);
+  }
+}
+
+function saveActivity(): void {
+  if (!fsModule) return;
+  try {
+    fsModule.writeFileSync(ACTIVITY_FILE, JSON.stringify(activity, null, 2));
+  } catch (err) {
+    console.error("Failed to save activity:", err);
+  }
+}
+
+// Init persistence on module load (server-only)
+initPersistence();
 
 function rid(prefix: string): string {
   return `${prefix}_${Math.random().toString(36).slice(2, 10)}`;
@@ -181,6 +293,8 @@ export function createSite(input: {
   };
   sites.set(site.id, site);
   snapshot(site, "create_site");
+  saveSites();
+  saveRevisions();
   return site;
 }
 
@@ -189,6 +303,7 @@ export function setSiteLayoutFamily(idOrSlug: string, layoutFamily: string): Sit
   if (!site) return undefined;
   site.layoutFamily = getLayoutFamily(layoutFamily).slug;
   site.updatedAt = new Date().toISOString();
+  saveSites();
   return site;
 }
 
@@ -200,6 +315,7 @@ export function setSiteTheme(idOrSlug: string, themeSlug: string): Site | undefi
   site.themeSlug = themeSlug;
   site.themeOverrides = {};
   site.updatedAt = new Date().toISOString();
+  saveSites();
   return site;
 }
 
@@ -211,6 +327,7 @@ export function updateThemeOverrides(
   if (!site) return undefined;
   site.themeOverrides = { ...site.themeOverrides, ...overrides };
   site.updatedAt = new Date().toISOString();
+  saveSites();
   return site;
 }
 
@@ -219,6 +336,7 @@ export function resetThemeOverrides(idOrSlug: string): Site | undefined {
   if (!site) return undefined;
   site.themeOverrides = {};
   site.updatedAt = new Date().toISOString();
+  saveSites();
   return site;
 }
 
@@ -233,6 +351,8 @@ export function updateSite(
   if (patch.markdown !== undefined) site.markdown = patch.markdown;
   site.updatedAt = new Date().toISOString();
   snapshot(site, reason);
+  saveSites();
+  saveRevisions();
   return site;
 }
 
@@ -244,6 +364,9 @@ export function deleteSite(idOrSlug: string): boolean {
   for (const a of Array.from(assets.values())) {
     if (a.siteId === site.id) assets.delete(a.id);
   }
+  saveSites();
+  saveRevisions();
+  saveAssets();
   return true;
 }
 
@@ -270,6 +393,7 @@ export function renameSlug(idOrSlug: string, newSlug: string): Site | undefined 
   if (!site) return undefined;
   site.slug = uniqueSlug(newSlug);
   site.updatedAt = new Date().toISOString();
+  saveSites();
   return site;
 }
 
@@ -283,6 +407,7 @@ export function setMetadata(
   if (meta.owner !== undefined) site.owner = meta.owner;
   if (meta.status !== undefined) site.status = meta.status;
   site.updatedAt = new Date().toISOString();
+  saveSites();
   return site;
 }
 
@@ -325,6 +450,7 @@ export function uploadAsset(input: {
     createdAt: new Date().toISOString(),
   };
   assets.set(asset.id, asset);
+  saveAssets();
   return asset;
 }
 
@@ -335,7 +461,9 @@ export function listAssets(siteIdOrSlug: string): Asset[] {
 }
 
 export function deleteAsset(assetId: string): boolean {
-  return assets.delete(assetId);
+  const result = assets.delete(assetId);
+  if (result) saveAssets();
+  return result;
 }
 
 // ───────────────────────── api keys ─────────────────────────
@@ -461,6 +589,7 @@ export async function createKey(input: {
     createdAt,
   };
   keys.set(key.id, key);
+  saveKeys();
   return { key, token };
 }
 
@@ -474,6 +603,7 @@ export function revokeKey(keyId: string): boolean {
   const k = keys.get(keyId);
   if (!k) return false;
   k.revokedAt = new Date().toISOString();
+  saveKeys();
   return true;
 }
 
@@ -502,6 +632,7 @@ export function recordActivity(entry: Omit<ActivityEntry, "id" | "timestamp">): 
     timestamp: new Date().toISOString(),
   });
   if (activity.length > MAX_ACTIVITY) activity.length = MAX_ACTIVITY;
+  saveActivity();
 }
 
 export function listActivity(limit = 50): ActivityEntry[] {
