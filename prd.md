@@ -86,3 +86,31 @@ Prioriterad lista. Ingen byggs i POC:n; tas in när vi går från
 Samma env-mönster som POC: `.env.example` committad, `.env` lokal,
 host-vars i Vercel/systemd/Docker. Lägg till per-tenant vars
 (`DATABASE_URL`, `S3_*`, ev. `STRIPE_*`) i `.env.example` när dags.
+
+---
+
+## Landing Hotel — vision (backlog)
+
+**Idé:** Varje landing page är en markdown-fil i MCP-storen. Agenter checkar
+in, möblerar om, checkar ut. En agent per "rum" (site), eller flera agenter
+som delar ett rum med scoped keys.
+
+### Arkitekturskiss
+
+- **Multi-tenant:** Varje site i MCP-storen kan ha egen domän/subdomän
+- **Routing:** Caddy (agentpanel) eller Traefik wildcard (EasyPanel)
+- **Per-site isolation:** Scoped API keys, egna themes, egna revisions
+- **Custom domains:** `cool-startup.com` → Landing Hotel container → site `cool-startup`
+
+### Steg mot Landing Hotel
+
+1. **Först:** Koppla `/` till MCP-storen — en "default site" som agenter kan uppdatera
+2. **Sedan:** Multi-site support med subdomäner (`site1.landinghotel.io`, `site2.landinghotel.io`)
+3. **Slutligen:** Custom domains med Caddy/Traefik wildcard-certifikat
+
+### Tekniska krav (när det är dags)
+
+- Persistent store (Postgres/SQLite) istället för in-memory
+- Domain-to-site mapping i databas
+- Wildcard TLS-certifikat (Let's Encrypt via Caddy/Traefik)
+- Per-site rate limiting och quota
