@@ -120,6 +120,7 @@ function EditorPage() {
   const [savedAt, setSavedAt] = useState<number | null>(null);
   const [copied, setCopied] = useState(false);
   const [activeBlock, setActiveBlock] = useState(0);
+  const [previewKey, setPreviewKey] = useState(0);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const previewScrollRef = useRef<HTMLDivElement>(null);
   const suppressObserverUntil = useRef(0);
@@ -227,6 +228,11 @@ function EditorPage() {
       return { blocks: [], diagnostics: [], pages: undefined, sharedBefore: undefined, sharedAfter: undefined };
     }
   })();
+
+  // Force preview re-render when source changes
+  useEffect(() => {
+    setPreviewKey((k) => k + 1);
+  }, [source]);
 
   // Multi-page mode: when ::page directives exist, the editor shows tabs and
   // the preview renders one page at a time (sharedBefore + page + sharedAfter).
@@ -684,7 +690,7 @@ function EditorPage() {
                 font-family: var(--font-mono);
               }
             `}</style>
-            <BlockRenderer key={source} blocks={effectiveBlocks} idPrefix={BLOCK_ID} layoutFamily={layoutFamily} themeSlug={themeSlug} />
+            <BlockRenderer key={previewKey} blocks={effectiveBlocks} idPrefix={BLOCK_ID} layoutFamily={layoutFamily} themeSlug={themeSlug} />
           </div>
         </div>
       </div>
