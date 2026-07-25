@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import { type DirectiveBlock, parseListItems } from "@/lib/markdown-web/parser";
 import { renderMd } from "@/lib/markdown-web/inline";
 
