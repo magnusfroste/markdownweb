@@ -202,9 +202,9 @@ function McpSettingsPage() {
                   <code className="text-[10px] opacity-70 font-mono">{t.slug}</code>
                 </div>
                 <div className="flex gap-1">
-                  {[t.tokens.primary, t.tokens.accent, t.tokens.foreground, t.tokens.muted].map((c) => (
+                  {[t.tokens.primary, t.tokens.accent, t.tokens.foreground, t.tokens.muted].map((c, i) => (
                     <span
-                      key={c}
+                      key={i}
                       className="w-6 h-6 border"
                       style={{ background: c, borderColor: t.tokens.border }}
                     />
