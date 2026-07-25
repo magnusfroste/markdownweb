@@ -117,7 +117,10 @@ function loadFromDisk(): void {
     if (fsModule.existsSync(SITES_FILE)) {
       const data = JSON.parse(fsModule.readFileSync(SITES_FILE, "utf-8"));
       sites.clear();
-      for (const site of data) sites.set(site.id, site);
+      for (const site of data) {
+        if (typeof site.showTopBar !== "boolean") site.showTopBar = false;
+        sites.set(site.id, site);
+      }
     }
     
     if (fsModule.existsSync(REVISIONS_FILE)) {
