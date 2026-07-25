@@ -13,6 +13,10 @@ import {
   TabsBlock,
   DividerBlock,
   SplitBlock,
+  NewsletterBlock,
+  CompareBlock,
+  VideoBlock,
+  CodeBlock,
 } from "./blocks/extras";
 import {
   getLayoutFamily,
@@ -767,6 +771,10 @@ export function BlockRenderer({
             case "tabs": node = <TabsBlock block={b} />; break;
             case "divider": node = <DividerBlock block={b} />; break;
             case "split": node = <SplitBlock block={b} />; break;
+            case "newsletter": node = <NewsletterBlock block={b} />; break;
+            case "compare": node = <CompareBlock block={b} />; break;
+            case "video": node = <VideoBlock block={b} />; break;
+            case "code": node = <CodeBlock block={b} />; break;
             case "post-index":
               node = (
                 <PostIndexBlock

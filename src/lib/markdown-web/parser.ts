@@ -162,6 +162,10 @@ const KNOWN_DIRECTIVES = new Set([
   "split",
   "page",
   "post-index",
+  "newsletter",
+  "compare",
+  "video",
+  "code",
 ]);
 
 function normalizeSlug(raw: unknown): string {
