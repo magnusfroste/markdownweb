@@ -19,6 +19,7 @@ const fetchHomeSite = createServerFn({ method: "GET" }).handler(async () => {
     markdown: site.markdown,
     themeSlug: site.themeSlug,
     layoutFamily: site.layoutFamily,
+    showTopBar: site.showTopBar,
     tokens,
   };
 });
