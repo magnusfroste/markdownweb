@@ -25,6 +25,8 @@ export type Site = {
   themeOverrides: ThemeOverrides;
   /** Composition family — picks block variants. */
   layoutFamily: string;
+  /** Show the editor/source top bar on the published home. Default false. */
+  showTopBar: boolean;
   createdAt: string;
   updatedAt: string;
 };
