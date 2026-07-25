@@ -538,6 +538,33 @@ export const skills: Skill[] = [
       };
     },
   },
+  {
+    name: "set_top_bar_visibility",
+    description:
+      "[layout] Toggle the editor/source top bar on the published home (`/`). Default off — leave it off for agent-built sites so end users see a clean page. Turn on only while a human is actively tweaking the markdown.",
+    inputSchema: {
+      type: "object",
+      required: ["idOrSlug", "showTopBar"],
+      properties: {
+        idOrSlug: { type: "string" },
+        showTopBar: { type: "boolean" },
+      },
+    },
+    handler: (args, ctx) => {
+      const site = setSiteTopBar(
+        asString(args.idOrSlug, "idOrSlug"),
+        Boolean(args.showTopBar),
+      );
+      if (!site) throw new Error("Site not found");
+      return {
+        id: site.id,
+        showTopBar: site.showTopBar,
+        previewUrl: previewUrl(ctx.origin, site.slug),
+      };
+    },
+  },
+
+
 
   // ───────── theming ─────────
   {
