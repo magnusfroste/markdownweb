@@ -222,6 +222,54 @@ export const directives: DirectiveSpec[] = [
     ],
     example: `::post-index{title="Latest posts" limit=6}\n::`,
   },
+  {
+    name: "newsletter",
+    description:
+      "Email capture band. Renders a headline + email input + submit button. Submits to the URL in `action` as a POST form (or mailto: link if omitted). No JS required.",
+    bodyFormat: "list-with-actions",
+    attrs: [
+      { name: "action", type: "string", description: "Form POST URL, e.g. a Buttondown/ConvertKit endpoint. Falls back to a mailto: link." },
+      { name: "placeholder", type: "string", description: 'Email input placeholder. Default: "you@example.com".' },
+      { name: "cta", type: "string", description: 'Submit button label. Default: "Subscribe".' },
+    ],
+    example: `::newsletter{action="https://buttondown.email/api/emails/embed-subscribe/acme" cta="Join list"}\n# Weekly changelog\n## One email, every Friday. No spam.\n::`,
+  },
+  {
+    name: "compare",
+    description:
+      "Feature comparison table. First list item is the header row (column labels). Remaining rows are cells separated by ` | `. Use ✓/✗/— for booleans.",
+    bodyFormat: "list",
+    attrs: [
+      { name: "title", type: "string", description: "Section title." },
+      { name: "subtitle", type: "string", description: "Section subtitle." },
+      { name: "highlight", type: "number", description: "1-based column index to visually highlight (e.g. your product's column)." },
+    ],
+    example: `::compare{title="Why us" highlight=2}\n- Feature | Others | **Us**\n- Markdown-native | ✗ | ✓\n- Agent-editable | ✗ | ✓\n- Setup time | Hours | Minutes\n::`,
+  },
+  {
+    name: "video",
+    description:
+      "Responsive video embed. Supports YouTube, Vimeo, and direct MP4 URLs. Auto-detects provider from the URL.",
+    bodyFormat: "markdown",
+    attrs: [
+      { name: "src", type: "string", required: true, description: "YouTube/Vimeo URL or direct .mp4 URL." },
+      { name: "title", type: "string", description: "Caption shown under the video." },
+      { name: "poster", type: "string", description: "Thumbnail image URL (for MP4 videos)." },
+      { name: "aspect", type: "enum", enum: ["16/9", "4/3", "1/1", "9/16"], description: "Aspect ratio. Default 16/9." },
+    ],
+    example: `::video{src="https://youtu.be/dQw4w9WgXcQ" title="Product tour (2 min)"}\n::`,
+  },
+  {
+    name: "code",
+    description:
+      "Syntax-highlighted code block with copy-to-clipboard button. Body is raw code — do NOT wrap in ``` fences (the whole block IS the fence).",
+    bodyFormat: "markdown",
+    attrs: [
+      { name: "lang", type: "string", description: 'Language for syntax hint, e.g. "ts", "bash", "json". Default: plain.' },
+      { name: "title", type: "string", description: "Filename or label shown in the header, e.g. \"install.sh\"." },
+    ],
+    example: `::code{lang="bash" title="install.sh"}\nnpm install mdweb\nmdweb dev\n::`,
+  },
 ];
 
 export function getDirective(name: string): DirectiveSpec | undefined {

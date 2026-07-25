@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import { type DirectiveBlock, parseListItems } from "@/lib/markdown-web/parser";
 import { renderMd } from "@/lib/markdown-web/inline";
 
@@ -321,5 +321,245 @@ export function DividerBlock({ block }: { block: DirectiveBlock }) {
         <div className="flex-1 h-1 bg-foreground" />
       </div>
     </div>
+  );
+}
+
+/* ─────────── NEWSLETTER ─────────── */
+
+export function NewsletterBlock({ block }: { block: DirectiveBlock }) {
+  const action = block.attrs.action as string | undefined;
+  const placeholder = (block.attrs.placeholder as string) ?? "you@example.com";
+  const cta = (block.attrs.cta as string) ?? "Subscribe";
+  // If no action, degrade to a mailto: link on submit — still functional without JS.
+  const isMailto = !action;
+  return (
+    <section className="bg-background py-16">
+      <div className="mx-auto max-w-3xl px-6">
+        <div
+          className="relative overflow-hidden rounded-3xl border border-foreground/10 px-8 md:px-12 py-12 md:py-16 text-center"
+          style={{
+            background:
+              "linear-gradient(135deg, color-mix(in oklab, var(--primary) 10%, var(--card)), var(--card))",
+          }}
+        >
+          <div
+            className="pointer-events-none absolute -top-20 left-1/2 -translate-x-1/2 w-96 h-40 rounded-full opacity-40 blur-3xl"
+            style={{ background: "radial-gradient(circle, var(--primary), transparent 60%)" }}
+          />
+          <div
+            className="relative [&_h1]:text-3xl [&_h1]:md:text-4xl [&_h1]:font-display [&_h1]:tracking-tight [&_h1]:mb-3 [&_h2]:text-base [&_h2]:md:text-lg [&_h2]:text-muted-foreground [&_h2]:font-normal [&_h2]:mb-8 [&_p]:text-muted-foreground [&_p]:mb-6"
+            dangerouslySetInnerHTML={renderMd(block.body.replace(/\[.*?\]\(.*?\)(\{.*?\})?/g, ""))}
+          />
+          <form
+            action={action}
+            method={isMailto ? undefined : "post"}
+            className="relative flex flex-col sm:flex-row gap-2 max-w-md mx-auto"
+            {...(isMailto ? { onSubmit: (e: React.FormEvent<HTMLFormElement>) => { e.preventDefault(); const el = (e.currentTarget.elements.namedItem("email") as HTMLInputElement | null); if (el?.value) window.location.href = `mailto:?subject=Subscribe&body=${encodeURIComponent(el.value)}`; } } : {})}
+          >
+            <input
+              type="email"
+              name="email"
+              required
+              maxLength={255}
+              placeholder={placeholder}
+              className="flex-1 rounded-full bg-background border border-foreground/15 px-5 py-3 text-sm outline-none focus:border-primary transition-colors"
+            />
+            <button
+              type="submit"
+              className="rounded-full bg-primary text-primary-foreground px-6 py-3 text-sm font-semibold hover:opacity-90 transition-opacity"
+            >
+              {cta}
+            </button>
+          </form>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ─────────── COMPARE (feature matrix) ─────────── */
+
+export function CompareBlock({ block }: { block: DirectiveBlock }) {
+  const title = block.attrs.title as string | undefined;
+  const subtitle = block.attrs.subtitle as string | undefined;
+  const highlight = typeof block.attrs.highlight === "number" ? block.attrs.highlight : 0;
+
+  // Parse rows from list items: split each on " | " for cells.
+  const rows = block.body
+    .split("\n")
+    .map((l) => l.trim())
+    .filter((l) => l.startsWith("-"))
+    .map((l) => l.replace(/^-\s*/, "").split("|").map((c) => c.trim()));
+
+  if (rows.length === 0) return null;
+  const [header, ...body] = rows;
+
+  const cellCls = (colIdx: number) =>
+    colIdx === highlight - 1
+      ? "bg-primary/5 border-x border-primary/20"
+      : "";
+
+  return (
+    <section className="bg-background py-20">
+      <div className="mx-auto max-w-5xl px-6">
+        {(title || subtitle) && (
+          <div className="text-center mb-10">
+            {title && <h2 className="text-3xl md:text-5xl font-display tracking-tight mb-3">{title}</h2>}
+            {subtitle && <p className="text-muted-foreground text-lg max-w-2xl mx-auto">{subtitle}</p>}
+          </div>
+        )}
+        <div className="overflow-x-auto rounded-2xl border border-foreground/10">
+          <table className="w-full text-left">
+            <thead>
+              <tr className="bg-foreground/5">
+                {header.map((h, i) => (
+                  <th
+                    key={i}
+                    className={`px-6 py-4 text-sm font-semibold ${cellCls(i)}`}
+                    dangerouslySetInnerHTML={renderMd(h)}
+                  />
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {body.map((row, ri) => (
+                <tr key={ri} className="border-t border-foreground/10">
+                  {row.map((cell, ci) => {
+                    const isBool = cell === "✓" || cell === "✗" || cell === "—";
+                    const toneCls = cell === "✓" ? "text-primary font-bold" : cell === "✗" ? "text-muted-foreground/50" : "";
+                    return (
+                      <td
+                        key={ci}
+                        className={`px-6 py-4 text-sm ${cellCls(ci)} ${isBool ? `text-center text-lg ${toneCls}` : ci === 0 ? "font-medium" : "text-muted-foreground"}`}
+                        dangerouslySetInnerHTML={renderMd(cell)}
+                      />
+                    );
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ─────────── VIDEO ─────────── */
+
+function embedUrl(src: string): { type: "iframe" | "video"; url: string } | null {
+  try {
+    if (/\.(mp4|webm|mov)(\?|$)/i.test(src)) return { type: "video", url: src };
+    // YouTube
+    const yt = src.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([\w-]{6,})/);
+    if (yt) return { type: "iframe", url: `https://www.youtube.com/embed/${yt[1]}` };
+    // Vimeo
+    const vm = src.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+    if (vm) return { type: "iframe", url: `https://player.vimeo.com/video/${vm[1]}` };
+    // Fallback: iframe the raw URL
+    return { type: "iframe", url: src };
+  } catch {
+    return null;
+  }
+}
+
+export function VideoBlock({ block }: { block: DirectiveBlock }) {
+  const src = block.attrs.src as string | undefined;
+  const title = block.attrs.title as string | undefined;
+  const poster = block.attrs.poster as string | undefined;
+  const aspect = (block.attrs.aspect as string) ?? "16/9";
+  if (!src) {
+    return (
+      <div className="mx-auto max-w-4xl px-6 py-6 text-sm text-muted-foreground">
+        ::video needs a <code>src</code> attribute.
+      </div>
+    );
+  }
+  const embed = embedUrl(src);
+  if (!embed) return null;
+
+  return (
+    <section className="bg-background py-12">
+      <div className="mx-auto max-w-4xl px-6">
+        <div
+          className="relative overflow-hidden rounded-2xl border border-foreground/10 bg-black"
+          style={{ aspectRatio: aspect, boxShadow: "0 30px 80px -20px rgba(0,0,0,0.35)" }}
+        >
+          {embed.type === "iframe" ? (
+            <iframe
+              src={embed.url}
+              title={title ?? "Video"}
+              className="absolute inset-0 w-full h-full"
+              loading="lazy"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
+          ) : (
+            <video
+              src={embed.url}
+              poster={poster}
+              controls
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+          )}
+        </div>
+        {title && (
+          <div className="text-center text-sm text-muted-foreground mt-4">{title}</div>
+        )}
+      </div>
+    </section>
+  );
+}
+
+/* ─────────── CODE (syntax + copy) ─────────── */
+
+export function CodeBlock({ block }: { block: DirectiveBlock }) {
+  const lang = (block.attrs.lang as string) ?? "";
+  const title = block.attrs.title as string | undefined;
+  const code = block.body.replace(/^\n+|\n+$/g, "");
+  const [copied, setCopied] = useState(false);
+
+  const onCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      /* ignore */
+    }
+  };
+
+  return (
+    <section className="bg-background py-8">
+      <div className="mx-auto max-w-4xl px-6">
+        <div className="rounded-2xl overflow-hidden border border-foreground/10 bg-[#0d1117] text-[#e6edf3]">
+          <div className="flex items-center justify-between px-4 py-2.5 border-b border-white/10 bg-white/[0.03]">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="flex gap-1.5 shrink-0">
+                <span className="w-2.5 h-2.5 rounded-full bg-[#ff5f56]" />
+                <span className="w-2.5 h-2.5 rounded-full bg-[#ffbd2e]" />
+                <span className="w-2.5 h-2.5 rounded-full bg-[#27c93f]" />
+              </div>
+              {title && (
+                <span className="font-mono text-xs text-white/70 truncate">{title}</span>
+              )}
+              {lang && !title && (
+                <span className="font-mono text-xs text-white/50 uppercase tracking-wider">{lang}</span>
+              )}
+            </div>
+            <button
+              type="button"
+              onClick={onCopy}
+              className="font-mono text-xs text-white/60 hover:text-white transition-colors px-2 py-1 rounded"
+            >
+              {copied ? "copied ✓" : "copy"}
+            </button>
+          </div>
+          <pre className="p-5 overflow-x-auto text-sm leading-relaxed font-mono">
+            <code>{code}</code>
+          </pre>
+        </div>
+      </div>
+    </section>
   );
 }
