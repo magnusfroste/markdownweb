@@ -1,12 +1,29 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
+import { createServerFn } from "@tanstack/react-start";
 import docsSource from "@/content/docs.md?raw";
 import { parseMarkdownWeb } from "@/lib/markdown-web/parser";
 import { BlockRenderer } from "@/components/markdown-web/BlockRenderer";
+import { getSite } from "@/lib/mcp/store";
+import { resolveTokens, tokensToCssVars } from "@/lib/mcp/themes";
+import type { CSSProperties } from "react";
 
-const doc = parseMarkdownWeb(docsSource);
+const DOCS_SLUG = "docs";
+
+const fetchDocsSite = createServerFn({ method: "GET" }).handler(async () => {
+  const site = getSite(DOCS_SLUG);
+  if (!site) return null;
+  const { tokens } = resolveTokens(site.themeSlug, site.themeOverrides);
+  return {
+    markdown: site.markdown,
+    themeSlug: site.themeSlug,
+    layoutFamily: site.layoutFamily,
+    tokens,
+  };
+});
 
 export const Route = createFileRoute("/docs")({
+  loader: async () => ({ docsSite: await fetchDocsSite() }),
   head: () => {
     const ogImage =
       "https://mdsites.lovable.app/api/og.svg?" +
@@ -41,15 +58,34 @@ export const Route = createFileRoute("/docs")({
 });
 
 function DocsPage() {
+  const { docsSite } = Route.useLoaderData();
+  const source = docsSite?.markdown ?? docsSource;
+  const isFromMcp = docsSite !== null;
   const [copied, setCopied] = useState(false);
 
-  // Strip the page's own nav + footer + frontmatter so the source pane shows
-  // only the body content the reader actually cares about.
-  const cleanedSource = useMemo(() => {
-    return docsSource
-      .replace(/^---[\s\S]*?---\n+/, "") // drop frontmatter
-      .trim();
-  }, []);
+  const doc = useMemo(() => {
+    try {
+      return parseMarkdownWeb(source);
+    } catch (e) {
+      return { frontmatter: {}, blocks: [], error: (e as Error).message };
+    }
+  }, [source]);
+
+  const cleanedSource = useMemo(
+    () => source.replace(/^---[\s\S]*?---\n+/, "").trim(),
+    [source],
+  );
+
+  const wrapperStyle: CSSProperties | undefined = docsSite
+    ? {
+        ...(tokensToCssVars(docsSite.tokens) as unknown as CSSProperties),
+        backgroundColor: "var(--background)",
+        color: "var(--foreground)",
+        fontFamily: "var(--font-sans)",
+      }
+    : undefined;
+
+  const sourceLabel = isFromMcp ? "mcp:docs" : "docs.md";
 
   const handleCopy = async () => {
     try {
@@ -62,14 +98,14 @@ function DocsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background" style={wrapperStyle}>
       {/* Top status bar */}
       <div className="bg-foreground text-background border-b-4 border-foreground sticky top-0 z-50">
         <div className="mx-auto max-w-[1800px] px-4 py-2 font-mono text-xs uppercase tracking-widest flex items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <span className="inline-block w-2 h-2 bg-primary" />
             <span className="hidden sm:inline">source:</span>
-            <span className="text-secondary">docs.md</span>
+            <span className="text-secondary">{sourceLabel}</span>
           </div>
           <div className="hidden md:flex items-center gap-6 text-[10px]">
             <span className="flex items-center gap-2">
@@ -93,17 +129,15 @@ function DocsPage() {
 
       {/* Split layout */}
       <div className="lg:grid lg:grid-cols-2 lg:h-[calc(100vh-2.5rem)]">
-        {/* LEFT: rendered preview, scrollable */}
         <div className="lg:overflow-y-auto lg:border-r-4 lg:border-foreground bg-background">
           <BlockRenderer blocks={doc.blocks} />
         </div>
 
-        {/* RIGHT: markdown source, sticky on desktop */}
         <aside className="bg-foreground text-background lg:overflow-y-auto">
           <div className="sticky top-0 bg-foreground border-b-4 border-primary px-4 py-2 flex items-center justify-between font-mono text-xs uppercase tracking-widest z-10">
             <span className="flex items-center gap-2">
               <span className="inline-block w-2 h-2 bg-primary" />
-              docs.md — source
+              {sourceLabel} — source
             </span>
             <button
               type="button"
