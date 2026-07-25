@@ -25,6 +25,8 @@ export type Site = {
   themeOverrides: ThemeOverrides;
   /** Composition family — picks block variants. */
   layoutFamily: string;
+  /** Show the editor/source top bar on the published home. Default false. */
+  showTopBar: boolean;
   createdAt: string;
   updatedAt: string;
 };
@@ -115,7 +117,10 @@ function loadFromDisk(): void {
     if (fsModule.existsSync(SITES_FILE)) {
       const data = JSON.parse(fsModule.readFileSync(SITES_FILE, "utf-8"));
       sites.clear();
-      for (const site of data) sites.set(site.id, site);
+      for (const site of data) {
+        if (typeof site.showTopBar !== "boolean") site.showTopBar = false;
+        sites.set(site.id, site);
+      }
     }
     
     if (fsModule.existsSync(REVISIONS_FILE)) {
@@ -288,6 +293,7 @@ export function createSite(input: {
     themeSlug: input.themeSlug ?? DEFAULT_THEME_SLUG,
     themeOverrides: {},
     layoutFamily: getLayoutFamily(input.layoutFamily).slug,
+    showTopBar: false,
     createdAt: now,
     updatedAt: now,
   };
@@ -302,6 +308,15 @@ export function setSiteLayoutFamily(idOrSlug: string, layoutFamily: string): Sit
   const site = getSite(idOrSlug);
   if (!site) return undefined;
   site.layoutFamily = getLayoutFamily(layoutFamily).slug;
+  site.updatedAt = new Date().toISOString();
+  saveSites();
+  return site;
+}
+
+export function setSiteTopBar(idOrSlug: string, showTopBar: boolean): Site | undefined {
+  const site = getSite(idOrSlug);
+  if (!site) return undefined;
+  site.showTopBar = showTopBar;
   site.updatedAt = new Date().toISOString();
   saveSites();
   return site;

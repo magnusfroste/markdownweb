@@ -19,6 +19,7 @@ const fetchHomeSite = createServerFn({ method: "GET" }).handler(async () => {
     markdown: site.markdown,
     themeSlug: site.themeSlug,
     layoutFamily: site.layoutFamily,
+    showTopBar: site.showTopBar,
     tokens,
   };
 });
@@ -48,6 +49,7 @@ function Index() {
   }, [currentSource]);
 
   const isFromMcp = homeSite !== null;
+  const showTopBar = homeSite ? homeSite.showTopBar : true;
   const wrapperStyle: CSSProperties | undefined = homeSite
     ? {
         ...(tokensToCssVars(homeSite.tokens) as unknown as CSSProperties),
@@ -59,25 +61,27 @@ function Index() {
 
   return (
     <div className="min-h-screen bg-background" style={wrapperStyle}>
-      <div className="bg-foreground text-background border-b-4 border-foreground">
-        <div className="mx-auto max-w-6xl px-6 py-2 flex items-center justify-between font-mono text-xs uppercase tracking-widest">
-          <div className="flex items-center gap-2">
-            <span className="inline-block w-2 h-2 bg-primary" />
-            source:{" "}
-            <span className="text-secondary">
-              {isFromMcp ? "mcp:home" : "demo.md"}
-            </span>
+      {showTopBar && (
+        <div className="bg-foreground text-background border-b-4 border-foreground">
+          <div className="mx-auto max-w-6xl px-6 py-2 flex items-center justify-between font-mono text-xs uppercase tracking-widest">
+            <div className="flex items-center gap-2">
+              <span className="inline-block w-2 h-2 bg-primary" />
+              source:{" "}
+              <span className="text-secondary">
+                {isFromMcp ? "mcp:home" : "demo.md"}
+              </span>
+            </div>
+            <button
+              onClick={() => setShowSource((s) => !s)}
+              className="bg-primary text-primary-foreground px-3 py-1 hover:bg-secondary hover:text-foreground transition-colors"
+            >
+              {showSource ? "Hide source" : "Show source"}
+            </button>
           </div>
-          <button
-            onClick={() => setShowSource((s) => !s)}
-            className="bg-primary text-primary-foreground px-3 py-1 hover:bg-secondary hover:text-foreground transition-colors"
-          >
-            {showSource ? "Hide source" : "Show source"}
-          </button>
         </div>
-      </div>
+      )}
 
-      {showSource && (
+      {showTopBar && showSource && (
         <div className="border-b-4 border-foreground bg-muted">
           <div className="mx-auto max-w-6xl px-6 py-6">
             <div className="font-mono text-xs uppercase tracking-widest mb-3 flex items-center justify-between">
