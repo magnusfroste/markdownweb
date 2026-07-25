@@ -313,6 +313,15 @@ export function setSiteLayoutFamily(idOrSlug: string, layoutFamily: string): Sit
   return site;
 }
 
+export function setSiteTopBar(idOrSlug: string, showTopBar: boolean): Site | undefined {
+  const site = getSite(idOrSlug);
+  if (!site) return undefined;
+  site.showTopBar = showTopBar;
+  site.updatedAt = new Date().toISOString();
+  saveSites();
+  return site;
+}
+
 // ───────────────────────── theming ─────────────────────────
 
 export function setSiteTheme(idOrSlug: string, themeSlug: string): Site | undefined {
