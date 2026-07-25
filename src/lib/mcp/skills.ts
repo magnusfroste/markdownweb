@@ -14,6 +14,7 @@ import {
   setMetadata,
   setSiteTheme,
   setSiteLayoutFamily,
+  setSiteTopBar,
   updateThemeOverrides,
   resetThemeOverrides,
   validateMarkdown,
