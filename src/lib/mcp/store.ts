@@ -290,6 +290,7 @@ export function createSite(input: {
     themeSlug: input.themeSlug ?? DEFAULT_THEME_SLUG,
     themeOverrides: {},
     layoutFamily: getLayoutFamily(input.layoutFamily).slug,
+    showTopBar: false,
     createdAt: now,
     updatedAt: now,
   };
