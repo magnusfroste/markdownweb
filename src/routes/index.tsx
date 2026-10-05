@@ -25,6 +25,10 @@ const fetchHomeSite = createServerFn({ method: "GET" }).handler(async () => {
 });
 
 export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [{ property: "og:url", content: "https://mdsites.lovable.app/" }],
+    links: [{ rel: "canonical", href: "https://mdsites.lovable.app/" }],
+  }),
   loader: async () => {
     const homeSite = await fetchHomeSite();
     return { homeSite };
