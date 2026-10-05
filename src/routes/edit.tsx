@@ -54,8 +54,7 @@ export const Route = createFileRoute("/edit")({
       { property: "og:title", content: "Editor — MarkdownWeb" },
       {
         property: "og:description",
-        content:
-          "Live markdown editor with 10 templates, 10 themes, split preview, autosave.",
+        content: "Live markdown editor with 10 templates, 10 themes, split preview, autosave.",
       },
       { property: "og:url", content: "https://mdsites.lovable.app/edit" },
     ],
@@ -115,7 +114,9 @@ function EditorPage() {
   // source to avoid hydration mismatch.
   const [source, setSource] = useState<string>(homeSite?.markdown ?? demoSource);
   const [themeSlug, setThemeSlug] = useState<string>(homeSite?.themeSlug ?? DEFAULT_THEME_SLUG);
-  const [layoutFamily, setLayoutFamily] = useState<string>(homeSite?.layoutFamily ?? DEFAULT_LAYOUT_FAMILY);
+  const [layoutFamily, setLayoutFamily] = useState<string>(
+    homeSite?.layoutFamily ?? DEFAULT_LAYOUT_FAMILY,
+  );
   const [hydrated, setHydrated] = useState(false);
   const [savedAt, setSavedAt] = useState<number | null>(null);
   const [copied, setCopied] = useState(false);
@@ -150,7 +151,7 @@ function EditorPage() {
         setHydrated(true);
         return;
       }
-      
+
       // ?template=mcp:saas-landing or ?template=demo overrides saved draft
       const params = new URLSearchParams(window.location.search);
       const wanted = params.get("template");
@@ -225,7 +226,13 @@ function EditorPage() {
     try {
       return parseMarkdownWeb(source);
     } catch {
-      return { blocks: [], diagnostics: [], pages: undefined, sharedBefore: undefined, sharedAfter: undefined };
+      return {
+        blocks: [],
+        diagnostics: [],
+        pages: undefined,
+        sharedBefore: undefined,
+        sharedAfter: undefined,
+      };
     }
   })();
 
@@ -247,11 +254,7 @@ function EditorPage() {
   const effectiveBlocks = (() => {
     if (!doc.pages || doc.pages.length === 0) return [...doc.blocks];
     const page = doc.pages.find((p) => p.slug === activePageSlug) ?? doc.pages[0];
-    return [
-      ...(doc.sharedBefore ?? []),
-      ...page.blocks,
-      ...(doc.sharedAfter ?? []),
-    ];
+    return [...(doc.sharedBefore ?? []), ...page.blocks, ...(doc.sharedAfter ?? [])];
   })();
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -442,12 +445,16 @@ function EditorPage() {
               <option value="">template…</option>
               <optgroup label="Built-in">
                 {BUILTIN_TEMPLATES.map((t) => (
-                  <option key={t.id} value={t.id}>{t.label}</option>
+                  <option key={t.id} value={t.id}>
+                    {t.label}
+                  </option>
                 ))}
               </optgroup>
               <optgroup label="MCP templates">
                 {MCP_TEMPLATES.map((t) => (
-                  <option key={t.id} value={t.id}>{t.label}</option>
+                  <option key={t.id} value={t.id}>
+                    {t.label}
+                  </option>
                 ))}
               </optgroup>
             </select>
@@ -547,9 +554,7 @@ function EditorPage() {
                       </span>
                       <span className="flex-1 min-w-0">
                         {hint && (
-                          <span className="block truncate normal-case tracking-normal">
-                            {hint}
-                          </span>
+                          <span className="block truncate normal-case tracking-normal">{hint}</span>
                         )}
                         <span className="block text-[10px] text-muted-foreground mt-0.5">
                           L{b.startLine}
@@ -690,7 +695,13 @@ function EditorPage() {
                 font-family: var(--font-mono);
               }
             `}</style>
-            <BlockRenderer key={previewKey} blocks={effectiveBlocks} idPrefix={BLOCK_ID} layoutFamily={layoutFamily} themeSlug={themeSlug} />
+            <BlockRenderer
+              key={previewKey}
+              blocks={effectiveBlocks}
+              idPrefix={BLOCK_ID}
+              layoutFamily={layoutFamily}
+              themeSlug={themeSlug}
+            />
           </div>
         </div>
       </div>

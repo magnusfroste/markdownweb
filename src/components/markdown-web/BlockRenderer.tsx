@@ -18,14 +18,16 @@ import {
   VideoBlock,
   CodeBlock,
 } from "./blocks/extras";
-import {
-  getLayoutFamily,
-  resolveVariant,
-  type LayoutFamily,
-} from "@/lib/mcp/layouts";
+import { getLayoutFamily, resolveVariant, type LayoutFamily } from "@/lib/mcp/layouts";
 import type { PageMeta } from "@/lib/mcp/pages";
 
-function ActionLink({ link, tone = "brutal" }: { link: ParsedLink; tone?: "brutal" | "soft" | "ghost" }) {
+function ActionLink({
+  link,
+  tone = "brutal",
+}: {
+  link: ParsedLink;
+  tone?: "brutal" | "soft" | "ghost";
+}) {
   const isExternal = link.href.startsWith("http");
   const isHash = link.href.startsWith("#");
 
@@ -50,7 +52,12 @@ function ActionLink({ link, tone = "brutal" }: { link: ParsedLink; tone?: "bruta
 
   if (isExternal || isHash) {
     return (
-      <a href={link.href} className={cls} target={isExternal ? "_blank" : undefined} rel={isExternal ? "noopener" : undefined}>
+      <a
+        href={link.href}
+        className={cls}
+        target={isExternal ? "_blank" : undefined}
+        rel={isExternal ? "noopener" : undefined}
+      >
         {link.label}
         {tone === "ghost" && link.variant === "primary" && <span aria-hidden>→</span>}
       </a>
@@ -83,7 +90,9 @@ function HeroMarquee({ block }: { block: DirectiveBlock }) {
         />
         {links.length > 0 && (
           <div className="flex flex-wrap gap-4 mt-10">
-            {links.map((l, i) => <ActionLink key={i} link={l} tone="brutal" />)}
+            {links.map((l, i) => (
+              <ActionLink key={i} link={l} tone="brutal" />
+            ))}
           </div>
         )}
       </div>
@@ -123,7 +132,9 @@ function HeroSplit({ block }: { block: DirectiveBlock }) {
           />
           {links.length > 0 && (
             <div className="flex flex-wrap gap-3 mt-8">
-              {links.map((l, i) => <ActionLink key={i} link={l} tone="soft" />)}
+              {links.map((l, i) => (
+                <ActionLink key={i} link={l} tone="soft" />
+              ))}
             </div>
           )}
         </div>
@@ -137,7 +148,12 @@ function HeroSplit({ block }: { block: DirectiveBlock }) {
             style={{ boxShadow: "0 30px 80px -20px rgba(0,0,0,0.25)" }}
           >
             {image ? (
-              <img src={image} alt={imageAlt} className="w-full h-full object-cover" loading="lazy" />
+              <img
+                src={image}
+                alt={imageAlt}
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
             ) : (
               <div className="absolute inset-0 flex flex-col">
                 {/* fake product chrome */}
@@ -196,7 +212,9 @@ function HeroCentered({ block }: { block: DirectiveBlock }) {
         />
         {links.length > 0 && (
           <div className="flex flex-wrap gap-6 justify-center mt-10">
-            {links.map((l, i) => <ActionLink key={i} link={l} tone="ghost" />)}
+            {links.map((l, i) => (
+              <ActionLink key={i} link={l} tone="ghost" />
+            ))}
           </div>
         )}
       </div>
@@ -272,7 +290,9 @@ function FeaturesBento({ block }: { block: DirectiveBlock }) {
                 {isHero && (
                   <div
                     className="pointer-events-none absolute -top-12 -right-12 w-48 h-48 rounded-full opacity-40 blur-2xl"
-                    style={{ background: "radial-gradient(circle, var(--primary), transparent 60%)" }}
+                    style={{
+                      background: "radial-gradient(circle, var(--primary), transparent 60%)",
+                    }}
                   />
                 )}
                 <div className="relative">
@@ -281,11 +301,15 @@ function FeaturesBento({ block }: { block: DirectiveBlock }) {
                       {it.icon}
                     </div>
                   )}
-                  <h3 className={`font-display tracking-tight ${isHero ? "text-2xl md:text-3xl" : "text-lg"} mb-2`}>
+                  <h3
+                    className={`font-display tracking-tight ${isHero ? "text-2xl md:text-3xl" : "text-lg"} mb-2`}
+                  >
                     {it.title}
                   </h3>
                   {it.body && (
-                    <p className={`${isHero ? "text-base" : "text-sm"} text-muted-foreground leading-relaxed`}>
+                    <p
+                      className={`${isHero ? "text-base" : "text-sm"} text-muted-foreground leading-relaxed`}
+                    >
                       {it.body}
                     </p>
                   )}
@@ -329,9 +353,7 @@ function FeaturesZigzag({ block }: { block: DirectiveBlock }) {
                     {it.title}
                   </h3>
                   {it.body && (
-                    <p className="text-muted-foreground leading-relaxed text-base">
-                      {it.body}
-                    </p>
+                    <p className="text-muted-foreground leading-relaxed text-base">{it.body}</p>
                   )}
                 </div>
               </div>
@@ -354,7 +376,10 @@ function FeaturesBlock({ block, family }: { block: DirectiveBlock; family: Layou
 
 function CtaBold({ block }: { block: DirectiveBlock }) {
   const { links, rest } = extractActionLinks(block.body);
-  const bg = block.attrs.background === "primary" ? "bg-primary text-primary-foreground" : "bg-foreground text-background";
+  const bg =
+    block.attrs.background === "primary"
+      ? "bg-primary text-primary-foreground"
+      : "bg-foreground text-background";
   return (
     <section className={`border-b-4 border-foreground ${bg}`}>
       <div className="mx-auto max-w-5xl px-6 py-24">
@@ -363,7 +388,9 @@ function CtaBold({ block }: { block: DirectiveBlock }) {
         </div>
         {links.length > 0 && (
           <div className="flex flex-wrap gap-4 mt-2">
-            {links.map((l, i) => <ActionLink key={i} link={l} tone="brutal" />)}
+            {links.map((l, i) => (
+              <ActionLink key={i} link={l} tone="brutal" />
+            ))}
           </div>
         )}
       </div>
@@ -398,7 +425,9 @@ function CtaBanner({ block }: { block: DirectiveBlock }) {
             </div>
             {links.length > 0 && (
               <div className="flex flex-wrap gap-3 md:justify-end">
-                {links.map((l, i) => <ActionLink key={i} link={l} tone="soft" />)}
+                {links.map((l, i) => (
+                  <ActionLink key={i} link={l} tone="soft" />
+                ))}
               </div>
             )}
           </div>
@@ -421,7 +450,9 @@ function CtaInline({ block }: { block: DirectiveBlock }) {
         </div>
         {links.length > 0 && (
           <div className="flex flex-wrap gap-6 mt-10 justify-center">
-            {links.map((l, i) => <ActionLink key={i} link={l} tone="ghost" />)}
+            {links.map((l, i) => (
+              <ActionLink key={i} link={l} tone="ghost" />
+            ))}
           </div>
         )}
       </div>
@@ -449,7 +480,9 @@ function QuoteBlock({ block }: { block: DirectiveBlock }) {
         {block.attrs.author && (
           <div className="font-mono text-sm uppercase tracking-widest">
             — {block.attrs.author as string}
-            {block.attrs.role && <span className="text-muted-foreground">, {block.attrs.role as string}</span>}
+            {block.attrs.role && (
+              <span className="text-muted-foreground">, {block.attrs.role as string}</span>
+            )}
           </div>
         )}
       </div>
@@ -482,7 +515,13 @@ function NavBlock({ block }: { block: DirectiveBlock }) {
             const isHash = it.href.startsWith("#");
             if (isExternal) {
               return (
-                <a key={i} href={it.href} target="_blank" rel="noopener" className="hover:bg-secondary px-2 py-1">
+                <a
+                  key={i}
+                  href={it.href}
+                  target="_blank"
+                  rel="noopener"
+                  className="hover:bg-secondary px-2 py-1"
+                >
                   {it.label} ↗
                 </a>
               );
@@ -545,7 +584,9 @@ function PricingBlock({ block }: { block: DirectiveBlock }) {
         {(title || subtitle) && (
           <div className="mb-12 text-center">
             {title && <h2 className="text-4xl md:text-5xl mb-3">{title}</h2>}
-            {subtitle && <p className="text-lg text-muted-foreground max-w-2xl mx-auto">{subtitle}</p>}
+            {subtitle && (
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">{subtitle}</p>
+            )}
           </div>
         )}
         <div
@@ -578,14 +619,18 @@ function PricingBlock({ block }: { block: DirectiveBlock }) {
                 )}
                 <h3 className="text-2xl font-display mb-1">{plan.name ?? plan.title}</h3>
                 {plan.tagline && (
-                  <p className={`text-sm mb-6 ${featured ? "opacity-80" : "text-muted-foreground"}`}>
+                  <p
+                    className={`text-sm mb-6 ${featured ? "opacity-80" : "text-muted-foreground"}`}
+                  >
                     {plan.tagline}
                   </p>
                 )}
                 <div className="flex items-baseline gap-1 mb-6">
                   <span className="text-5xl font-display">{plan.price}</span>
                   {plan.period && (
-                    <span className={`text-sm font-mono ${featured ? "opacity-70" : "text-muted-foreground"}`}>
+                    <span
+                      className={`text-sm font-mono ${featured ? "opacity-70" : "text-muted-foreground"}`}
+                    >
                       /{plan.period}
                     </span>
                   )}
@@ -593,7 +638,9 @@ function PricingBlock({ block }: { block: DirectiveBlock }) {
                 <ul className="space-y-3 mb-8 flex-1">
                   {features.map((f, j) => (
                     <li key={j} className="flex items-start gap-2 text-sm">
-                      <span className={`font-bold ${featured ? "text-secondary" : "text-primary"}`}>✓</span>
+                      <span className={`font-bold ${featured ? "text-secondary" : "text-primary"}`}>
+                        ✓
+                      </span>
                       <span>{f}</span>
                     </li>
                   ))}
@@ -754,27 +801,69 @@ export function BlockRenderer({
           node = <MarkdownProse md={b.body} />;
         } else {
           switch (b.name) {
-            case "nav": node = <NavBlock block={b} />; break;
-            case "hero": node = <HeroBlock block={b} family={family} />; break;
-            case "features": node = <FeaturesBlock block={b} family={family} />; break;
-            case "pricing": node = <PricingBlock block={b} />; break;
-            case "quote": node = <QuoteBlock block={b} />; break;
-            case "cta": node = <CtaBlock block={b} family={family} />; break;
-            case "footer": node = <FooterBlock block={b} />; break;
-            case "stats": node = <StatsBlock block={b} />; break;
-            case "logos": node = <LogosBlock block={b} />; break;
-            case "testimonials": node = <TestimonialsBlock block={b} />; break;
-            case "faq": node = <FaqBlock block={b} />; break;
-            case "gallery": node = <GalleryBlock block={b} />; break;
-            case "timeline": node = <TimelineBlock block={b} />; break;
-            case "steps": node = <StepsBlock block={b} />; break;
-            case "tabs": node = <TabsBlock block={b} />; break;
-            case "divider": node = <DividerBlock block={b} />; break;
-            case "split": node = <SplitBlock block={b} />; break;
-            case "newsletter": node = <NewsletterBlock block={b} />; break;
-            case "compare": node = <CompareBlock block={b} />; break;
-            case "video": node = <VideoBlock block={b} />; break;
-            case "code": node = <CodeBlock block={b} />; break;
+            case "nav":
+              node = <NavBlock block={b} />;
+              break;
+            case "hero":
+              node = <HeroBlock block={b} family={family} />;
+              break;
+            case "features":
+              node = <FeaturesBlock block={b} family={family} />;
+              break;
+            case "pricing":
+              node = <PricingBlock block={b} />;
+              break;
+            case "quote":
+              node = <QuoteBlock block={b} />;
+              break;
+            case "cta":
+              node = <CtaBlock block={b} family={family} />;
+              break;
+            case "footer":
+              node = <FooterBlock block={b} />;
+              break;
+            case "stats":
+              node = <StatsBlock block={b} />;
+              break;
+            case "logos":
+              node = <LogosBlock block={b} />;
+              break;
+            case "testimonials":
+              node = <TestimonialsBlock block={b} />;
+              break;
+            case "faq":
+              node = <FaqBlock block={b} />;
+              break;
+            case "gallery":
+              node = <GalleryBlock block={b} />;
+              break;
+            case "timeline":
+              node = <TimelineBlock block={b} />;
+              break;
+            case "steps":
+              node = <StepsBlock block={b} />;
+              break;
+            case "tabs":
+              node = <TabsBlock block={b} />;
+              break;
+            case "divider":
+              node = <DividerBlock block={b} />;
+              break;
+            case "split":
+              node = <SplitBlock block={b} />;
+              break;
+            case "newsletter":
+              node = <NewsletterBlock block={b} />;
+              break;
+            case "compare":
+              node = <CompareBlock block={b} />;
+              break;
+            case "video":
+              node = <VideoBlock block={b} />;
+              break;
+            case "code":
+              node = <CodeBlock block={b} />;
+              break;
             case "post-index":
               node = (
                 <PostIndexBlock

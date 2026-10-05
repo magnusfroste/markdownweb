@@ -25,8 +25,7 @@ import {
 const CORS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-  "Access-Control-Allow-Headers":
-    "Content-Type, Authorization, Accept, Mcp-Session-Id",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization, Accept, Mcp-Session-Id",
   "Access-Control-Max-Age": "86400",
 } as const;
 
@@ -37,24 +36,18 @@ function jsonRpcResult(id: unknown, result: unknown): Response {
   });
 }
 
-function jsonRpcError(
-  id: unknown,
-  code: number,
-  message: string,
-  status = 200,
-): Response {
-  return new Response(
-    JSON.stringify({ jsonrpc: "2.0", id, error: { code, message } }),
-    { status, headers: { "Content-Type": "application/json", ...CORS } },
-  );
+function jsonRpcError(id: unknown, code: number, message: string, status = 200): Response {
+  return new Response(JSON.stringify({ jsonrpc: "2.0", id, error: { code, message } }), {
+    status,
+    headers: { "Content-Type": "application/json", ...CORS },
+  });
 }
 
 function summariseArgs(args: Record<string, unknown> | undefined): string {
   if (!args) return "";
   return Object.entries(args)
     .map(([k, v]) => {
-      if (typeof v === "string")
-        return `${k}=${v.slice(0, 40)}${v.length > 40 ? "…" : ""}`;
+      if (typeof v === "string") return `${k}=${v.slice(0, 40)}${v.length > 40 ? "…" : ""}`;
       return `${k}=${JSON.stringify(v).slice(0, 40)}`;
     })
     .join(" ");
@@ -84,9 +77,7 @@ export const Route = createFileRoute("/api/mcp")({
       POST: async ({ request }) => {
         const adminKey = process.env.MCP_ADMIN_KEY;
         const auth = request.headers.get("authorization") ?? "";
-        const token = auth.toLowerCase().startsWith("bearer ")
-          ? auth.slice(7).trim()
-          : "";
+        const token = auth.toLowerCase().startsWith("bearer ") ? auth.slice(7).trim() : "";
         const keyTail = token ? token.slice(-4) : "----";
 
         let body: {
@@ -149,8 +140,7 @@ export const Route = createFileRoute("/api/mcp")({
           if (method === "tools/call") {
             const params = body.params ?? {};
             const name = typeof params.name === "string" ? params.name : "";
-            const args =
-              (params.arguments as Record<string, unknown> | undefined) ?? {};
+            const args = (params.arguments as Record<string, unknown> | undefined) ?? {};
             const skill = getSkill(name);
             if (!skill) {
               recordActivity({
@@ -204,9 +194,7 @@ export const Route = createFileRoute("/api/mcp")({
                 durationMs,
               });
               return jsonRpcResult(id, {
-                content: [
-                  { type: "text", text: JSON.stringify(result, null, 2) },
-                ],
+                content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
                 structuredContent: result as Record<string, unknown>,
                 isError: false,
               });

@@ -18,10 +18,11 @@ import yaml from "js-yaml";
 type RawTemplateModule = string;
 
 // Vite eagerly bundles every template MD as a raw string.
-const rawModules = import.meta.glob<RawTemplateModule>(
-  "../../content/templates/*.md",
-  { query: "?raw", import: "default", eager: true },
-);
+const rawModules = import.meta.glob<RawTemplateModule>("../../content/templates/*.md", {
+  query: "?raw",
+  import: "default",
+  eager: true,
+});
 
 export type TemplateVariable = {
   name: string;
@@ -53,21 +54,20 @@ function parseTemplate(path: string, raw: string): Template {
   const body = match[2];
 
   const name = typeof data.name === "string" ? data.name : slug;
-  const description =
-    typeof data.description === "string" ? data.description : "";
+  const description = typeof data.description === "string" ? data.description : "";
   const recommendedThemes = Array.isArray(data.recommendedThemes)
-    ? (data.recommendedThemes as unknown[]).filter(
-        (x): x is string => typeof x === "string",
-      )
+    ? (data.recommendedThemes as unknown[]).filter((x): x is string => typeof x === "string")
     : [];
   const variables = Array.isArray(data.variables)
     ? (data.variables as unknown[])
         .filter((v): v is Record<string, unknown> => typeof v === "object" && v !== null)
-        .map((v): TemplateVariable => ({
-          name: String(v.name ?? ""),
-          description: String(v.description ?? ""),
-          default: typeof v.default === "string" ? v.default : undefined,
-        }))
+        .map(
+          (v): TemplateVariable => ({
+            name: String(v.name ?? ""),
+            description: String(v.description ?? ""),
+            default: typeof v.default === "string" ? v.default : undefined,
+          }),
+        )
         .filter((v) => v.name.length > 0)
     : [];
 

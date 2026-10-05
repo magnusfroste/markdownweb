@@ -70,11 +70,7 @@ export const Route = createFileRoute("/api/og.svg")({
         const fg = isHex(q.get("fg")) ? q.get("fg")! : "#f5f5f5";
         const accent = isHex(q.get("accent")) ? q.get("accent")! : "#ff5b1f";
         const muted = isHex(q.get("muted")) ? q.get("muted")! : fg;
-        const fontFamily = clean(
-          q.get("font"),
-          "Space Grotesk, Inter, system-ui, sans-serif",
-          80,
-        );
+        const fontFamily = clean(q.get("font"), "Space Grotesk, Inter, system-ui, sans-serif", 80);
 
         const titleLines = wrap(title, 22, 3);
         const titleFontSize = titleLines.length >= 3 ? 84 : titleLines.length === 2 ? 96 : 112;
@@ -84,8 +80,7 @@ export const Route = createFileRoute("/api/og.svg")({
 
         const titleTspans = titleLines
           .map(
-            (line, i) =>
-              `<tspan x="80" dy="${i === 0 ? 0 : titleLineHeight}">${esc(line)}</tspan>`,
+            (line, i) => `<tspan x="80" dy="${i === 0 ? 0 : titleLineHeight}">${esc(line)}</tspan>`,
           )
           .join("");
 

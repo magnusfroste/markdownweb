@@ -8,7 +8,7 @@ theme: brutalist
 - Docs → /docs
 - Editor → /edit
 - MCP → /mcp
-- GitHub → https://github.com/lovable-dev/markdownweb
+- GitHub → https://github.com/magnusfroste/markdownweb
 ::
 
 ::hero{eyebrow="agent-native CMS · v0.2"}
@@ -81,7 +81,7 @@ Protocol:    JSON-RPC 2.0 (tools/list, tools/call)
 
 Start here — always, on every new task:
   1. call `get_started`      → returns the workflow + tool categories
-  2. call `list_templates`   → 10 landing/blog/docs starters
+  2. call `list_templates`   → 11 landing/blog/docs starters
   3. call `list_themes`      → 16 themes with industry hints
   4. call `suggest_theme`    → pass {industry:"…"} for theme+layout+template
 
@@ -99,38 +99,32 @@ Rules:
 
 Grab a key on [/mcp](/mcp), paste, hit send — watch it build.
 
-::testimonials{title="Agentic content generation, at its best"}
-- quote: My Hermes agent runs three landing pages. I edit copy in nvim on the train. We haven't opened a CMS in four months.
-  author: Ada Lovelace
-  role: Solo founder
-  avatar: https://i.pravatar.cc/120?img=47
-- quote: WYSIWYG asked me to click through 12 nested panels to change a price. MarkdownWeb asked me to change one character.
-  author: Linus Torvalds
-  role: Founder, Kernel Co
-  avatar: https://i.pravatar.cc/120?img=12
-- quote: Our agent drafts, our editor trims, our LLM search-indexes — all from the same file. No sync layer. No webhooks.
-  author: Grace Hopper
-  role: Head of Content
-  avatar: https://i.pravatar.cc/120?img=32
-- quote: We deleted the headless CMS, the block editor and the AI plugin. The .md file replaced all three.
-  author: Margaret Hamilton
-  role: Staff Engineer
-  avatar: https://i.pravatar.cc/120?img=45
-- quote: I told Claude 'add a Q4 launch post with these three bullets'. One MCP call, live in 8 seconds. Then I fixed the title in the file myself.
-  author: Alan Turing
-  role: CTO, Bletchley
-  avatar: https://i.pravatar.cc/120?img=15
-- quote: Perplexity started quoting our pricing page word-for-word. Turns out LLMs love markdown more than divs.
-  author: Katherine Johnson
-  role: Growth Lead
-  avatar: https://i.pravatar.cc/120?img=49
+::features{columns=3 title="Agentic content generation, at its best"}
+- icon: 🔌
+  title: One MCP endpoint
+  body: Agents call `get_started`, `list_templates` and `suggest_theme`, then build with block-level tools. No integration code.
+- icon: 👀
+  title: Preview after every change
+  body: Every mutation returns a preview URL, so the human can check the agent's work before it ships.
+- icon: 📄
+  title: The file is the site
+  body: Each site is one Markdown file. Edit a price or a headline yourself in any text editor — no prompt needed.
+- icon: 🧭
+  title: SEO built in
+  body: Every page emits OpenGraph, JSON-LD and a canonical `.md`. Sites publish an RSS feed and a sitemap.
+- icon: 🎨
+  title: 16 themes, 3 layout families
+  body: Themes set colour and type, layout families set block variants. Override any token you like.
+- icon: 🧩
+  title: 11 starter templates
+  body: Landing, blog, docs, portfolio, restaurant, event and more — pick one and let the agent fill it in.
 ::
 
-::quote{author="Ada Lovelace" role="Computing Pioneer"}
+::quote{author="MarkdownWeb" role="Design principle"}
 The best interface for both a human and a machine is the one they can already read.
 ::
 
-::features{columns=4 title="Pick a style" subtitle="10 themes × 3 layout families. Your agent picks. You can override any token."}
+::features{columns=4 title="Pick a style" subtitle="16 themes × 3 layout families. Your agent picks. You can override any token."}
 - icon: 🧱
   title: Brutalist Pop
   body: Thick borders, hard shadows, loud accents. (current)
@@ -152,13 +146,13 @@ The best interface for both a human and a machine is the one they can already re
   period: mo
   features: 1 site | 1 MCP key | Community support | Lovable subdomain
   cta: Start free
-  ctaHref: https://github.com/lovable-dev/markdownweb
+  ctaHref: https://github.com/magnusfroste/markdownweb
 - name: Agentic
   tagline: For solo founders + one AI editor
   price: $19
   period: mo
   featured: "true"
-  badge: Most popular
+  badge: Recommended
   features: Unlimited sites | Unlimited MCP keys | Custom domains | Version history | RSS + sitemap
   cta: Read the MCP docs
   ctaHref: /mcp
@@ -168,7 +162,7 @@ The best interface for both a human and a machine is the one they can already re
   period: mo
   features: Everything in Agentic | Scoped keys per agent | Activity logs | White-label | Priority support
   cta: View on GitHub
-  ctaHref: https://github.com/lovable-dev/markdownweb
+  ctaHref: https://github.com/magnusfroste/markdownweb
 ::
 
 ::hero{eyebrow="ready when your agent is"}
@@ -182,7 +176,7 @@ The best interface for both a human and a machine is the one they can already re
 # Agentic content generation, when it's actually good.
 ## Agents write. Humans steer. LLMs read. One file.
 
-[Clone the repo](https://github.com/lovable-dev/markdownweb){.primary} [Open the editor](/edit){.ghost}
+[Clone the repo](https://github.com/magnusfroste/markdownweb){.primary} [Open the editor](/edit){.ghost}
 ::
 
 ::footer

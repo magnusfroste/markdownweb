@@ -41,14 +41,20 @@ export const Route = createFileRoute("/docs")({
             "Live block previews on the left, copyable markdown source on the right. Every ::block directive with examples.",
         },
         { property: "og:title", content: "Docs — MarkdownWeb block reference" },
-        { property: "og:description", content: "Live previews + copyable markdown for every ::block directive." },
+        {
+          property: "og:description",
+          content: "Live previews + copyable markdown for every ::block directive.",
+        },
         { property: "og:url", content: "https://mdsites.lovable.app/docs" },
         { property: "og:type", content: "article" },
         { property: "og:image", content: ogImage },
         { property: "og:image:width", content: "1200" },
         { property: "og:image:height", content: "630" },
         { name: "twitter:title", content: "Docs — MarkdownWeb block reference" },
-        { name: "twitter:description", content: "Live previews + copyable markdown for every ::block directive." },
+        {
+          name: "twitter:description",
+          content: "Live previews + copyable markdown for every ::block directive.",
+        },
         { name: "twitter:image", content: ogImage },
       ],
       links: [{ rel: "canonical", href: "https://mdsites.lovable.app/docs" }],
@@ -71,10 +77,7 @@ function DocsPage() {
     }
   }, [source]);
 
-  const cleanedSource = useMemo(
-    () => source.replace(/^---[\s\S]*?---\n+/, "").trim(),
-    [source],
-  );
+  const cleanedSource = useMemo(() => source.replace(/^---[\s\S]*?---\n+/, "").trim(), [source]);
 
   const wrapperStyle: CSSProperties | undefined = docsSite
     ? {

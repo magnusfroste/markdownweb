@@ -66,7 +66,8 @@ export const themes: Theme[] = [
   {
     slug: "editorial-serif",
     name: "Editorial Serif",
-    description: "Magazine-style serif headlines on warm off-white. Signature: drop-cap on first paragraph + gold hairline between sections. Brand storytelling.",
+    description:
+      "Magazine-style serif headlines on warm off-white. Signature: drop-cap on first paragraph + gold hairline between sections. Brand storytelling.",
     fontsHref:
       "https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Work+Sans:wght@400;500;600;700&display=swap",
     tokens: {
@@ -92,7 +93,8 @@ export const themes: Theme[] = [
   {
     slug: "modern-tech",
     name: "Modern Tech",
-    description: "Crisp grotesk on midnight indigo. Signature: soft conic glow under the hero. SaaS, dev tools, AI startups.",
+    description:
+      "Crisp grotesk on midnight indigo. Signature: soft conic glow under the hero. SaaS, dev tools, AI startups.",
     fontsHref:
       "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:wght@400;500;700&display=swap",
     tokens: {
@@ -118,7 +120,8 @@ export const themes: Theme[] = [
   {
     slug: "brutalist-pop",
     name: "Brutalist Pop",
-    description: "High-contrast black/white with a single neon accent. Signature: 4px offset shadow on hero badge. Editorial brutalism.",
+    description:
+      "High-contrast black/white with a single neon accent. Signature: 4px offset shadow on hero badge. Editorial brutalism.",
     fontsHref:
       "https://fonts.googleapis.com/css2?family=Archivo+Black&family=Hind:wght@400;500;700&display=swap",
     tokens: {
@@ -144,7 +147,8 @@ export const themes: Theme[] = [
   {
     slug: "luxury-noir",
     name: "Luxury Noir",
-    description: "Black with gold accents and elegant serifs. Signature: gold hairline divider between sections + gold-underlined links. Premium / fashion / hospitality.",
+    description:
+      "Black with gold accents and elegant serifs. Signature: gold hairline divider between sections + gold-underlined links. Premium / fashion / hospitality.",
     fontsHref:
       "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Karla:wght@400;500;700&display=swap",
     tokens: {
@@ -170,7 +174,8 @@ export const themes: Theme[] = [
   {
     slug: "wellness-soft",
     name: "Wellness Soft",
-    description: "Sage and cream, soft serifs. Signature: organic blob behind the hero. Health, beauty, lifestyle, retreats.",
+    description:
+      "Sage and cream, soft serifs. Signature: organic blob behind the hero. Health, beauty, lifestyle, retreats.",
     fontsHref:
       "https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400&family=Nunito+Sans:wght@400;500;600;700&display=swap",
     tokens: {
@@ -196,7 +201,8 @@ export const themes: Theme[] = [
   {
     slug: "startup-bold",
     name: "Startup Bold",
-    description: "Electric coral on near-black. Signature: neon glow under primary buttons. Bold, energetic, attention-grabbing.",
+    description:
+      "Electric coral on near-black. Signature: neon glow under primary buttons. Bold, energetic, attention-grabbing.",
     fontsHref:
       "https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700&display=swap",
     tokens: {
@@ -222,7 +228,8 @@ export const themes: Theme[] = [
   {
     slug: "corporate-trust",
     name: "Corporate Trust",
-    description: "Navy and white, classic serif. Signature: classic top-rule above section titles. Finance, legal, enterprise, B2B.",
+    description:
+      "Navy and white, classic serif. Signature: classic top-rule above section titles. Finance, legal, enterprise, B2B.",
     fontsHref:
       "https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap",
     tokens: {
@@ -248,7 +255,8 @@ export const themes: Theme[] = [
   {
     slug: "creative-playful",
     name: "Creative Playful",
-    description: "Sunset gradients with display serifs. Signature: subtle hero gradient + slightly tilted bordered cards. Portfolios, creative agencies, events.",
+    description:
+      "Sunset gradients with display serifs. Signature: subtle hero gradient + slightly tilted bordered cards. Portfolios, creative agencies, events.",
     fontsHref:
       "https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Cabin:wght@400;500;600;700&display=swap",
     tokens: {
@@ -274,7 +282,8 @@ export const themes: Theme[] = [
   {
     slug: "dev-docs",
     name: "Dev Docs",
-    description: "Slate, steel, monospace headers. Signature: monospace chip eyebrows. Developer tools, API docs, technical content.",
+    description:
+      "Slate, steel, monospace headers. Signature: monospace chip eyebrows. Developer tools, API docs, technical content.",
     fontsHref:
       "https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap",
     tokens: {
@@ -300,7 +309,8 @@ export const themes: Theme[] = [
   {
     slug: "nature-organic",
     name: "Nature Organic",
-    description: "Forest greens with mossy accents. Signature: asymmetric soft-corner cards. Outdoors, sustainability, food, organic brands.",
+    description:
+      "Forest greens with mossy accents. Signature: asymmetric soft-corner cards. Outdoors, sustainability, food, organic brands.",
     fontsHref:
       "https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap",
     tokens: {
@@ -326,7 +336,8 @@ export const themes: Theme[] = [
   {
     slug: "restaurant-bistro",
     name: "Restaurant Bistro",
-    description: "Warm cream + deep burgundy with a script accent. Signature: hand-drawn wavy divider between sections + burgundy small-caps eyebrows. Restaurants, cafés, wine bars, hospitality menus.",
+    description:
+      "Warm cream + deep burgundy with a script accent. Signature: hand-drawn wavy divider between sections + burgundy small-caps eyebrows. Restaurants, cafés, wine bars, hospitality menus.",
     fontsHref:
       "https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,500&family=Inter:wght@400;500;600&family=Caveat:wght@600&display=swap",
     tokens: {
@@ -352,7 +363,8 @@ export const themes: Theme[] = [
   {
     slug: "real-estate-lux",
     name: "Real Estate Lux",
-    description: "Deep navy on warm oat, generous whitespace, thin uppercase eyebrows. Signature: 1px gold frame around hero imagery + wide-tracked ALL CAPS section labels. Real estate, architecture, interiors, hospitality.",
+    description:
+      "Deep navy on warm oat, generous whitespace, thin uppercase eyebrows. Signature: 1px gold frame around hero imagery + wide-tracked ALL CAPS section labels. Real estate, architecture, interiors, hospitality.",
     fontsHref:
       "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Urbanist:wght@300;400;500;600&display=swap",
     tokens: {
@@ -378,7 +390,8 @@ export const themes: Theme[] = [
   {
     slug: "fitness-energy",
     name: "Fitness Energy",
-    description: "Jet black with electric lime, condensed uppercase display. Signature: diagonal lime slash on hero + heavy italic caps eyebrows. Gyms, athletic brands, coaching, esports.",
+    description:
+      "Jet black with electric lime, condensed uppercase display. Signature: diagonal lime slash on hero + heavy italic caps eyebrows. Gyms, athletic brands, coaching, esports.",
     fontsHref:
       "https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:ital,wght@0,500;0,700;1,700&family=Barlow:wght@400;500;700&display=swap",
     tokens: {
@@ -404,7 +417,8 @@ export const themes: Theme[] = [
   {
     slug: "agency-swiss",
     name: "Agency Swiss",
-    description: "Pure Swiss grid: white, black, oversized numerals, lowercase labels. Signature: 12-col baseline hairlines + big numeric section markers (01 / 02). Design studios, agencies, portfolios.",
+    description:
+      "Pure Swiss grid: white, black, oversized numerals, lowercase labels. Signature: 12-col baseline hairlines + big numeric section markers (01 / 02). Design studios, agencies, portfolios.",
     fontsHref:
       "https://fonts.googleapis.com/css2?family=Neue+Haas+Grotesk+Text+Pro&family=Inter:wght@300;400;500;700&family=Fraunces:opsz,wght@9..144,400;9..144,600&display=swap",
     tokens: {
@@ -430,7 +444,8 @@ export const themes: Theme[] = [
   {
     slug: "fashion-runway",
     name: "Fashion Runway",
-    description: "Stark white with oversized display serif and wide tracking. Signature: massive thin-weight display headings + tiny wide-tracked labels. Fashion, beauty, editorial e-commerce.",
+    description:
+      "Stark white with oversized display serif and wide tracking. Signature: massive thin-weight display headings + tiny wide-tracked labels. Fashion, beauty, editorial e-commerce.",
     fontsHref:
       "https://fonts.googleapis.com/css2?family=Cormorant:wght@300;400&family=Jost:wght@300;400;500&display=swap",
     tokens: {
@@ -456,7 +471,8 @@ export const themes: Theme[] = [
   {
     slug: "legal-heritage",
     name: "Legal Heritage",
-    description: "Deep burgundy on parchment, transitional serif, formal spacing. Signature: monogram-style ornamental divider + gold underline on numbered section headings. Law firms, wealth management, universities.",
+    description:
+      "Deep burgundy on parchment, transitional serif, formal spacing. Signature: monogram-style ornamental divider + gold underline on numbered section headings. Law firms, wealth management, universities.",
     fontsHref:
       "https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=Source+Sans+3:wght@400;600&display=swap",
     tokens: {

@@ -26,8 +26,7 @@ export const BLOCK_VARIANTS = {
 } as const;
 
 export type BlockWithVariants = keyof typeof BLOCK_VARIANTS;
-export type VariantFor<K extends BlockWithVariants> =
-  (typeof BLOCK_VARIANTS)[K][number];
+export type VariantFor<K extends BlockWithVariants> = (typeof BLOCK_VARIANTS)[K][number];
 
 export type LayoutFamily = {
   slug: LayoutFamilySlug;
@@ -82,9 +81,7 @@ export const layoutFamilies: LayoutFamily[] = [
 
 export const DEFAULT_LAYOUT_FAMILY: LayoutFamilySlug = "momentum";
 
-export function getLayoutFamily(
-  slug: string | undefined,
-): LayoutFamily {
+export function getLayoutFamily(slug: string | undefined): LayoutFamily {
   return (
     layoutFamilies.find((f) => f.slug === slug) ??
     layoutFamilies.find((f) => f.slug === DEFAULT_LAYOUT_FAMILY)!

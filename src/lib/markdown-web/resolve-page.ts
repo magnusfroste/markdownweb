@@ -31,11 +31,7 @@ export function resolvePage(
   }
   return {
     page,
-    blocks: [
-      ...(doc.sharedBefore ?? []),
-      ...page.blocks,
-      ...(doc.sharedAfter ?? []),
-    ],
+    blocks: [...(doc.sharedBefore ?? []), ...page.blocks, ...(doc.sharedAfter ?? [])],
     notFound: false,
   };
 }

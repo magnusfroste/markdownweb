@@ -7,7 +7,7 @@ description: "Every block type with live examples. Write your site in markdown w
 - Home → /
 - Docs → /docs
 - Editor → /edit
-- GitHub → https://github.com/lovable-dev/markdownweb
+- GitHub → https://github.com/magnusfroste/markdownweb
 ::
 
 ::hero{eyebrow="Docs · v0.1"}
@@ -71,20 +71,20 @@ description: "Every block type with live examples. Write your site in markdown w
   period: mo
   features: 1 site | Subdomain | Community
   cta: Start
-  ctaHref: https://github.com/lovable-dev/markdownweb
+  ctaHref: https://github.com/magnusfroste/markdownweb
 - name: Pro
   price: $19
   period: mo
   featured: "true"
   features: Everything in Free | Custom domain | AI edit
   cta: Try free
-  ctaHref: https://github.com/lovable-dev/markdownweb
+  ctaHref: https://github.com/magnusfroste/markdownweb
 - name: Team
   price: $79
   period: mo
   features: Everything in Pro | Collaboration | SLA
   cta: Contact
-  ctaHref: https://github.com/lovable-dev/markdownweb
+  ctaHref: https://github.com/magnusfroste/markdownweb
 ::
 
 ::quote{author="Donald Knuth" role="Literate Programming"}
@@ -146,7 +146,7 @@ Programs are meant to be read by humans and only incidentally for computers to e
 # Ready to write your site in markdown?
 ## One .md file. No steps. Just push.
 
-[Clone the repo](https://github.com/lovable-dev/markdownweb){.primary} [Back home](/){.ghost}
+[Clone the repo](https://github.com/magnusfroste/markdownweb){.primary} [Back home](/){.ghost}
 ::
 
 ::footer

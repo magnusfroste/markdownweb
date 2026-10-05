@@ -80,7 +80,10 @@ function metaToAttrs(meta: Partial<PageMeta>): Record<string, string | number | 
  * Return blocks in multi-page shape, wrapping any pre-::page content in a
  * home ::page if none exist. Never persists.
  */
-function ensureMultiPage(markdown: string): { blocks: Block[]; frontmatter: Record<string, unknown> } {
+function ensureMultiPage(markdown: string): {
+  blocks: Block[];
+  frontmatter: Record<string, unknown>;
+} {
   const doc = parseMarkdownWeb(markdown);
   const hasPages = doc.blocks.some((b) => b.kind === "directive" && b.name === "page");
   if (hasPages) return { blocks: doc.blocks, frontmatter: doc.frontmatter };
@@ -119,7 +122,12 @@ function ensureMultiPage(markdown: string): { blocks: Block[]; frontmatter: Reco
   };
 }
 
-function persist(site: Site, blocks: Block[], frontmatter: Record<string, unknown>, reason: string) {
+function persist(
+  site: Site,
+  blocks: Block[],
+  frontmatter: Record<string, unknown>,
+  reason: string,
+) {
   const md = serializeDoc(frontmatter, blocks);
   return updateSite(site.id, { markdown: md }, reason);
 }
@@ -170,7 +178,10 @@ export function searchPages(
     const idx = hay.indexOf(q);
     if (idx === -1) continue;
     const start = Math.max(0, idx - 40);
-    const snippet = hay.slice(start, idx + q.length + 80).replace(/\s+/g, " ").trim();
+    const snippet = hay
+      .slice(start, idx + q.length + 80)
+      .replace(/\s+/g, " ")
+      .trim();
     results.push({ ...meta, snippet });
   }
   return results;
@@ -189,7 +200,10 @@ export function addPage(
   const target = normalizePath(meta.slug);
   if (
     blocks.some(
-      (b) => b.kind === "directive" && b.name === "page" && normalizePath((b as DirectiveBlock).attrs.slug) === target,
+      (b) =>
+        b.kind === "directive" &&
+        b.name === "page" &&
+        normalizePath((b as DirectiveBlock).attrs.slug) === target,
     )
   ) {
     throw new Error(`Page with slug "${target}" already exists`);
@@ -210,7 +224,10 @@ export function addPage(
 function findPageIdx(blocks: Block[], slug: string): number {
   const target = normalizePath(slug);
   return blocks.findIndex(
-    (b) => b.kind === "directive" && b.name === "page" && normalizePath((b as DirectiveBlock).attrs.slug) === target,
+    (b) =>
+      b.kind === "directive" &&
+      b.name === "page" &&
+      normalizePath((b as DirectiveBlock).attrs.slug) === target,
   );
 }
 
@@ -266,11 +283,7 @@ export function setPageMeta(
   return readPageMeta(block);
 }
 
-export function setPageBody(
-  siteIdOrSlug: string,
-  slug: string,
-  markdown: string,
-): PageMeta | null {
+export function setPageBody(siteIdOrSlug: string, slug: string, markdown: string): PageMeta | null {
   const site = getSite(siteIdOrSlug);
   if (!site) return null;
   const { blocks, frontmatter } = ensureMultiPage(site.markdown);

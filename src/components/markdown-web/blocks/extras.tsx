@@ -15,8 +15,12 @@ export function StatsBlock({ block }: { block: DirectiveBlock }) {
         >
           {items.map((it, i) => (
             <div key={i} className="border-brutal bg-secondary p-6">
-              <div className="text-5xl md:text-6xl font-display text-primary leading-none mb-2">{it.value}</div>
-              <div className="font-mono text-xs uppercase tracking-widest">{it.label ?? it.title}</div>
+              <div className="text-5xl md:text-6xl font-display text-primary leading-none mb-2">
+                {it.value}
+              </div>
+              <div className="font-mono text-xs uppercase tracking-widest">
+                {it.label ?? it.title}
+              </div>
             </div>
           ))}
         </div>
@@ -80,14 +84,23 @@ export function TestimonialsBlock({ block }: { block: DirectiveBlock }) {
                 <figcaption className="flex items-center gap-3 pt-4 border-t-4 border-foreground">
                   <div className="w-12 h-12 border-brutal bg-primary text-primary-foreground flex items-center justify-center overflow-hidden shrink-0">
                     {avatar ? (
-                      <img src={String(avatar)} alt={author} className="w-full h-full object-cover" loading="lazy" />
+                      <img
+                        src={String(avatar)}
+                        alt={author}
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                      />
                     ) : (
                       <span className="font-display text-lg">{initials || "?"}</span>
                     )}
                   </div>
                   <div className="font-mono text-xs uppercase tracking-widest leading-tight">
                     <div>{author}</div>
-                    {it.role && <div className="text-muted-foreground normal-case tracking-normal font-sans text-xs mt-0.5">{String(it.role)}</div>}
+                    {it.role && (
+                      <div className="text-muted-foreground normal-case tracking-normal font-sans text-xs mt-0.5">
+                        {String(it.role)}
+                      </div>
+                    )}
                   </div>
                 </figcaption>
               </figure>
@@ -111,7 +124,9 @@ export function FaqBlock({ block }: { block: DirectiveBlock }) {
             <details key={i} className="border-brutal bg-background group">
               <summary className="cursor-pointer p-4 font-display text-lg flex items-center justify-between list-none">
                 <span>{it.q ?? it.question ?? it.title}</span>
-                <span className="text-2xl font-mono group-open:rotate-45 transition-transform">+</span>
+                <span className="text-2xl font-mono group-open:rotate-45 transition-transform">
+                  +
+                </span>
               </summary>
               <div
                 className="px-4 pb-4 text-muted-foreground"
@@ -141,9 +156,15 @@ export function GalleryBlock({ block }: { block: DirectiveBlock }) {
             <figure key={i} className="border-brutal bg-secondary overflow-hidden">
               <div className="aspect-square bg-muted flex items-center justify-center">
                 {it.src ? (
-                  <img src={String(it.src)} alt={String(it.alt ?? "")} className="w-full h-full object-cover" />
+                  <img
+                    src={String(it.src)}
+                    alt={String(it.alt ?? "")}
+                    className="w-full h-full object-cover"
+                  />
                 ) : (
-                  <span className="font-mono text-xs uppercase text-muted-foreground">{it.alt ?? "image"}</span>
+                  <span className="font-mono text-xs uppercase text-muted-foreground">
+                    {it.alt ?? "image"}
+                  </span>
                 )}
               </div>
               {it.caption && (
@@ -316,7 +337,9 @@ export function DividerBlock({ block }: { block: DirectiveBlock }) {
       <div className="mx-auto max-w-6xl px-6 py-6 flex items-center gap-4">
         <div className="flex-1 h-1 bg-foreground" />
         {label && (
-          <span className="font-mono text-xs uppercase tracking-widest text-muted-foreground">{label}</span>
+          <span className="font-mono text-xs uppercase tracking-widest text-muted-foreground">
+            {label}
+          </span>
         )}
         <div className="flex-1 h-1 bg-foreground" />
       </div>
@@ -354,7 +377,18 @@ export function NewsletterBlock({ block }: { block: DirectiveBlock }) {
             action={action}
             method={isMailto ? undefined : "post"}
             className="relative flex flex-col sm:flex-row gap-2 max-w-md mx-auto"
-            {...(isMailto ? { onSubmit: (e: React.FormEvent<HTMLFormElement>) => { e.preventDefault(); const el = (e.currentTarget.elements.namedItem("email") as HTMLInputElement | null); if (el?.value) window.location.href = `mailto:?subject=Subscribe&body=${encodeURIComponent(el.value)}`; } } : {})}
+            {...(isMailto
+              ? {
+                  onSubmit: (e: React.FormEvent<HTMLFormElement>) => {
+                    e.preventDefault();
+                    const el = e.currentTarget.elements.namedItem(
+                      "email",
+                    ) as HTMLInputElement | null;
+                    if (el?.value)
+                      window.location.href = `mailto:?subject=Subscribe&body=${encodeURIComponent(el.value)}`;
+                  },
+                }
+              : {})}
           >
             <input
               type="email"
@@ -389,23 +423,30 @@ export function CompareBlock({ block }: { block: DirectiveBlock }) {
     .split("\n")
     .map((l) => l.trim())
     .filter((l) => l.startsWith("-"))
-    .map((l) => l.replace(/^-\s*/, "").split("|").map((c) => c.trim()));
+    .map((l) =>
+      l
+        .replace(/^-\s*/, "")
+        .split("|")
+        .map((c) => c.trim()),
+    );
 
   if (rows.length === 0) return null;
   const [header, ...body] = rows;
 
   const cellCls = (colIdx: number) =>
-    colIdx === highlight - 1
-      ? "bg-primary/5 border-x border-primary/20"
-      : "";
+    colIdx === highlight - 1 ? "bg-primary/5 border-x border-primary/20" : "";
 
   return (
     <section className="bg-background py-20">
       <div className="mx-auto max-w-5xl px-6">
         {(title || subtitle) && (
           <div className="text-center mb-10">
-            {title && <h2 className="text-3xl md:text-5xl font-display tracking-tight mb-3">{title}</h2>}
-            {subtitle && <p className="text-muted-foreground text-lg max-w-2xl mx-auto">{subtitle}</p>}
+            {title && (
+              <h2 className="text-3xl md:text-5xl font-display tracking-tight mb-3">{title}</h2>
+            )}
+            {subtitle && (
+              <p className="text-muted-foreground text-lg max-w-2xl mx-auto">{subtitle}</p>
+            )}
           </div>
         )}
         <div className="overflow-x-auto rounded-2xl border border-foreground/10">
@@ -426,7 +467,12 @@ export function CompareBlock({ block }: { block: DirectiveBlock }) {
                 <tr key={ri} className="border-t border-foreground/10">
                   {row.map((cell, ci) => {
                     const isBool = cell === "✓" || cell === "✗" || cell === "—";
-                    const toneCls = cell === "✓" ? "text-primary font-bold" : cell === "✗" ? "text-muted-foreground/50" : "";
+                    const toneCls =
+                      cell === "✓"
+                        ? "text-primary font-bold"
+                        : cell === "✗"
+                          ? "text-muted-foreground/50"
+                          : "";
                     return (
                       <td
                         key={ci}
@@ -503,9 +549,7 @@ export function VideoBlock({ block }: { block: DirectiveBlock }) {
             />
           )}
         </div>
-        {title && (
-          <div className="text-center text-sm text-muted-foreground mt-4">{title}</div>
-        )}
+        {title && <div className="text-center text-sm text-muted-foreground mt-4">{title}</div>}
       </div>
     </section>
   );
@@ -540,11 +584,11 @@ export function CodeBlock({ block }: { block: DirectiveBlock }) {
                 <span className="w-2.5 h-2.5 rounded-full bg-[#ffbd2e]" />
                 <span className="w-2.5 h-2.5 rounded-full bg-[#27c93f]" />
               </div>
-              {title && (
-                <span className="font-mono text-xs text-white/70 truncate">{title}</span>
-              )}
+              {title && <span className="font-mono text-xs text-white/70 truncate">{title}</span>}
               {lang && !title && (
-                <span className="font-mono text-xs text-white/50 uppercase tracking-wider">{lang}</span>
+                <span className="font-mono text-xs text-white/50 uppercase tracking-wider">
+                  {lang}
+                </span>
               )}
             </div>
             <button

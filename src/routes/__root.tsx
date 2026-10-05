@@ -70,12 +70,10 @@ export const Route = createRootRoute({
           "@type": "WebSite",
           name: "MarkdownWeb",
           url: "https://mdsites.lovable.app",
-          description:
-            "MarkdownWeb turns a single .md file into a themed, SEO-ready website.",
+          description: "MarkdownWeb turns a single .md file into a themed, SEO-ready website.",
           potentialAction: {
             "@type": "SearchAction",
-            target:
-              "https://mdsites.lovable.app/docs?q={search_term_string}",
+            target: "https://mdsites.lovable.app/docs?q={search_term_string}",
             "query-input": "required name=search_term_string",
           },
         }),

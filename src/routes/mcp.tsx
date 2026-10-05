@@ -35,9 +35,7 @@ const getMcpStatus = createServerFn({ method: "GET" }).handler(async () => {
 });
 
 const mintKey = createServerFn({ method: "POST" })
-  .inputValidator(
-    (data: { adminKey: string; label: string; siteScopes: string[] }) => data,
-  )
+  .inputValidator((data: { adminKey: string; label: string; siteScopes: string[] }) => data)
   .handler(async ({ data }) => {
     const expected = process.env.MCP_ADMIN_KEY;
     if (!expected) throw new Error("Server missing MCP_ADMIN_KEY");
@@ -76,12 +74,22 @@ export const Route = createFileRoute("/mcp")({
   head: () => ({
     meta: [
       { title: "MCP dashboard — MarkdownWeb" },
-      { name: "description", content: "Admin view for MCP-managed sites: endpoint, API keys, activity log, and every site AI agents have created." },
+      {
+        name: "description",
+        content:
+          "Admin view for MCP-managed sites: endpoint, API keys, activity log, and every site AI agents have created.",
+      },
       { property: "og:title", content: "MCP dashboard — MarkdownWeb" },
-      { property: "og:description", content: "Admin view for MCP-managed sites, API keys and activity." },
+      {
+        property: "og:description",
+        content: "Admin view for MCP-managed sites, API keys and activity.",
+      },
       { property: "og:url", content: "https://mdsites.lovable.app/mcp" },
       { name: "twitter:title", content: "MCP dashboard — MarkdownWeb" },
-      { name: "twitter:description", content: "Admin view for MCP-managed sites, API keys and activity." },
+      {
+        name: "twitter:description",
+        content: "Admin view for MCP-managed sites, API keys and activity.",
+      },
       { name: "robots", content: "noindex" },
     ],
     links: [{ rel: "canonical", href: "https://mdsites.lovable.app/mcp" }],
@@ -152,9 +160,7 @@ function McpSettingsPage() {
               {status.keyConfigured ? (
                 <span className="font-bold text-green-700">Configured ✓</span>
               ) : (
-                <span className="font-bold text-destructive">
-                  Missing — set MCP_ADMIN_KEY
-                </span>
+                <span className="font-bold text-destructive">Missing — set MCP_ADMIN_KEY</span>
               )}
             </div>
           </div>
@@ -185,8 +191,8 @@ function McpSettingsPage() {
           <h2 className="text-xl font-black uppercase">Design themes ({themes.length})</h2>
           <p className="text-sm text-muted-foreground">
             Curated templates an MCP agent can apply via{" "}
-            <code className="font-mono">set_theme</code>. Per-site brand
-            tweaks via <code className="font-mono">update_theme_tokens</code>.
+            <code className="font-mono">set_theme</code>. Per-site brand tweaks via{" "}
+            <code className="font-mono">update_theme_tokens</code>.
           </p>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {themes.map((t) => (
@@ -202,13 +208,15 @@ function McpSettingsPage() {
                   <code className="text-[10px] opacity-70 font-mono">{t.slug}</code>
                 </div>
                 <div className="flex gap-1">
-                  {[t.tokens.primary, t.tokens.accent, t.tokens.foreground, t.tokens.muted].map((c, i) => (
-                    <span
-                      key={i}
-                      className="w-6 h-6 border"
-                      style={{ background: c, borderColor: t.tokens.border }}
-                    />
-                  ))}
+                  {[t.tokens.primary, t.tokens.accent, t.tokens.foreground, t.tokens.muted].map(
+                    (c, i) => (
+                      <span
+                        key={i}
+                        className="w-6 h-6 border"
+                        style={{ background: c, borderColor: t.tokens.border }}
+                      />
+                    ),
+                  )}
                 </div>
                 <p className="text-xs opacity-80" style={{ fontFamily: t.tokens.fontBody }}>
                   {t.description}
@@ -222,9 +230,8 @@ function McpSettingsPage() {
         <section className="border-4 border-foreground p-6 space-y-4">
           <h2 className="text-xl font-black uppercase">Site templates ({templates.length})</h2>
           <p className="text-sm text-muted-foreground">
-            Pre-built blueprints with <code className="font-mono">{`{{variables}}`}</code>.
-            Agents instantiate via{" "}
-            <code className="font-mono">create_site_from_template</code>.
+            Pre-built blueprints with <code className="font-mono">{`{{variables}}`}</code>. Agents
+            instantiate via <code className="font-mono">create_site_from_template</code>.
           </p>
           <ul className="divide-y-2 divide-foreground">
             {templates.map((t) => (
@@ -331,9 +338,8 @@ function McpSettingsPage() {
           <h2 className="text-xl font-black uppercase">Scoped keys ({status.keys.length})</h2>
           {status.keys.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              No scoped keys yet. Mint one with{" "}
-              <code className="font-mono">create_key</code> (admin-only). The
-              global admin key always works.
+              No scoped keys yet. Mint one with <code className="font-mono">create_key</code>{" "}
+              (admin-only). The global admin key always works.
             </p>
           ) : (
             <ul className="divide-y-2 divide-foreground">
@@ -341,14 +347,11 @@ function McpSettingsPage() {
                 <li key={k.id} className="py-3 flex items-center justify-between gap-3">
                   <div>
                     <div className="font-bold">
-                      {k.label}{" "}
-                      <span className="font-mono text-xs opacity-60">…{k.tail}</span>
+                      {k.label} <span className="font-mono text-xs opacity-60">…{k.tail}</span>
                     </div>
                     <div className="text-xs text-muted-foreground font-mono">
-                      {k.siteScopes.length === 0
-                        ? "all sites"
-                        : `${k.siteScopes.length} site(s)`}{" "}
-                      · {new Date(k.createdAt).toLocaleString()}
+                      {k.siteScopes.length === 0 ? "all sites" : `${k.siteScopes.length} site(s)`} ·{" "}
+                      {new Date(k.createdAt).toLocaleString()}
                       {k.revokedAt && " · revoked"}
                     </div>
                   </div>
@@ -465,17 +468,15 @@ function MintKeySection({ onMinted }: { onMinted: () => void }) {
       <div>
         <h2 className="text-xl font-black uppercase">Mint API key</h2>
         <p className="text-sm text-muted-foreground mt-1">
-          Requires the global <code className="font-mono">MCP_ADMIN_KEY</code>.
-          The token is shown ONCE — copy it now.
+          Requires the global <code className="font-mono">MCP_ADMIN_KEY</code>. The token is shown
+          ONCE — copy it now.
         </p>
       </div>
 
       <form onSubmit={submit} className="space-y-3">
         <div className="grid sm:grid-cols-2 gap-3">
           <label className="block space-y-1">
-            <span className="text-xs uppercase tracking-widest font-bold">
-              Admin key
-            </span>
+            <span className="text-xs uppercase tracking-widest font-bold">Admin key</span>
             <input
               type="password"
               value={adminKey}
@@ -487,9 +488,7 @@ function MintKeySection({ onMinted }: { onMinted: () => void }) {
             />
           </label>
           <label className="block space-y-1">
-            <span className="text-xs uppercase tracking-widest font-bold">
-              Label
-            </span>
+            <span className="text-xs uppercase tracking-widest font-bold">Label</span>
             <input
               type="text"
               value={label}
@@ -520,9 +519,7 @@ function MintKeySection({ onMinted }: { onMinted: () => void }) {
           >
             {loading ? "Minting…" : "Mint key"}
           </button>
-          {error && (
-            <span className="text-destructive font-bold text-sm">{error}</span>
-          )}
+          {error && <span className="text-destructive font-bold text-sm">{error}</span>}
         </div>
       </form>
 

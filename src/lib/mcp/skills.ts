@@ -32,13 +32,7 @@ import {
 } from "./store";
 import { directives, getDirective } from "./directives";
 import { serializeDoc, serializeBlock } from "./serialize";
-import {
-  themes,
-  getTheme,
-  resolveTokens,
-  sanitizeOverrides,
-  OVERRIDABLE_TOKENS,
-} from "./themes";
+import { themes, getTheme, resolveTokens, sanitizeOverrides, OVERRIDABLE_TOKENS } from "./themes";
 import { layoutFamilies, getLayoutFamily } from "./layouts";
 import { templates, getTemplate, renderTemplate } from "./templates";
 import {
@@ -90,7 +84,12 @@ function loadDoc(idOrSlug: string) {
   return { site, parsed };
 }
 
-function persist(siteId: string, frontmatter: Record<string, unknown>, blocks: Block[], reason: string) {
+function persist(
+  siteId: string,
+  frontmatter: Record<string, unknown>,
+  blocks: Block[],
+  reason: string,
+) {
   const md = serializeDoc(frontmatter, blocks);
   return updateSite(siteId, { markdown: md }, reason);
 }
@@ -103,28 +102,50 @@ export const skills: Skill[] = [
       "[onboarding] READ FIRST. Returns a short workflow guide, tool categories, and the recommended call order for building, styling and iterating on a site. No arguments.",
     inputSchema: { type: "object", properties: {} },
     handler: () => ({
-      tagline:
-        "MarkdownWeb MCP — build LLM-friendly websites from a single .md file.",
+      tagline: "MarkdownWeb MCP — build LLM-friendly websites from a single .md file.",
       categories: {
         onboarding: ["get_started"],
         lifecycle: [
-          "create_site", "create_site_from_template", "get_site", "update_site",
-          "list_sites", "duplicate_site", "rename_slug", "set_metadata",
-          "publish_site", "unpublish_site", "delete_site",
+          "create_site",
+          "create_site_from_template",
+          "get_site",
+          "update_site",
+          "list_sites",
+          "duplicate_site",
+          "rename_slug",
+          "set_metadata",
+          "publish_site",
+          "unpublish_site",
+          "delete_site",
         ],
         discovery: [
-          "list_templates", "get_template",
-          "list_themes", "get_theme", "list_layout_families",
-          "list_directives", "get_directive_schema",
+          "list_templates",
+          "get_template",
+          "list_themes",
+          "get_theme",
+          "list_layout_families",
+          "list_directives",
+          "get_directive_schema",
         ],
         design: [
-          "suggest_theme", "set_theme", "get_site_theme", "update_theme_tokens",
-          "reset_theme_tokens", "set_layout_family",
+          "suggest_theme",
+          "set_theme",
+          "get_site_theme",
+          "update_theme_tokens",
+          "reset_theme_tokens",
+          "set_layout_family",
         ],
         blocks: ["list_blocks", "add_block", "update_block", "remove_block", "move_block"],
         pages: [
-          "list_pages", "list_posts", "add_page", "remove_page", "rename_page",
-          "set_page_meta", "set_page_body", "search_pages", "get_feed_url",
+          "list_pages",
+          "list_posts",
+          "add_page",
+          "remove_page",
+          "rename_page",
+          "set_page_meta",
+          "set_page_body",
+          "search_pages",
+          "get_feed_url",
         ],
         validation: ["validate_markdown", "diff_markdown"],
         revisions: ["list_revisions", "restore_revision"],
@@ -137,7 +158,7 @@ export const skills: Skill[] = [
         "2. Create: create_site_from_template (fastest) OR create_site with your own markdown.",
         "3. Style: set_theme + optional update_theme_tokens (brand color, radius, logo). set_layout_family for a different composition.",
         "4. Iterate: list_blocks → add_block / update_block / move_block / remove_block. Prefer block-level edits over update_site (which replaces the whole document).",
-        "5. Blog: add_page{type:\"post\", date, tags, excerpt}. Insert ::post-index directive on a /blog page. Share get_feed_url for RSS.",
+        '5. Blog: add_page{type:"post", date, tags, excerpt}. Insert ::post-index directive on a /blog page. Share get_feed_url for RSS.',
         "6. Ship: publish_site. Preview URL is returned by every mutating call.",
       ],
       conventions: {
@@ -185,13 +206,11 @@ export const skills: Skill[] = [
       const title = asString(args.title, "title");
       const markdown = asString(args.markdown, "markdown");
       const validation = validateMarkdown(markdown);
-      const themeSlug =
-        typeof args.themeSlug === "string" ? args.themeSlug : undefined;
+      const themeSlug = typeof args.themeSlug === "string" ? args.themeSlug : undefined;
       if (themeSlug && !getTheme(themeSlug)) {
         throw new Error(`Unknown theme: ${themeSlug}. Call list_themes.`);
       }
-      const layoutFamily =
-        typeof args.layoutFamily === "string" ? args.layoutFamily : undefined;
+      const layoutFamily = typeof args.layoutFamily === "string" ? args.layoutFamily : undefined;
       const site = createSite({
         title,
         markdown,
@@ -228,7 +247,8 @@ export const skills: Skill[] = [
   },
   {
     name: "update_site",
-    description: "[lifecycle] Update title and/or full markdown. Snapshots a revision. Note: `markdown` REPLACES the whole document — use block-level tools (update_block/add_block) for surgical edits.",
+    description:
+      "[lifecycle] Update title and/or full markdown. Snapshots a revision. Note: `markdown` REPLACES the whole document — use block-level tools (update_block/add_block) for surgical edits.",
     inputSchema: {
       type: "object",
       required: ["idOrSlug"],
@@ -416,7 +436,8 @@ export const skills: Skill[] = [
   },
   {
     name: "get_template",
-    description: "[templates] Return the full template (raw markdown body with `{{variables}}` intact + variable specs).",
+    description:
+      "[templates] Return the full template (raw markdown body with `{{variables}}` intact + variable specs).",
     inputSchema: {
       type: "object",
       required: ["slug"],
@@ -462,9 +483,7 @@ export const skills: Skill[] = [
       const { markdown, missing } = renderTemplate(tpl, values);
 
       const themeSlug =
-        typeof args.themeSlug === "string"
-          ? args.themeSlug
-          : tpl.recommendedThemes[0];
+        typeof args.themeSlug === "string" ? args.themeSlug : tpl.recommendedThemes[0];
       if (themeSlug && !getTheme(themeSlug)) {
         throw new Error(`Unknown theme: ${themeSlug}. Call list_themes.`);
       }
@@ -476,8 +495,7 @@ export const skills: Skill[] = [
         tags: Array.isArray(args.tags) ? asStringArray(args.tags, "tags") : undefined,
         owner: typeof args.owner === "string" ? args.owner : undefined,
         themeSlug,
-        layoutFamily:
-          typeof args.layoutFamily === "string" ? args.layoutFamily : undefined,
+        layoutFamily: typeof args.layoutFamily === "string" ? args.layoutFamily : undefined,
       });
 
       return {
@@ -523,9 +541,7 @@ export const skills: Skill[] = [
     handler: (args, ctx) => {
       const layoutFamily = asString(args.layoutFamily, "layoutFamily");
       if (!layoutFamilies.some((f) => f.slug === layoutFamily)) {
-        throw new Error(
-          `Unknown layoutFamily: ${layoutFamily}. Call list_layout_families.`,
-        );
+        throw new Error(`Unknown layoutFamily: ${layoutFamily}. Call list_layout_families.`);
       }
       // getLayoutFamily call to keep import alive even if validation moves later.
       void getLayoutFamily(layoutFamily);
@@ -551,10 +567,7 @@ export const skills: Skill[] = [
       },
     },
     handler: (args, ctx) => {
-      const site = setSiteTopBar(
-        asString(args.idOrSlug, "idOrSlug"),
-        Boolean(args.showTopBar),
-      );
+      const site = setSiteTopBar(asString(args.idOrSlug, "idOrSlug"), Boolean(args.showTopBar));
       if (!site) throw new Error("Site not found");
       return {
         id: site.id,
@@ -563,8 +576,6 @@ export const skills: Skill[] = [
       };
     },
   },
-
-
 
   // ───────── theming ─────────
   {
@@ -626,22 +637,111 @@ export const skills: Skill[] = [
         templateSlug?: string;
         reason: string;
       }> = [
-        { keys: ["restaurant", "bistro", "cafe", "café", "food", "menu", "chef"], themeSlug: "restaurant-bistro", layoutFamily: "editorial", templateSlug: "restaurant", reason: "Warm burgundy + hand-drawn dividers signal hospitality." },
-        { keys: ["law", "legal", "attorney", "wealth", "advisory", "university", "heritage"], themeSlug: "legal-heritage", layoutFamily: "editorial", reason: "Parchment + transitional serif conveys authority and trust." },
-        { keys: ["real estate", "property", "realty", "lux", "luxury", "villa"], themeSlug: "real-estate-lux", layoutFamily: "editorial", reason: "Gold hairlines on hero imagery for high-ticket listings." },
-        { keys: ["fitness", "gym", "sport", "athlete", "coach", "training"], themeSlug: "fitness-energy", layoutFamily: "brutalist", reason: "Diagonal lime slashes and italic caps for high-energy CTAs." },
-        { keys: ["agency", "studio", "consult", "swiss"], themeSlug: "agency-swiss", layoutFamily: "editorial", templateSlug: "agency", reason: "Numbered sections + oversized headings — classic agency signal." },
-        { keys: ["fashion", "runway", "couture", "boutique", "editorial"], themeSlug: "fashion-runway", layoutFamily: "editorial", reason: "Ultra-thin display type + micro labels feel like a lookbook." },
-        { keys: ["saas", "startup", "app", "tech", "product", "ai"], themeSlug: "startup-bold", layoutFamily: "momentum", templateSlug: "saas-landing", reason: "Bold hero + momentum layout reads as a modern AI startup." },
-        { keys: ["dev", "docs", "documentation", "api", "developer", "open source"], themeSlug: "dev-docs", layoutFamily: "momentum", templateSlug: "docs-home", reason: "Mono accents + calm palette optimized for reading code." },
-        { keys: ["blog", "writer", "journal", "publication", "magazine"], themeSlug: "editorial-serif", layoutFamily: "editorial", templateSlug: "personal-blog", reason: "Serif + editorial rhythm made for long-form reading." },
-        { keys: ["portfolio", "designer", "artist", "photographer"], themeSlug: "creative-playful", layoutFamily: "editorial", templateSlug: "portfolio", reason: "Playful palette + editorial grid to showcase work." },
-        { keys: ["nonprofit", "charity", "ngo", "foundation", "community"], themeSlug: "nature-organic", layoutFamily: "editorial", templateSlug: "nonprofit", reason: "Organic earth tones build warmth and trust." },
-        { keys: ["wellness", "spa", "yoga", "beauty", "clinic", "health"], themeSlug: "wellness-soft", layoutFamily: "editorial", reason: "Soft pastels and generous whitespace feel calming." },
-        { keys: ["luxury", "noir", "premium", "watch", "jewelry"], themeSlug: "luxury-noir", layoutFamily: "editorial", reason: "Deep noir palette signals premium positioning." },
-        { keys: ["corporate", "enterprise", "b2b", "finance", "bank"], themeSlug: "corporate-trust", layoutFamily: "momentum", reason: "Trustworthy blues + clean momentum layout for B2B." },
-        { keys: ["event", "conference", "meetup", "festival"], themeSlug: "brutalist-pop", layoutFamily: "brutalist", templateSlug: "event", reason: "Loud brutalist chrome cuts through event noise." },
-        { keys: ["launch", "product launch", "coming soon", "waitlist"], themeSlug: "startup-bold", layoutFamily: "momentum", templateSlug: "coming-soon", reason: "High-contrast momentum layout to drive signups." },
+        {
+          keys: ["restaurant", "bistro", "cafe", "café", "food", "menu", "chef"],
+          themeSlug: "restaurant-bistro",
+          layoutFamily: "editorial",
+          templateSlug: "restaurant",
+          reason: "Warm burgundy + hand-drawn dividers signal hospitality.",
+        },
+        {
+          keys: ["law", "legal", "attorney", "wealth", "advisory", "university", "heritage"],
+          themeSlug: "legal-heritage",
+          layoutFamily: "editorial",
+          reason: "Parchment + transitional serif conveys authority and trust.",
+        },
+        {
+          keys: ["real estate", "property", "realty", "lux", "luxury", "villa"],
+          themeSlug: "real-estate-lux",
+          layoutFamily: "editorial",
+          reason: "Gold hairlines on hero imagery for high-ticket listings.",
+        },
+        {
+          keys: ["fitness", "gym", "sport", "athlete", "coach", "training"],
+          themeSlug: "fitness-energy",
+          layoutFamily: "brutalist",
+          reason: "Diagonal lime slashes and italic caps for high-energy CTAs.",
+        },
+        {
+          keys: ["agency", "studio", "consult", "swiss"],
+          themeSlug: "agency-swiss",
+          layoutFamily: "editorial",
+          templateSlug: "agency",
+          reason: "Numbered sections + oversized headings — classic agency signal.",
+        },
+        {
+          keys: ["fashion", "runway", "couture", "boutique", "editorial"],
+          themeSlug: "fashion-runway",
+          layoutFamily: "editorial",
+          reason: "Ultra-thin display type + micro labels feel like a lookbook.",
+        },
+        {
+          keys: ["saas", "startup", "app", "tech", "product", "ai"],
+          themeSlug: "startup-bold",
+          layoutFamily: "momentum",
+          templateSlug: "saas-landing",
+          reason: "Bold hero + momentum layout reads as a modern AI startup.",
+        },
+        {
+          keys: ["dev", "docs", "documentation", "api", "developer", "open source"],
+          themeSlug: "dev-docs",
+          layoutFamily: "momentum",
+          templateSlug: "docs-home",
+          reason: "Mono accents + calm palette optimized for reading code.",
+        },
+        {
+          keys: ["blog", "writer", "journal", "publication", "magazine"],
+          themeSlug: "editorial-serif",
+          layoutFamily: "editorial",
+          templateSlug: "personal-blog",
+          reason: "Serif + editorial rhythm made for long-form reading.",
+        },
+        {
+          keys: ["portfolio", "designer", "artist", "photographer"],
+          themeSlug: "creative-playful",
+          layoutFamily: "editorial",
+          templateSlug: "portfolio",
+          reason: "Playful palette + editorial grid to showcase work.",
+        },
+        {
+          keys: ["nonprofit", "charity", "ngo", "foundation", "community"],
+          themeSlug: "nature-organic",
+          layoutFamily: "editorial",
+          templateSlug: "nonprofit",
+          reason: "Organic earth tones build warmth and trust.",
+        },
+        {
+          keys: ["wellness", "spa", "yoga", "beauty", "clinic", "health"],
+          themeSlug: "wellness-soft",
+          layoutFamily: "editorial",
+          reason: "Soft pastels and generous whitespace feel calming.",
+        },
+        {
+          keys: ["luxury", "noir", "premium", "watch", "jewelry"],
+          themeSlug: "luxury-noir",
+          layoutFamily: "editorial",
+          reason: "Deep noir palette signals premium positioning.",
+        },
+        {
+          keys: ["corporate", "enterprise", "b2b", "finance", "bank"],
+          themeSlug: "corporate-trust",
+          layoutFamily: "momentum",
+          reason: "Trustworthy blues + clean momentum layout for B2B.",
+        },
+        {
+          keys: ["event", "conference", "meetup", "festival"],
+          themeSlug: "brutalist-pop",
+          layoutFamily: "brutalist",
+          templateSlug: "event",
+          reason: "Loud brutalist chrome cuts through event noise.",
+        },
+        {
+          keys: ["launch", "product launch", "coming soon", "waitlist"],
+          themeSlug: "startup-bold",
+          layoutFamily: "momentum",
+          templateSlug: "coming-soon",
+          reason: "High-contrast momentum layout to drive signups.",
+        },
       ];
 
       const scored = rules
@@ -652,13 +752,14 @@ export const skills: Skill[] = [
         .filter((x) => x.score > 0)
         .sort((a, b) => b.score - a.score);
 
-      const picks = (scored.length > 0
-        ? scored.slice(0, 3).map((x) => x.r)
-        : [
-            rules.find((r) => r.themeSlug === "startup-bold")!,
-            rules.find((r) => r.themeSlug === "editorial-serif")!,
-            rules.find((r) => r.themeSlug === "modern-tech" as never) ?? rules[0],
-          ]);
+      const picks =
+        scored.length > 0
+          ? scored.slice(0, 3).map((x) => x.r)
+          : [
+              rules.find((r) => r.themeSlug === "startup-bold")!,
+              rules.find((r) => r.themeSlug === "editorial-serif")!,
+              rules.find((r) => r.themeSlug === ("modern-tech" as never)) ?? rules[0],
+            ];
 
       return {
         industry: q,
@@ -703,7 +804,8 @@ export const skills: Skill[] = [
   },
   {
     name: "get_site_theme",
-    description: "[theme] Return the resolved theme tokens (theme defaults merged with overrides) for a site.",
+    description:
+      "[theme] Return the resolved theme tokens (theme defaults merged with overrides) for a site.",
     inputSchema: {
       type: "object",
       required: ["idOrSlug"],
@@ -737,10 +839,7 @@ export const skills: Skill[] = [
     },
     handler: (args, ctx) => {
       const overrides = sanitizeOverrides(args.tokens);
-      const site = updateThemeOverrides(
-        asString(args.idOrSlug, "idOrSlug"),
-        overrides,
-      );
+      const site = updateThemeOverrides(asString(args.idOrSlug, "idOrSlug"), overrides);
       if (!site) throw new Error("Site not found");
       return {
         id: site.id,
@@ -782,7 +881,8 @@ export const skills: Skill[] = [
   },
   {
     name: "get_directive_schema",
-    description: "[blocks:discovery] Return the full schema for one directive (attrs, body format, example).",
+    description:
+      "[blocks:discovery] Return the full schema for one directive (attrs, body format, example).",
     inputSchema: {
       type: "object",
       required: ["name"],
@@ -867,7 +967,8 @@ export const skills: Skill[] = [
   },
   {
     name: "update_block",
-    description: "[blocks] Replace fields on the block at `index`. `index` is 0-based. `attrs` is merged (shallow) into existing attrs; pass empty value to clear.",
+    description:
+      "[blocks] Replace fields on the block at `index`. `index` is 0-based. `attrs` is merged (shallow) into existing attrs; pass empty value to clear.",
     inputSchema: {
       type: "object",
       required: ["idOrSlug", "index"],
@@ -946,7 +1047,8 @@ export const skills: Skill[] = [
   // ───────── validation ─────────
   {
     name: "validate_markdown",
-    description: "[validation] Parse markdown and return diagnostics + block count. No persistence.",
+    description:
+      "[validation] Parse markdown and return diagnostics + block count. No persistence.",
     inputSchema: {
       type: "object",
       required: ["markdown"],
@@ -956,7 +1058,8 @@ export const skills: Skill[] = [
   },
   {
     name: "diff_markdown",
-    description: "[validation] Cheap line diff between two markdown strings — for review before apply.",
+    description:
+      "[validation] Cheap line diff between two markdown strings — for review before apply.",
     inputSchema: {
       type: "object",
       required: ["a", "b"],
@@ -995,7 +1098,8 @@ export const skills: Skill[] = [
   },
   {
     name: "restore_revision",
-    description: "[revisions] Restore a site to a previous revision (snapshots current state first).",
+    description:
+      "[revisions] Restore a site to a previous revision (snapshots current state first).",
     inputSchema: {
       type: "object",
       required: ["idOrSlug", "revisionId"],
@@ -1220,10 +1324,7 @@ export const skills: Skill[] = [
       properties: { idOrSlug: { type: "string" }, slug: { type: "string" } },
     },
     handler: (args) => {
-      const ok = removePage(
-        asString(args.idOrSlug, "idOrSlug"),
-        asString(args.slug, "slug"),
-      );
+      const ok = removePage(asString(args.idOrSlug, "idOrSlug"), asString(args.slug, "slug"));
       if (!ok) throw new Error("Page not found");
       return { ok: true };
     },
@@ -1328,10 +1429,7 @@ export const skills: Skill[] = [
       },
     },
     handler: (args) =>
-      searchPages(
-        asString(args.idOrSlug, "idOrSlug"),
-        asString(args.query, "query"),
-      ),
+      searchPages(asString(args.idOrSlug, "idOrSlug"), asString(args.query, "query")),
   },
   {
     name: "get_feed_url",

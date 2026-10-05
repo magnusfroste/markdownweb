@@ -31,18 +31,14 @@ export const directives: DirectiveSpec[] = [
     name: "nav",
     description: "Sticky top navigation with brand and link items.",
     bodyFormat: "nav-items",
-    attrs: [
-      { name: "brand", type: "string", description: "Brand label shown left." },
-    ],
+    attrs: [{ name: "brand", type: "string", description: "Brand label shown left." }],
     example: `::nav{brand="Acme"}\n- Home → /\n- Docs → /docs\n- GitHub → https://github.com/x/y\n::`,
   },
   {
     name: "hero",
     description: "Large landing hero with optional eyebrow and CTAs.",
     bodyFormat: "list-with-actions",
-    attrs: [
-      { name: "eyebrow", type: "string", description: "Small label above headline." },
-    ],
+    attrs: [{ name: "eyebrow", type: "string", description: "Small label above headline." }],
     example: `::hero{eyebrow="v1.0"}\n# Build sites in markdown\n## A tiny CMS for AI agents.\n[Get started](/start){variant=primary} [Docs](/docs)\n::`,
   },
   {
@@ -101,18 +97,14 @@ export const directives: DirectiveSpec[] = [
     name: "stats",
     description: "Row of large numeric stats.",
     bodyFormat: "list",
-    attrs: [
-      { name: "title", type: "string", description: "Optional section title." },
-    ],
+    attrs: [{ name: "title", type: "string", description: "Optional section title." }],
     example: `::stats\n- **10k+** — Active sites\n- **99.9%** — Uptime\n- **<50ms** — TTFB\n::`,
   },
   {
     name: "logos",
     description: "Strip of partner/customer logos. Each item is a label.",
     bodyFormat: "list",
-    attrs: [
-      { name: "title", type: "string", description: "Strip title." },
-    ],
+    attrs: [{ name: "title", type: "string", description: "Strip title." }],
     example: `::logos{title="Trusted by"}\n- Acme\n- Globex\n- Initech\n::`,
   },
   {
@@ -129,36 +121,28 @@ export const directives: DirectiveSpec[] = [
     name: "faq",
     description: "Frequently asked questions. Each item is Q — A.",
     bodyFormat: "list",
-    attrs: [
-      { name: "title", type: "string", description: "Section title." },
-    ],
+    attrs: [{ name: "title", type: "string", description: "Section title." }],
     example: `::faq{title="FAQ"}\n- **Is there a free tier?** — Yes, forever.\n- **Self-host?** — One docker command.\n::`,
   },
   {
     name: "gallery",
     description: "Image gallery. Items are markdown image links.",
     bodyFormat: "list",
-    attrs: [
-      { name: "columns", type: "number", description: "Items per row." },
-    ],
+    attrs: [{ name: "columns", type: "number", description: "Items per row." }],
     example: `::gallery{columns=3}\n- ![Shot 1](/img/1.png)\n- ![Shot 2](/img/2.png)\n::`,
   },
   {
     name: "timeline",
     description: "Vertical timeline of events.",
     bodyFormat: "list",
-    attrs: [
-      { name: "title", type: "string", description: "Section title." },
-    ],
+    attrs: [{ name: "title", type: "string", description: "Section title." }],
     example: `::timeline{title="Roadmap"}\n- **2024 Q1** — Idea\n- **2024 Q4** — Public beta\n::`,
   },
   {
     name: "steps",
     description: "Numbered steps / how-it-works.",
     bodyFormat: "list",
-    attrs: [
-      { name: "title", type: "string", description: "Section title." },
-    ],
+    attrs: [{ name: "title", type: "string", description: "Section title." }],
     example: `::steps{title="How it works"}\n- **Write** — Author markdown\n- **Push** — Commit\n- **Ship** — Auto-deploys\n::`,
   },
   {
@@ -166,16 +150,13 @@ export const directives: DirectiveSpec[] = [
     description: "Tabbed content. Each item label becomes a tab.",
     bodyFormat: "list",
     attrs: [],
-    example:
-      "::tabs\n- **Node** — `npm i mdweb`\n- **Bun** — `bun add mdweb`\n::",
+    example: "::tabs\n- **Node** — `npm i mdweb`\n- **Bun** — `bun add mdweb`\n::",
   },
   {
     name: "divider",
     description: "Horizontal divider band.",
     bodyFormat: "markdown",
-    attrs: [
-      { name: "label", type: "string", description: "Optional centered label." },
-    ],
+    attrs: [{ name: "label", type: "string", description: "Optional centered label." }],
     example: `::divider{label="More"}\n::`,
   },
   {
@@ -195,28 +176,50 @@ export const directives: DirectiveSpec[] = [
   {
     name: "page",
     description:
-      "Multi-page mode: wrap a route's blocks. The whole site lives in ONE .md file. Each ::page becomes its own URL with its own <head>. Blocks outside any ::page (typically ::nav and ::footer) are shared on every page. Set `type=\"post\"` + `date` to make a page appear in ::post-index and the RSS feed.",
+      'Multi-page mode: wrap a route\'s blocks. The whole site lives in ONE .md file. Each ::page becomes its own URL with its own <head>. Blocks outside any ::page (typically ::nav and ::footer) are shared on every page. Set `type="post"` + `date` to make a page appear in ::post-index and the RSS feed.',
     bodyFormat: "markdown",
     attrs: [
-      { name: "slug", type: "string", required: true, description: 'Route path, e.g. "/" or "/blog/hello".' },
+      {
+        name: "slug",
+        type: "string",
+        required: true,
+        description: 'Route path, e.g. "/" or "/blog/hello".',
+      },
       { name: "title", type: "string", description: "Page-specific <title>." },
       { name: "description", type: "string", description: "Meta description." },
       { name: "image", type: "string", description: "og:image URL for this page." },
-      { name: "type", type: "enum", enum: ["page", "post"], description: "Default `page`. Use `post` to opt into blog listings + RSS." },
-      { name: "date", type: "string", description: "ISO date (YYYY-MM-DD) — required for posts to sort correctly." },
+      {
+        name: "type",
+        type: "enum",
+        enum: ["page", "post"],
+        description: "Default `page`. Use `post` to opt into blog listings + RSS.",
+      },
+      {
+        name: "date",
+        type: "string",
+        description: "ISO date (YYYY-MM-DD) — required for posts to sort correctly.",
+      },
       { name: "author", type: "string", description: "Author name (posts)." },
-      { name: "tags", type: "string", description: "Comma-separated tags, e.g. `tags=\"launch,product\"`." },
-      { name: "excerpt", type: "string", description: "Short summary shown in ::post-index cards and RSS feed." },
+      {
+        name: "tags",
+        type: "string",
+        description: 'Comma-separated tags, e.g. `tags="launch,product"`.',
+      },
+      {
+        name: "excerpt",
+        type: "string",
+        description: "Short summary shown in ::post-index cards and RSS feed.",
+      },
     ],
     example: `::page{slug="/blog/hello" type="post" date="2026-07-23" author="Ada" tags="launch,product" excerpt="First post."}\n# Hello world\nWelcome to the blog.\n::`,
   },
   {
     name: "post-index",
     description:
-      "Auto-generated list of every ::page{type=\"post\"} in the site, newest first. Great for a /blog landing page. Renders as cards with title, date, excerpt and tags.",
+      'Auto-generated list of every ::page{type="post"} in the site, newest first. Great for a /blog landing page. Renders as cards with title, date, excerpt and tags.',
     bodyFormat: "markdown",
     attrs: [
-      { name: "title", type: "string", description: "Section title, e.g. \"Latest posts\"." },
+      { name: "title", type: "string", description: 'Section title, e.g. "Latest posts".' },
       { name: "limit", type: "number", description: "Max posts to show. Default: all." },
       { name: "tag", type: "string", description: "Only include posts that carry this tag." },
     ],
@@ -228,8 +231,17 @@ export const directives: DirectiveSpec[] = [
       "Email capture band. Renders a headline + email input + submit button. Submits to the URL in `action` as a POST form (or mailto: link if omitted). No JS required.",
     bodyFormat: "list-with-actions",
     attrs: [
-      { name: "action", type: "string", description: "Form POST URL, e.g. a Buttondown/ConvertKit endpoint. Falls back to a mailto: link." },
-      { name: "placeholder", type: "string", description: 'Email input placeholder. Default: "you@example.com".' },
+      {
+        name: "action",
+        type: "string",
+        description:
+          "Form POST URL, e.g. a Buttondown/ConvertKit endpoint. Falls back to a mailto: link.",
+      },
+      {
+        name: "placeholder",
+        type: "string",
+        description: 'Email input placeholder. Default: "you@example.com".',
+      },
       { name: "cta", type: "string", description: 'Submit button label. Default: "Subscribe".' },
     ],
     example: `::newsletter{action="https://buttondown.email/api/emails/embed-subscribe/acme" cta="Join list"}\n# Weekly changelog\n## One email, every Friday. No spam.\n::`,
@@ -242,7 +254,11 @@ export const directives: DirectiveSpec[] = [
     attrs: [
       { name: "title", type: "string", description: "Section title." },
       { name: "subtitle", type: "string", description: "Section subtitle." },
-      { name: "highlight", type: "number", description: "1-based column index to visually highlight (e.g. your product's column)." },
+      {
+        name: "highlight",
+        type: "number",
+        description: "1-based column index to visually highlight (e.g. your product's column).",
+      },
     ],
     example: `::compare{title="Why us" highlight=2}\n- Feature | Others | **Us**\n- Markdown-native | ✗ | ✓\n- Agent-editable | ✗ | ✓\n- Setup time | Hours | Minutes\n::`,
   },
@@ -252,10 +268,20 @@ export const directives: DirectiveSpec[] = [
       "Responsive video embed. Supports YouTube, Vimeo, and direct MP4 URLs. Auto-detects provider from the URL.",
     bodyFormat: "markdown",
     attrs: [
-      { name: "src", type: "string", required: true, description: "YouTube/Vimeo URL or direct .mp4 URL." },
+      {
+        name: "src",
+        type: "string",
+        required: true,
+        description: "YouTube/Vimeo URL or direct .mp4 URL.",
+      },
       { name: "title", type: "string", description: "Caption shown under the video." },
       { name: "poster", type: "string", description: "Thumbnail image URL (for MP4 videos)." },
-      { name: "aspect", type: "enum", enum: ["16/9", "4/3", "1/1", "9/16"], description: "Aspect ratio. Default 16/9." },
+      {
+        name: "aspect",
+        type: "enum",
+        enum: ["16/9", "4/3", "1/1", "9/16"],
+        description: "Aspect ratio. Default 16/9.",
+      },
     ],
     example: `::video{src="https://youtu.be/dQw4w9WgXcQ" title="Product tour (2 min)"}\n::`,
   },
@@ -265,8 +291,16 @@ export const directives: DirectiveSpec[] = [
       "Syntax-highlighted code block with copy-to-clipboard button. Body is raw code — do NOT wrap in ``` fences (the whole block IS the fence).",
     bodyFormat: "markdown",
     attrs: [
-      { name: "lang", type: "string", description: 'Language for syntax hint, e.g. "ts", "bash", "json". Default: plain.' },
-      { name: "title", type: "string", description: "Filename or label shown in the header, e.g. \"install.sh\"." },
+      {
+        name: "lang",
+        type: "string",
+        description: 'Language for syntax hint, e.g. "ts", "bash", "json". Default: plain.',
+      },
+      {
+        name: "title",
+        type: "string",
+        description: 'Filename or label shown in the header, e.g. "install.sh".',
+      },
     ],
     example: `::code{lang="bash" title="install.sh"}\nnpm install mdweb\nmdweb dev\n::`,
   },

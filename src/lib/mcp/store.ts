@@ -5,10 +5,7 @@
  */
 
 import { parseMarkdownWeb, type ParseDiagnostic } from "@/lib/markdown-web/parser";
-import {
-  DEFAULT_THEME_SLUG,
-  type ThemeOverrides,
-} from "./themes";
+import { DEFAULT_THEME_SLUG, type ThemeOverrides } from "./themes";
 import { DEFAULT_LAYOUT_FAMILY, getLayoutFamily } from "./layouts";
 
 export type SiteStatus = "draft" | "published";
@@ -100,11 +97,11 @@ async function initPersistence(): Promise<void> {
   try {
     fsModule = await import("fs");
     pathModule = await import("path");
-    
+
     if (!fsModule.existsSync(DATA_DIR)) {
       fsModule.mkdirSync(DATA_DIR, { recursive: true });
     }
-    
+
     loadFromDisk();
   } catch (err) {
     console.error("Failed to init persistence:", err);
@@ -122,25 +119,25 @@ function loadFromDisk(): void {
         sites.set(site.id, site);
       }
     }
-    
+
     if (fsModule.existsSync(REVISIONS_FILE)) {
       const data = JSON.parse(fsModule.readFileSync(REVISIONS_FILE, "utf-8"));
       revisions.clear();
       for (const [key, value] of data) revisions.set(key, value);
     }
-    
+
     if (fsModule.existsSync(ASSETS_FILE)) {
       const data = JSON.parse(fsModule.readFileSync(ASSETS_FILE, "utf-8"));
       assets.clear();
       for (const asset of data) assets.set(asset.id, asset);
     }
-    
+
     if (fsModule.existsSync(KEYS_FILE)) {
       const data = JSON.parse(fsModule.readFileSync(KEYS_FILE, "utf-8"));
       keys.clear();
       for (const key of data) keys.set(key.id, key);
     }
-    
+
     if (fsModule.existsSync(ACTIVITY_FILE)) {
       const data = JSON.parse(fsModule.readFileSync(ACTIVITY_FILE, "utf-8"));
       activity.length = 0;
@@ -163,7 +160,10 @@ function saveSites(): void {
 function saveRevisions(): void {
   if (!fsModule) return;
   try {
-    fsModule.writeFileSync(REVISIONS_FILE, JSON.stringify(Array.from(revisions.entries()), null, 2));
+    fsModule.writeFileSync(
+      REVISIONS_FILE,
+      JSON.stringify(Array.from(revisions.entries()), null, 2),
+    );
   } catch (err) {
     console.error("Failed to save revisions:", err);
   }
@@ -222,9 +222,7 @@ export function listSites(opts?: {
   limit?: number;
   offset?: number;
 }): { items: Site[]; total: number } {
-  let items = Array.from(sites.values()).sort((a, b) =>
-    b.updatedAt.localeCompare(a.updatedAt),
-  );
+  let items = Array.from(sites.values()).sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
   if (opts?.search) {
     const q = opts.search.toLowerCase();
     items = items.filter(
@@ -385,10 +383,7 @@ export function deleteSite(idOrSlug: string): boolean {
   return true;
 }
 
-export function duplicateSite(
-  idOrSlug: string,
-  newTitle?: string,
-): Site | undefined {
+export function duplicateSite(idOrSlug: string, newTitle?: string): Site | undefined {
   const src = getSite(idOrSlug);
   if (!src) return undefined;
   const dup = createSite({
@@ -434,10 +429,7 @@ export function listRevisions(idOrSlug: string): Revision[] {
   return revisions.get(site.id) ?? [];
 }
 
-export function restoreRevision(
-  idOrSlug: string,
-  revisionId: string,
-): Site | undefined {
+export function restoreRevision(idOrSlug: string, revisionId: string): Site | undefined {
   const site = getSite(idOrSlug);
   if (!site) return undefined;
   const rev = (revisions.get(site.id) ?? []).find((r) => r.id === revisionId);
@@ -513,11 +505,7 @@ async function hmacBase64Url(value: string, secret: string): Promise<string> {
     false,
     ["sign"],
   );
-  const signature = await crypto.subtle.sign(
-    "HMAC",
-    key,
-    new TextEncoder().encode(value),
-  );
+  const signature = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(value));
   return base64UrlEncodeBytes(new Uint8Array(signature));
 }
 
@@ -590,9 +578,7 @@ export async function createKey(input: {
     siteScopes: input.siteScopes ?? [],
     createdAt,
   };
-  const payloadPart = base64UrlEncodeBytes(
-    new TextEncoder().encode(JSON.stringify(payload)),
-  );
+  const payloadPart = base64UrlEncodeBytes(new TextEncoder().encode(JSON.stringify(payload)));
   const token = `mwk_${payloadPart}.${await hmacBase64Url(payloadPart, adminKey)}`;
   const hash = await sha256Hex(token);
   const key: ApiKey = {
@@ -609,9 +595,7 @@ export async function createKey(input: {
 }
 
 export function listKeys(): ApiKey[] {
-  return Array.from(keys.values()).sort((a, b) =>
-    b.createdAt.localeCompare(a.createdAt),
-  );
+  return Array.from(keys.values()).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 }
 
 export function revokeKey(keyId: string): boolean {

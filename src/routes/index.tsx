@@ -70,10 +70,7 @@ function Index() {
           <div className="mx-auto max-w-6xl px-6 py-2 flex items-center justify-between font-mono text-xs uppercase tracking-widest">
             <div className="flex items-center gap-2">
               <span className="inline-block w-2 h-2 bg-primary" />
-              source:{" "}
-              <span className="text-secondary">
-                {isFromMcp ? "mcp:home" : "demo.md"}
-              </span>
+              source: <span className="text-secondary">{isFromMcp ? "mcp:home" : "demo.md"}</span>
             </div>
             <button
               onClick={() => setShowSource((s) => !s)}
@@ -94,9 +91,7 @@ function Index() {
                   ? "live from mcp store — edits are local only"
                   : "edit the markdown — page rebuilds live"}
               </span>
-              <span className="text-muted-foreground">
-                {currentSource.length} chars
-              </span>
+              <span className="text-muted-foreground">{currentSource.length} chars</span>
             </div>
             <textarea
               value={currentSource}

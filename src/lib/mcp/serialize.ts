@@ -28,10 +28,7 @@ export function serializeBlock(block: Block): string {
   return body.length > 0 ? `${head}\n${body}\n::` : `${head}\n::`;
 }
 
-export function serializeDoc(
-  frontmatter: Record<string, unknown>,
-  blocks: Block[],
-): string {
+export function serializeDoc(frontmatter: Record<string, unknown>, blocks: Block[]): string {
   const parts: string[] = [];
   if (Object.keys(frontmatter).length > 0) {
     const fm = Object.entries(frontmatter)

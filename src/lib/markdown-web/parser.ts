@@ -28,7 +28,7 @@ function extractFrontmatter(source: string): {
 
   // Lines: opening "---" + frontmatter lines + closing "---" + optional newline
   const fmLineCount = match[1].split("\n").length;
-  const bodyStartLine = 1 /* opening --- */ + fmLineCount + 1 /* closing --- */;
+  const bodyStartLine = 1 /* opening --- */ + fmLineCount + 1; /* closing --- */
 
   let data: Record<string, unknown> = {};
   try {
@@ -185,11 +185,7 @@ function normalizeSlug(raw: unknown): string {
  * `lineOffset` is the 1-indexed line of `body` inside the *original* source,
  * so block-level diagnostics point at the right line in the editor.
  */
-function splitBlocks(
-  body: string,
-  lineOffset: number,
-  diagnostics: ParseDiagnostic[],
-): Block[] {
+function splitBlocks(body: string, lineOffset: number, diagnostics: ParseDiagnostic[]): Block[] {
   const lines = body.split("\n");
   const blocks: Block[] = [];
   let buf: string[] = [];
@@ -253,7 +249,7 @@ function splitBlocks(
           severity: "error",
           message: `Malformed directive opener: \`${line.trim()}\``,
           line: sourceLine,
-          hint: "Expected `::name` or `::name{key=\"value\"}` on its own line.",
+          hint: 'Expected `::name` or `::name{key="value"}` on its own line.',
         });
         if (buf.length === 0) bufStart = i;
         buf.push(line);
@@ -377,9 +373,9 @@ export function parseMarkdownWeb(source: string): ParsedDoc {
   if (!pages.some((p) => p.slug === "/")) {
     diagnostics.push({
       severity: "warning",
-      message: "No page with `slug=\"/\"` — the home route will 404.",
+      message: 'No page with `slug="/"` — the home route will 404.',
       line: 1,
-      hint: "Add `::page{slug=\"/\" title=\"Home\"}` for the home page.",
+      hint: 'Add `::page{slug="/" title="Home"}` for the home page.',
     });
   }
 
