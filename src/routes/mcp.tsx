@@ -24,15 +24,31 @@ import {
   type ApiKey,
 } from "@/lib/mcp/store";
 
+// Public part of the page: only whether an admin key is configured.
 const getMcpStatus = createServerFn({ method: "GET" }).handler(async () => {
-  const { items } = listSites({ limit: 200 });
   return {
     keyConfigured: Boolean(process.env.MCP_ADMIN_KEY),
-    activity: listActivity(50),
-    sites: items,
-    keys: listKeys(),
+    activity: [] as ActivityEntry[],
+    sites: [] as Site[],
+    keys: [] as ApiKey[],
   };
 });
+
+// Sites (incl. drafts), activity and API keys require the admin key.
+const getMcpAdminStatus = createServerFn({ method: "POST" })
+  .inputValidator((data: { adminKey: string }) => data)
+  .handler(async ({ data }) => {
+    const expected = process.env.MCP_ADMIN_KEY;
+    if (!expected) throw new Error("Server missing MCP_ADMIN_KEY");
+    if (!data.adminKey || data.adminKey !== expected) throw new Error("Invalid admin key");
+    const { items } = listSites({ limit: 200 });
+    return {
+      keyConfigured: true,
+      activity: listActivity(50),
+      sites: items,
+      keys: listKeys(),
+    };
+  });
 
 const mintKey = createServerFn({ method: "POST" })
   .inputValidator((data: { adminKey: string; label: string; siteScopes: string[] }) => data)
@@ -108,9 +124,25 @@ function McpSettingsPage() {
     setEndpoint(`${window.location.origin}/api/mcp`);
   }, []);
 
-  async function refresh() {
-    const next = await getMcpStatus();
+  const [adminKey, setAdminKey] = useState("");
+  const [unlocked, setUnlocked] = useState(false);
+  const [unlockError, setUnlockError] = useState<string | null>(null);
+
+  async function refresh(key = adminKey) {
+    if (!key) return;
+    const next = await getMcpAdminStatus({ data: { adminKey: key } });
     setStatus(next);
+    setUnlocked(true);
+  }
+
+  async function unlock(e: FormEvent) {
+    e.preventDefault();
+    setUnlockError(null);
+    try {
+      await refresh(adminKey);
+    } catch (err) {
+      setUnlockError(err instanceof Error ? err.message : "Could not unlock");
+    }
   }
 
   async function copy(value: string) {
@@ -264,13 +296,40 @@ function McpSettingsPage() {
           </ul>
         </section>
 
+        {/* Admin unlock: sites, keys and activity are only loaded with the admin key */}
+        {!unlocked && (
+          <section className="border-4 border-foreground p-6 space-y-4">
+            <h2 className="text-xl font-black uppercase">Admin</h2>
+            <p className="text-sm opacity-80">
+              Enter the admin key to view sites, API keys and the activity log.
+            </p>
+            <form onSubmit={unlock} className="flex flex-col sm:flex-row gap-3">
+              <input
+                type="password"
+                value={adminKey}
+                onChange={(e) => setAdminKey(e.target.value)}
+                placeholder="MCP_ADMIN_KEY"
+                className="flex-1 border-2 border-foreground bg-background p-3 font-mono text-sm"
+              />
+              <button
+                type="submit"
+                disabled={!adminKey}
+                className="border-2 border-foreground px-4 py-2 font-bold uppercase text-sm hover:bg-foreground hover:text-background transition-colors disabled:opacity-40"
+              >
+                Unlock
+              </button>
+            </form>
+            {unlockError && <p className="text-sm font-bold text-destructive">{unlockError}</p>}
+          </section>
+        )}
+
         {/* Sites */}
         <section className="border-4 border-foreground p-6 space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-black uppercase">Sites ({status.sites.length})</h2>
             <button
               type="button"
-              onClick={refresh}
+              onClick={() => refresh()}
               className="border-2 border-foreground px-3 py-1 text-xs uppercase font-bold hover:bg-foreground hover:text-background transition-colors"
             >
               Refresh
@@ -331,7 +390,7 @@ function McpSettingsPage() {
         </section>
 
         {/* Mint key */}
-        <MintKeySection onMinted={refresh} />
+        <MintKeySection onMinted={() => refresh()} />
 
         {/* API Keys */}
         <section className="border-4 border-foreground p-6 space-y-4">
