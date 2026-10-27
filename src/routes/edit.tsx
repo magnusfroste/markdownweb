@@ -43,23 +43,36 @@ export const Route = createFileRoute("/edit")({
     const homeSite = await fetchHomeSite();
     return { homeSite };
   },
-  head: () => ({
-    meta: [
-      { title: "Editor — MarkdownWeb" },
-      {
-        name: "description",
-        content:
-          "Edit markdown on the left, see your themed site render live on the right. 10 templates × 10 themes, autosaved in your browser.",
-      },
-      { property: "og:title", content: "Editor — MarkdownWeb" },
-      {
-        property: "og:description",
-        content: "Live markdown editor with 10 templates, 10 themes, split preview, autosave.",
-      },
-      { property: "og:url", content: "https://mdsites.lovable.app/edit" },
-    ],
-    links: [{ rel: "canonical", href: "https://mdsites.lovable.app/edit" }],
-  }),
+  head: () => {
+    const ogImage =
+      "https://mdsites.lovable.app/api/og.svg?" +
+      new URLSearchParams({
+        title: "The markdown editor",
+        subtitle: "Type on the left, watch the themed site build on the right. Autosaved in your browser.",
+        badge: "mdsites.lovable.app · editor",
+      }).toString();
+    return {
+      meta: [
+        { title: "Editor — MarkdownWeb" },
+        {
+          name: "description",
+          content:
+            "Edit markdown on the left, see your themed site render live on the right. 10 templates × 10 themes, autosaved in your browser.",
+        },
+        { property: "og:title", content: "Editor — MarkdownWeb" },
+        {
+          property: "og:description",
+          content: "Live markdown editor with 10 templates, 10 themes, split preview, autosave.",
+        },
+        { property: "og:url", content: "https://mdsites.lovable.app/edit" },
+        { property: "og:image", content: ogImage },
+        { property: "og:image:width", content: "1200" },
+        { property: "og:image:height", content: "630" },
+        { name: "twitter:image", content: ogImage },
+      ],
+      links: [{ rel: "canonical", href: "https://mdsites.lovable.app/edit" }],
+    };
+  },
   component: EditorPage,
 });
 

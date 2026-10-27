@@ -25,10 +25,26 @@ const fetchHomeSite = createServerFn({ method: "GET" }).handler(async () => {
 });
 
 export const Route = createFileRoute("/")({
-  head: () => ({
-    meta: [{ property: "og:url", content: "https://mdsites.lovable.app/" }],
-    links: [{ rel: "canonical", href: "https://mdsites.lovable.app/" }],
-  }),
+  head: () => {
+    const ogImage =
+      "https://mdsites.lovable.app/api/og.svg?" +
+      new URLSearchParams({
+        title: "Sites agents write. Sites agents read.",
+        subtitle:
+          "One plain .md file. Hermes, Claude or OpenClaw run the editorial workflow; you tweak a price in five seconds.",
+        badge: "mdsites.lovable.app",
+      }).toString();
+    return {
+      meta: [
+        { property: "og:url", content: "https://mdsites.lovable.app/" },
+        { property: "og:image", content: ogImage },
+        { property: "og:image:width", content: "1200" },
+        { property: "og:image:height", content: "630" },
+        { name: "twitter:image", content: ogImage },
+      ],
+      links: [{ rel: "canonical", href: "https://mdsites.lovable.app/" }],
+    };
+  },
   loader: async () => {
     const homeSite = await fetchHomeSite();
     return { homeSite };
