@@ -94,7 +94,9 @@ export const Route = createFileRoute("/mcp/preview/$slug/$")({
     };
   },
   errorComponent: ({ error }) => (
-    <div className="p-8 text-destructive">Failed to load preview: {error.message}</div>
+    <div className="p-8 text-destructive">
+      Failed to load preview: {error instanceof Error ? error.message : String(error)}
+    </div>
   ),
   component: SubPagePreview,
 });
